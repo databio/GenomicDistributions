@@ -2,8 +2,7 @@
 % Please edit documentation in R/chrom-plots.R
 \name{genomicDistribution}
 \alias{genomicDistribution}
-\title{Returns a data.table showing counts of regions in GR, in the bins
-In other words, where on which chromosomes are the ranges distributed?}
+\title{Calculates the distribution of a query set over the genome}
 \usage{
 genomicDistribution(GR, genome, binCount = 1000, genomeBins = NULL)
 }

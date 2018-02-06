@@ -2,14 +2,7 @@
 % Please edit documentation in R/feature-plots.R
 \name{featureDistribution}
 \alias{featureDistribution}
-\title{Find the distance to the nearest genomic feature
-For a given query set of genomic regions, and a given feature set of regions,
-this function will return the distance for each query region to its closest
-feature. It ignores strand and returns the distance as positive or negative,
-depending on whether the feature is upstream or downstream
-This function is similar to the bioconductor distanceToNearest function, but
-returns negative values for downstream distances instead of absolute values.
-This allows you to assess the relative location.}
+\title{Find the distance to the nearest genomic feature}
 \usage{
 featureDistribution(query, feats)
 }
@@ -19,11 +12,12 @@ featureDistribution(query, feats)
 \item{feats}{A GenomicRanges object with features to test distance to}
 }
 \description{
-Find the distance to the nearest genomic feature
 For a given query set of genomic regions, and a given feature set of regions,
 this function will return the distance for each query region to its closest
 feature. It ignores strand and returns the distance as positive or negative,
 depending on whether the feature is upstream or downstream
+}
+\details{
 This function is similar to the bioconductor distanceToNearest function, but
 returns negative values for downstream distances instead of absolute values.
 This allows you to assess the relative location.

@@ -2,17 +2,14 @@
 % Please edit documentation in R/feature-plots.R
 \name{plotFeatureDist}
 \alias{plotFeatureDist}
-\title{Plots a histogram of distances to genomic features
-Given the results from \code{distanceToNearestSymmetrical}, plots a histogram of
-distances surrounding the features of interest}
+\title{Plots a histogram of distances to genomic features}
 \usage{
 plotFeatureDist(dists, plotTitle = "Distribution relative to features")
 }
 \arguments{
-\item{dists}{Results from \code{distanceToNearestSymmetrical}}
+\item{dists}{Results from \code{featureDistribution}}
 }
 \description{
-Plots a histogram of distances to genomic features
-Given the results from \code{distanceToNearestSymmetrical}, plots a histogram of
+Given the results from \code{featureDistribution}, plots a histogram of
 distances surrounding the features of interest
 }

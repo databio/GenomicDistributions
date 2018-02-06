@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadData.R
 \name{loadBSgenome}
 \alias{loadBSgenome}
-\title{Loads BSgenome objects from ucsc-style character vectors.}
+\title{Loads BSgenome objects from UCSC-style character vectors.}
 \usage{
 loadBSgenome(genomeBuild)
 }

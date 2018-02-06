@@ -2,8 +2,7 @@
 % Please edit documentation in R/chrom-plots.R
 \name{plotGenomicDist}
 \alias{plotGenomicDist}
-\title{Plot distribution over chromosomes
-Plots result from \code{genomicDistribution} calculation}
+\title{Plot distribution over chromosomes}
 \usage{
 plotGenomicDist(GD, binCount = 1000,
   plotTitle = "Distribution over chromosomes")
@@ -15,6 +14,5 @@ plotGenomicDist(GD, binCount = 1000,
 \code{genomicDistribution}}
 }
 \description{
-Plot distribution over chromosomes
 Plots result from \code{genomicDistribution} calculation
 }
