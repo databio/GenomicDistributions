@@ -1,4 +1,6 @@
 # PACKAGE DOCUMENTATION
+#' Produces summaries and plots of features distributed across genomes
+#' 
 #' If you have a set of genomic ranges, the GenomicDistributions R package can
 #' help you with some simple visualizations. Currently, it can produce two kinds
 #' of plots: First, the chromosome distribution plot, which visualizes how your
