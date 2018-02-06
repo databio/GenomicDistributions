@@ -1,0 +1,27 @@
+Package: GenomicDistributions
+Version: 0.01
+Date: 2018-02
+Title: Produces Summaries and Plots of Features Distributed Across Genomes
+Authors@R: c(
+	person(given=c("Nathan", "C."), "Sheffield",
+	email = "nathan@code.databio.org", role=c("aut", "cre")))
+Depends:
+    data.table,
+    BSgenome,
+    ensembldb,
+    ggplot2
+Imports:
+    data.table,
+    GenomicRanges,
+    IRanges,
+    ggplot2
+Suggests:
+    testthat,
+    extrafont,
+    knitr,
+    BiocStyle,
+    rmarkdown
+VignetteBuilder: knitr
+License:
+	MIT
+RoxygenNote: 6.0.1

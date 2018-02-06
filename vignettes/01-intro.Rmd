@@ -1,0 +1,81 @@
+---
+title: "Getting Started with GenomicDistributions"
+author: "Nathan Sheffield"
+date: "`r Sys.Date()`"
+output: 
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{1. Getting Started with GenomicDistributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+# These settings make the vignette prettier
+knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+```
+
+If you have a set of genomic ranges, the GenomicDistributions R package can help you with some simple visualizations. Currently, it can produce two kinds of plots: First, the *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes; and second, the *feature distribution plot*, which visualizes how your regions are distributed relative to a feature of interest, like Transcription Start Sites (TSSs).
+
+## Install
+
+Install `GenomicDistributions` like this:
+
+```{r, eval=FALSE}
+devtools::install_github("databio/GenomicDistributions")
+```
+
+## Initialization
+
+Start by loading up the package and getting your query set of regions as a GenomicRanges object. I've included an example bed file to demonstrate how these plots look. You can load it up like this:
+
+```{r, echo=TRUE, results="hide", message=FALSE, warning=FALSE}
+library("GenomicDistributions")
+queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+query = rtracklayer::import(queryFile)
+```
+
+## Chromosome distribution plots
+
+Chromosome plots help you visualize how your regions are distributed across chromosomes. To produce these, you'll need to install the BSgenome package for the reference assembly for your query regions. I haven't included any of these as formal dependencies, because I don't presume to know which genome you want to query. For example, if you want `hg38`, you'll need to make sure to install `BSgenome.Hsapiens.UCSC.hg38.masked` (like this: `biocLite("BSgenome.Hsapiens.UCSC.hg38.masked")`).
+
+With that, making a plot of the distribution across chromosomes takes just a couple of lines of code:
+
+```{r chromosome-distribution}
+# First, calculate the distribution:
+x = genomicDistribution(query, "hg19")
+
+# Then, plot the result:
+plotGenomicDist(x)
+```
+
+## Feature distribution plots
+
+These plots will show you how your regions are distributed with respect to the nearest feature of interest. To illustrate, we'll use Transcription Start Sites (TSS) as our example feature of interest (but really, you can use any region set).
+
+For TSS plots, we'll first need a gene annotation. You'll need to install the data package with ensembl annotations for the reference assembly of your query features. For hg38, that would be `EnsDb.Hsapiens.v86`. We'll grab the gene annotations from Ensembl and then restrict them to 1 bp, since we're interested in the transcription start site only.
+
+```{r Build TSS features}
+EnsDb = loadEnsDb("hg19")
+featsWide = ensembldb::genes(EnsDb, columns=NULL)
+
+# Now, grab just a single base pair at the TSS
+feats = promoters(featsWide, 1, 1)
+
+# Change from ensembl-style chrom annotation to UCSC_style
+seqlevels(feats) = paste0("chr", seqlevels(feats))
+```
+
+With your features in hand as GenomicRanges object, it's just one line of code to check distances from query to your features, and then a second line of code to plot those distances:
+
+```{r tss-distribution, fig.cap="TSS plot. Distribution of query regions relative to TSSs", fig.small=TRUE}
+# Calculate the distances:
+featureDistance = featureDistribution(query, feats)
+
+# Then plot the result:
+plotFeatureDist(featureDistance)
+```
+
+This plot uses log-scale increasing bins to show how your regions are distributed.
+
