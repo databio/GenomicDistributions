@@ -1,15 +1,15 @@
 
 #' Find the distance to the nearest genomic feature
-
+#' 
 #' For a given query set of genomic regions, and a given feature set of regions,
 #' this function will return the distance for each query region to its closest
 #' feature. It ignores strand and returns the distance as positive or negative,
 #' depending on whether the feature is upstream or downstream
-
-
+#' 
 #' This function is similar to the bioconductor distanceToNearest function, but
 #' returns negative values for downstream distances instead of absolute values.
 #' This allows you to assess the relative location.
+#' 
 #' @param query A GenomicRanges object with query sets
 #' @param feats A GenomicRanges object with features to test distance to
 
@@ -27,11 +27,11 @@ featureDistribution = function(query, feats) {
 }
 
 #' Plots a histogram of distances to genomic features
-
-#' Given the results from \code{distanceToNearestSymmetrical}, plots a histogram of
+#' 
+#' Given the results from \code{featureDistribution}, plots a histogram of
 #' distances surrounding the features of interest
-
-#' @param dists Results from \code{distanceToNearestSymmetrical}
+#' 
+#' @param dists Results from \code{featureDistribution}
 #' @export
 plotFeatureDist = function(dists,
 	plotTitle="Distribution relative to features") {

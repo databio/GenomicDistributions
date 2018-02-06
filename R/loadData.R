@@ -1,5 +1,5 @@
 
-#' Loads BSgenome objects from ucsc-style character vectors.
+#' Loads BSgenome objects from UCSC-style character vectors.
 #'
 #' This function will let you use a simple character vector (e.g. 'hg19') to
 #' load and then return BSgenome objects. This lets you avoid having to use the

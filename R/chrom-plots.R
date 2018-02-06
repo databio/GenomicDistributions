@@ -75,6 +75,8 @@ binBSGenome = function(genome, binCount) {
 }
 
 
+#' Calculates the distribution of a query set over the genome
+#' 
 #' Returns a data.table showing counts of regions in GR, in the bins
 #' In other words, where on which chromosomes are the ranges distributed?
 #' @param genome A character vector that will be used to grab a BSGenome object
@@ -99,6 +101,7 @@ genomicDistribution = function(GR, genome, binCount=1000, genomeBins=NULL) {
 }
 
 #' Plot distribution over chromosomes
+#' 
 #' Plots result from \code{genomicDistribution} calculation
 #' @param GD The output from the genomicDistribution function
 #' @param binCount Number of bins (should match the call to

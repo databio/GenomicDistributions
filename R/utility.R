@@ -65,9 +65,9 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
 }
 
 
-#' Converts a data.table (DT) object to a GenomicRanges (GR) object. Tries to be
-#' intelligent, guessing chr and start, but you have to supply end or other
-#' columns if you want them to be carried into the GR.
+# Converts a data.table (DT) object to a GenomicRanges (GR) object. Tries to be
+# intelligent, guessing chr and start, but you have to supply end or other
+# columns if you want them to be carried into the GR.
 dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA, splitFactor=NA, metaCols=NA) {
 	if(is.na(splitFactor)) {
 		return(dtToGrInternal(DT, chr, start, end, strand, name,metaCols))
@@ -87,7 +87,7 @@ dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA, spli
 
 }
 
-#' Convert a GenomicRanges into a data.table
+# Convert a GenomicRanges into a data.table
 grToDt = function(GR) {
 	DF=as.data.frame(elementMetadata(GR))
 	if( ncol(DF) > 0) {
@@ -99,7 +99,7 @@ grToDt = function(GR) {
 }
 
 
-#Converts a list of data.tables (From BSreadbeds) into GRanges.
+# Converts a list of data.tables (From BSreadbeds) into GRanges.
 BSdtToGRanges = function(dtList) {
 	gList = list()
 	for (i in 1:length(dtList)) {
@@ -113,9 +113,9 @@ BSdtToGRanges = function(dtList) {
 }
 
 
-#' Clear ggplot face label
-#' Usually ggplot2 facets are labeled with boxes surrounding the label. This
-#' function removes the box, so it's a simple label for each facet.
+# Clear ggplot face label
+# Usually ggplot2 facets are labeled with boxes surrounding the label. This
+# function removes the box, so it's a simple label for each facet.
 theme_blank_facet_label = function() {
 	return(theme(
 		panel.grid.major = element_blank(),
@@ -126,21 +126,21 @@ theme_blank_facet_label = function() {
 }
 
 
-#' Creates labels based on a discretization definition.
-
-#' If you are building a histogram of binned values, you want to have labels for
-#' your bins that correspond to the ranges you used to bin. This function takes
-#' the breakpoints that define your bins and produces nice-looking labels for
-#' your histogram plot.
-#' 
-#' \code{labelCuts} will take a cut group, (e.g., a quantile division of 
-#' some signal), and give you clean labels (similar to the cut method).
-#' @param breakPoints The exact values you want as boundaries for your bins
-#' @param digits Number of digits to cut the labels off. 
-#' @param collapse Character to separate the labels
-#' @param infBins use >/< as labels on the edge bins
-#' @examples 
-#' labelCuts(seq(0,100,by=20))
+# Creates labels based on a discretization definition.
+# 
+# If you are building a histogram of binned values, you want to have labels for
+# your bins that correspond to the ranges you used to bin. This function takes
+# the breakpoints that define your bins and produces nice-looking labels for
+# your histogram plot.
+# 
+# \code{labelCuts} will take a cut group, (e.g., a quantile division of 
+# some signal), and give you clean labels (similar to the cut method).
+# @param breakPoints The exact values you want as boundaries for your bins
+# @param digits Number of digits to cut the labels off. 
+# @param collapse Character to separate the labels
+# @param infBins use >/< as labels on the edge bins
+# @examples 
+# labelCuts(seq(0,100,by=20))
 labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
 	labels = 
 	apply(round(cbind( breakPoints[-length(breakPoints)],	
