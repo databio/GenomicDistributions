@@ -38,6 +38,7 @@ featureDistribution = function(query, feats) {
 #' distances surrounding the features of interest
 #' 
 #' @param dists Results from \code{featureDistribution}
+#' @param plotTitle Title for plot.
 #' @export
 plotFeatureDist = function(dists, plotTitle="Distribution relative to features") {
 

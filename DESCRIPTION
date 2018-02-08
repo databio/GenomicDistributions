@@ -17,10 +17,8 @@ Depends:
     ensembldb,
     ggplot2
 Imports:
-    data.table,
     GenomicRanges,
-    IRanges,
-    ggplot2
+    IRanges
 Suggests:
     testthat,
     extrafont,
@@ -28,6 +26,5 @@ Suggests:
     BiocStyle,
     rmarkdown
 VignetteBuilder: knitr
-License:
-	MIT
+License: BSD_2_clause + file LICENSE
 RoxygenNote: 6.0.1
