@@ -7,9 +7,9 @@
 featureDistribution(query, feats)
 }
 \arguments{
-\item{query}{A GenomicRanges object with query sets}
+\item{query}{A GRanges or GRangesList object with query sets}
 
-\item{feats}{A GenomicRanges object with features to test distance to}
+\item{feats}{A GRanges object with features to test distance to}
 }
 \description{
 For a given query set of genomic regions, and a given feature set of regions,

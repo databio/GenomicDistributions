@@ -4,11 +4,13 @@
 \alias{genomicDistribution}
 \title{Calculates the distribution of a query set over the genome}
 \usage{
-genomicDistribution(GR, genome, binCount = 1000, genomeBins = NULL)
+genomicDistribution(query, genome, binCount = 1000, genomeBins = NULL)
 }
 \arguments{
+\item{query}{A GenomicRanges or GenomicRangesList object with query regions}
+
 \item{genome}{A character vector that will be used to grab a BSGenome object
-by binBSGenome}
+by \code{binBSGenome}}
 }
 \description{
 Returns a data.table showing counts of regions in GR, in the bins
