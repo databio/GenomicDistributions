@@ -60,7 +60,8 @@ plotFeatureDist = function(dists, plotTitle="Distribution relative to features")
 		ylab("Number of regions") +
 		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
-		ggtitle(plotTitle)
+		ggtitle(plotTitle) +
+		theme(legend.position="bottom")
 
 	return(g)
 }
