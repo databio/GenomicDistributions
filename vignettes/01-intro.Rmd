@@ -94,6 +94,7 @@ This plot uses log-scale increasing bins to show how your regions are distribute
 
 featureDistance2 = featureDistribution(queryList, feats)
 plotFeatureDist(featureDistance2)
+
 ```
 
 

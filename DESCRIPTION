@@ -12,6 +12,7 @@ Authors@R: c(
 	person(given=c("Nathan", "C."), "Sheffield",
 	email = "nathan@code.databio.org", role=c("aut", "cre")))
 Depends:
+    GenomicRanges,
     data.table,
     BSgenome,
     ensembldb,

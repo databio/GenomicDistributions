@@ -22,13 +22,20 @@ featureDistribution = function(query, feats) {
 	}
 
 	precedeInd = precede(query, feats)
+	preIndNA = is.na(precedeInd)
 	followInd = follow(query, feats)
-	preDist = -distance(query, feats[precedeInd])
-	postDist = distance(query, feats[followInd])
-	postHits = -preDist > postDist
+	folIndNA = is.na(followInd)
+	preDist = rep(NA, length(query))
 
+	preDist[!preIndNA] = -distance(query[!preIndNA], feats[precedeInd[!preIndNA]])
+
+	postDist = rep(NA, length(query))
+	postDist[!folIndNA] = distance(query[!folIndNA], feats[followInd[!folIndNA]])
+
+	postHits = -preDist > postDist
+	postHitsNA = is.na(postHits)
 	dists = preDist
-	dists[postHits] = postDist[postHits]
+	dists[postHits[!postHitsNA]] = postDist[postHits[!postHitsNA]]
 	return(dists)
 }
 
