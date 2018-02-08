@@ -52,7 +52,7 @@ plotFeatureDist = function(dists, plotTitle="Distribution relative to features")
 
 	g = g +
 		geom_bar(stat="identity") + 
-		geom_vline(xintercept = length(divisions)/2, color="darkgreen") +
+		geom_vline(xintercept = (length(unique(df$cuts))+1)/2, color="darkgreen") +
 		theme_classic() + 
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
