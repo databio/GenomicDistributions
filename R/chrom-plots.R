@@ -79,23 +79,42 @@ binBSGenome = function(genome, binCount) {
 #' 
 #' Returns a data.table showing counts of regions in GR, in the bins
 #' In other words, where on which chromosomes are the ranges distributed?
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param genome A character vector that will be used to grab a BSGenome object
-#'     by binBSGenome
+#'     by \code{binBSGenome}
 #' @export
-genomicDistribution = function(GR, genome, binCount=1000, genomeBins=NULL) {
+genomicDistribution = function(query, genome, binCount=1000, genomeBins=NULL) {
+	if (is(query, "GRangesList")) {
+		# Recurse over each GRanges object
+		x = lapply(query, genomicDistribution, genome, binCount, genomeBins)
+
+		# To accomodate multiple regions, we'll need to introduce a new 'name'
+		# column to distinguish them.
+		nameList = names(query)
+		if(is.null(nameList)) {
+			nameList = 1:length(query) # Fallback to sequential numbers
+		}
+
+		# Append names
+		xb = rbindlist(x)
+		xb$name = rep(nameList, sapply(x, nrow))
+
+		return(xb)
+	}
+
 	if (is.null(genomeBins)) {
 		binnedDT = binBSGenome(genome, binCount)
 	}
 
-	sdt = splitDataTable(binnedDT, "id")
-	sdtl = lapply(sdt, dtToGr)
-#	GRangesList(sdtl)
+	sdt = GenomicDistributions:::splitDataTable(binnedDT, "id")
+	sdtl = lapply(sdt, GenomicDistributions:::dtToGr)
 
-	RDT = grToDt(GR)
+	RDT = GenomicDistributions:::grToDt(query)
+	# This jExpression will just count the number of regions.
 	jExpr = ".N"
-	res = BSAggregate(RDT, GRangesList(sdtl), jExpr=jExpr)
+	res = GenomicDistributions:::BSAggregate(RDT, GRangesList(sdtl), jExpr=jExpr)
 
-	# order chromosomes by curent order.
+	# order chromosomes by current order.
 	res[, chr:=factor(chr, levels=unique(res$chr))]
 	return(res)
 }
@@ -107,9 +126,15 @@ genomicDistribution = function(GR, genome, binCount=1000, genomeBins=NULL) {
 #' @param binCount Number of bins (should match the call to
 #'     \code{genomicDistribution}
 #' @export
-plotGenomicDist = function(GD, binCount=1000,
-	plotTitle="Distribution over chromosomes") {
-	g = ggplot(GD, aes(x=withinGroupID, y=N)) + 
+plotGenomicDist = function(GD, binCount=1000, plotTitle="Distribution over chromosomes") {
+	if ("name" %in% names(GD)){
+		# It has multiple regions
+		g = ggplot(GD, aes(x=withinGroupID, y=N, fill=name, color=name))
+	} else {
+		# It's a single region
+		g = ggplot(GD, aes(x=withinGroupID, y=N))
+	}
+	g = g +
 		xlab("Genome") + ylab("Number of regions") +
 		geom_bar(stat="identity") + # Spread out to max width
 		facet_grid(chr ~ .) + # Place chroms one on top of another
@@ -121,7 +146,8 @@ plotGenomicDist = function(GD, binCount=1000,
 		scale_y_discrete(breaks=c(0, max(x$N)), limits=c(max(x$N))) + 
 		scale_x_continuous(breaks=c(0,binCount), labels=c("Start", "End")) +
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
-		ggtitle(plotTitle)
+		ggtitle(plotTitle) +
+		theme(legend.position="bottom")
 	return(g)
 }
 # genomicDistPlot(x)

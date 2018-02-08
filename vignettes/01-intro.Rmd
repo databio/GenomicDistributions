@@ -50,6 +50,17 @@ x = genomicDistribution(query, "hg19")
 plotGenomicDist(x)
 ```
 
+What if we want to do the same thing but on 2 query sets at the same time? No problem:
+
+```{r Chromosome distribution plots with multiple region sets}
+# Let's fudge a second region set by shifting the first one over 
+query2 = shift(query, 1e6)
+queryList = GRangesList(vistaEnhancers=query, shifted=query2)
+x2 = genomicDistribution(queryList, "hg19")
+plotGenomicDist(x2)
+```
+
+
 ## Feature distance distribution plots
 
 *Feature distance distribution plots* will show you how your regions are distributed with respect to the nearest feature of interest. To illustrate, we'll use Transcription Start Sites (TSS) as our example feature of interest (but really, you can use any region set).
@@ -77,5 +88,13 @@ featureDistance = featureDistribution(query, feats)
 plotFeatureDist(featureDistance)
 ```
 
-This plot uses log-scale increasing bins to show how your regions are distributed.
+This plot uses log-scale increasing bins to show how your regions are distributed. Now, let's make a similar plot with multiple region sets input;
+
+```{r TSS plots with multiple region sets}
+
+featureDistance2 = featureDistribution(queryList, feats)
+featureDistance2
+plotFeatureDist(featureDistance2)
+```
+
 
