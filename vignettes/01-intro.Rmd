@@ -88,12 +88,11 @@ featureDistance = featureDistribution(query, feats)
 plotFeatureDist(featureDistance)
 ```
 
-This plot uses log-scale increasing bins to show how your regions are distributed. Now, let's make a similar plot with multiple region sets input;
+This plot uses log-scale increasing bins to show how your regions are distributed. Now, let's make a similar plot with multiple region sets input:
 
 ```{r TSS plots with multiple region sets}
 
 featureDistance2 = featureDistribution(queryList, feats)
-featureDistance2
 plotFeatureDist(featureDistance2)
 ```
 
