@@ -80,7 +80,7 @@ binBSGenome = function(genome, binCount) {
 #' @export
 binChroms = function(binCount, chromSizes) {
 	seqnamesColName="chr"
-	rangeDT = data.table(chr=names(chromSizes), start=1, end=chromSizes, binCountPerChrom)
+	rangeDT = data.table(chr=names(chromSizes), start=1, end=chromSizes)
 	binnedDT = rangeDT[, binRegion(start, end, binCount=binCount, indicator=get(seqnamesColName))]
 	return(binnedDT)
 }
