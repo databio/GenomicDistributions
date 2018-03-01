@@ -1,5 +1,5 @@
 Package: GenomicDistributions
-Version: 0.01
+Version: 0.2
 Date: 2018-02
 Title: Produces Summaries and Plots of Features Distributed Across Genomes
 Description: If you have a set of genomic ranges, this package can help you with
@@ -14,11 +14,11 @@ Authors@R: c(
 Depends:
     GenomicRanges,
     data.table,
-    BSgenome,
     ensembldb,
     ggplot2
 Imports:
     GenomicRanges,
+    rtracklayer,
     IRanges
 Suggests:
     testthat,
@@ -26,6 +26,9 @@ Suggests:
     knitr,
     BiocStyle,
     rmarkdown
+Enhances:
+    BSgenome
+LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
 RoxygenNote: 6.0.1

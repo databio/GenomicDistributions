@@ -4,7 +4,7 @@
 \alias{plotGenomicDist}
 \title{Plot distribution over chromosomes}
 \usage{
-plotGenomicDist(GD, binCount = 1000,
+plotGenomicDist(GD, binCount = 10000,
   plotTitle = "Distribution over chromosomes")
 }
 \arguments{
@@ -12,6 +12,8 @@ plotGenomicDist(GD, binCount = 1000,
 
 \item{binCount}{Number of bins (should match the call to
 \code{genomicDistribution}}
+
+\item{plotTitle}{Title for plot.}
 }
 \description{
 Plots result from \code{genomicDistribution} calculation

@@ -1,5 +1,5 @@
 
-#' Aggregating signals in bins across a set of regions
+#' Divide regions into roughly equal bins
 #'
 #' Given a start coordinate, end coordinate, and number of bins to divide, 
 #' this function will split the regions into that many bins.
@@ -14,9 +14,12 @@
 #' data.table j expression to divide a bunch of regions in the same way.
 #' @param start The starting coordinate
 #' @param end The ending coordinate
-#' @param bins The number of bins to divide this segment
-#' @param idDF An identifier vector to keep with your bins, in case you are
-#'     doing this on a long table with multiple segments concatenated
+#' @param binSize The size of bin to divide the genome into. You must supply
+#'     either binSize (priority) or binCount.
+#' @param binCount The number of bins to divide. If you do not supply binSize,
+#'     you must supply binCount, which will be used to calculate the binSize.
+#' @param indicator A vector with identifiers to keep with your bins, in case
+#'     you are doing this on a long table with multiple segments concatenated
 #'
 #' @return
 #' A data.table, expanded to nrow = number of bins, with these id columns:
@@ -24,33 +27,33 @@
 #' 		binID: repeating ID (this is the value to aggregate across)
 #' 		ubinID: unique bin IDs
 #' @export
-binRegion = function(start, end, bins, idDF=NULL) {
-	#if (!is.null(idDF) & ( ! "data.frame"  %in% class(idDF))) {
-	#	stop("idDF should be a data.frame")
-	#}
-	binSize = (end-start)/(bins)
-	breaks = round(rep(start, each=(bins+1)) + (0:(bins)) * rep(binSize, each=(bins+1)))
+binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
+	if (is.null(binSize) & is.null(binCount)) {
+		stop("You must provide either binSize or binCount")
+	}
 
-	endpoints = (bins+1) * (1:(length(start)))
-	startpoints = 1 + (bins+1)  * (0:(length(start)-1))
-	#TODO: remove this code split
-	if (is.null(idDF)) {
-		dt = data.table(start=breaks[-endpoints], 
-						end=breaks[-startpoints],
-						id=rep((1:length(start)), each=bins),
-						binID= 1:bins,
-						ubinID=1:length(breaks[-startpoints]),
-						key="id")
-	} else {
-		chr = rep(idDF, each=bins)
-		dt = data.table(chr, 
-						start=breaks[-endpoints],
-						end=breaks[-startpoints],
-						id=rep((1:length(start)), each=bins),
-						binID= 1:bins,
-						ubinID=1:length(breaks[-startpoints]),
-						key="id")
+	if (is.null(binSize)) {
+		binSize = round(sum(end-start)/binCount)
+	}
 
+	binCountByChrom = round((end-start)/binSize)
+	binCountByChrom[binCountByChrom==0]=1
+	binSizeByChrom = (end-start)/(binCountByChrom)
+	breaks = round(unlist(sapply(binCountByChrom, function(x) seq(from=0, to=x))) * rep(binSizeByChrom, (binCountByChrom+1)))
+	endpoints = cumsum(binCountByChrom + 1) 
+	startpoints = c(1, endpoints[-length(endpoints)]+1)
+
+
+	dt = data.table(start=breaks[-endpoints]+1, 
+					end=breaks[-startpoints],
+					id=rep((1:length(start)), binCountByChrom),
+					binID=unlist(sapply(binCountByChrom, function(x) seq(from=1, to=x))),
+					ubinID=1:length(breaks[-startpoints]),
+					key="id")
+
+	if (!is.null(indicator)){
+		idCol = rep(indicator, binCountByChrom)
+		dt = data.table(idCol, dt)
 	}
 	return(dt)
 }
@@ -64,11 +67,40 @@ binRegion = function(start, end, bins, idDF=NULL) {
 #' @export
 binBSGenome = function(genome, binCount) {
 	BSG = loadBSgenome(genome)
-	rangeDT = data.table(chr=seqnames(BSG), start=1, end=seqlengths(BSG))
+	chromSizes = seqlengths(BSG)
+	binChroms(binCount, chromSizes)
+}
+
+#' Splits a chromosome into binSize
+
+#' Given a list of chromosomes with corresponding sizes, this script will produce
+#' (roughly) evenly-sized bins across the chromosomes
+#' @param binCount number of bins per chromosome
+#' @param chromSizes a named list of size (length) for each chromosome
+#' @export
+binChroms = function(binCount, chromSizes) {
 	seqnamesColName="chr"
-	binnedDT = rangeDT[, binRegion(start, end, binCount, get(seqnamesColName))]
+	rangeDT = data.table(chr=names(chromSizes), start=1, end=chromSizes, binCountPerChrom)
+	binnedDT = rangeDT[, binRegion(start, end, binCount=binCount, indicator=get(seqnamesColName))]
 	return(binnedDT)
 }
+
+getChromSizes = function(genome) {
+	data("chromSizes", package="GenomicDistributions")
+	if (genome %in% names(chromSizes)) {
+		return(chromSizes[[genome]])
+	} else{
+		return(binBSGenome(genome, binCount))
+	}
+
+}
+
+binGenome = function(genome, binCount) {
+	chromSizes = getChromSizes(genome)
+	return(binChroms(binCount, chromSizes))
+}
+
+
 
 
 #' Calculates the distribution of a query set over the genome
@@ -82,7 +114,7 @@ binBSGenome = function(genome, binCount) {
 #' @param genomeBins You may supply pre-computed genome bins here (output from
 #'     \code{binBSGenome}); if this is left empty, they will be computed
 #' @export
-genomicDistribution = function(query, genome, binCount=1000, genomeBins=NULL) {
+genomicDistribution = function(query, genome, binCount=10000, genomeBins=NULL) {
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
 		x = lapply(query, genomicDistribution, genome, binCount, genomeBins)
@@ -102,7 +134,7 @@ genomicDistribution = function(query, genome, binCount=1000, genomeBins=NULL) {
 	}
 
 	if (is.null(genomeBins)) {
-		binnedDT = binBSGenome(genome, binCount)
+		binnedDT = binGenome(genome, binCount)
 	}
 
 	sdt = GenomicDistributions:::splitDataTable(binnedDT, "id")
@@ -126,7 +158,7 @@ genomicDistribution = function(query, genome, binCount=1000, genomeBins=NULL) {
 #'     \code{genomicDistribution}
 #' @param plotTitle Title for plot.
 #' @export
-plotGenomicDist = function(GD, binCount=1000, plotTitle="Distribution over chromosomes") {
+plotGenomicDist = function(GD, binCount=10000, plotTitle="Distribution over chromosomes") {
 	if ("name" %in% names(GD)){
 		# It has multiple regions
 		g = ggplot(GD, aes(x=withinGroupID, y=N, fill=name, color=name))

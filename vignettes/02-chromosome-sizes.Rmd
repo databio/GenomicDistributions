@@ -1,0 +1,19 @@
+---
+title: "Getting Started with GenomicDistributions"
+author: "Nathan Sheffield"
+date: "`r Sys.Date()`"
+output: 
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{1. Getting Started with GenomicDistributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+# These settings make the vignette prettier
+knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+```
+
+This will help you produce `chromSizes` data (eventually).

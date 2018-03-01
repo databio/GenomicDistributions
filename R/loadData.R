@@ -13,6 +13,9 @@
 # TODO: allow for grabbing either masked or unmasked BSgenome objects
 loadBSgenome = function(genomeBuild) {
 	# Convert the given string into the BSgenome notation
+	if (!requireNamespace("BSgenome", quietly=TRUE)) {
+		message("BSgenome package is not installed.")
+	}
 	databasePkgString = switch (genomeBuild,
 		grch38 = "BSgenome.Hsapiens.UCSC.hg38.masked",
 		hg38 = "BSgenome.Hsapiens.UCSC.hg38.masked",
@@ -59,3 +62,19 @@ loadEnsDb = function(genomeBuild) {
 
 	return(.requireAndReturn(databasePkgString))
 }
+
+
+
+# Generate chromSizes for common genome assemblies
+buildChromSizes = function(genomeList) {
+	chromSizes = list()
+	for (genome in genomeList) {
+		message("Retrieving chromSizes for ", genome)
+		BSG = loadBSgenome(genome)
+		chromSizes[[genome]] = seqlengths(BSG)
+	}
+	return(chromSizes)
+}
+
+#' chromSizes = getChromSizes(list("hg38", "hg19", "mm10", "mm9"))
+#' save(file="chromSizes.Rdata", chromSizes)

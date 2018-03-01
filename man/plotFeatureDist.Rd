@@ -8,6 +8,8 @@ plotFeatureDist(dists, plotTitle = "Distribution relative to features")
 }
 \arguments{
 \item{dists}{Results from \code{featureDistribution}}
+
+\item{plotTitle}{Title for plot.}
 }
 \description{
 Given the results from \code{featureDistribution}, plots a histogram of

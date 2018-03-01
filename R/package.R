@@ -16,7 +16,7 @@
 #' @references \url{http://github.com/nsheff}
 #' @import data.table
 #' @import GenomicRanges
-#' @import BSgenome
 #' @import IRanges
 #' @import ggplot2
+#' @importFrom rtracklayer import
 NULL

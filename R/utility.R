@@ -1,6 +1,6 @@
 
 
-# Checks to make sure to BSgenome object is installed,
+# Checks to make sure a BSgenome object is installed,
 # and if so, returns it.
 .requireAndReturn = function(BSgenomeString) {
 	if (requireNamespace(BSgenomeString))
