@@ -3,6 +3,7 @@
 export(binBSGenome)
 export(binChroms)
 export(binRegion)
+export(featureDistOverGenome)
 export(featureDistribution)
 export(genomicDistribution)
 export(loadBSgenome)

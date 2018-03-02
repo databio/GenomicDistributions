@@ -85,24 +85,6 @@ binChroms = function(binCount, chromSizes) {
 	return(binnedDT)
 }
 
-getChromSizes = function(refAssembly) {
-	# query available datasets
-	ad = data(package="GenomicDistributions")
-	adm = ad$results[,"Item"]
-	chromSizesGenomeVar = paste0("chromSizes_", refAssembly)
-	if (chromSizesGenomeVar %in% adm){
-		# load it!
-		data(list=chromSizesGenomeVar,
-				package="GenomicDistributions",
-				envir=environment())
-		return(get(chromSizesGenomeVar))
-	} else {
-		message("I don't have archived chromSizes for reference assembly ",
-			refAssembly)
-	}
-
-}
-
 binGenome = function(genome, binCount) {
 	chromSizes = getChromSizes(genome)
 	return(binChroms(binCount, chromSizes))
@@ -156,6 +138,12 @@ genomicDistribution = function(query, refAssembly, binCount=10000, genomeBins=NU
 	# order chromosomes by current order.
 	res[, chr:=factor(chr, levels=unique(res$chr))]
 	return(res)
+}
+
+
+genomicDistOverGenome = function(query, refAssembly) {
+
+
 }
 
 #' Plot distribution over chromosomes

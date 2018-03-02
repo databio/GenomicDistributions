@@ -17,3 +17,14 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 ```
 
 This will help you produce `chromSizes` data (eventually).
+
+```{r, eval=FALSE}
+EnsDb = loadEnsDb("hg19")
+featsWide = ensembldb::genes(EnsDb, columns=c("gene_biotype"))
+
+# Now, restrict to protein-coding genes and grab just a single base pair at the TSS
+feats = promoters(featsWide[featsWide$gene_biotype == "protein_coding"], 1, 1)
+
+# Change from ensembl-style chrom annotation to UCSC_style
+seqlevels(feats) = paste0("chr", seqlevels(feats))
+```

@@ -5,7 +5,7 @@ will document changes to major new releases only (not point releases).
 ## [0.2] -- 2018-03-02
 
 	- Make bins the same size, instead of having the same number of bins per chrom
-	- Divest dependency on BSGenome
+	- Divest dependency on BSGenome and ensembldb by integrating basic data
 
 ## [0.1] -- 2018-02-01
 

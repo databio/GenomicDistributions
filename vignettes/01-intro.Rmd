@@ -74,21 +74,14 @@ plotGenomicDist(x2)
 For TSS plots, we'll first need a gene annotation. You'll need to install the data package with ensembl annotations for the reference assembly of your query features. For hg38, that would be `EnsDb.Hsapiens.v86`. We'll grab the gene annotations from Ensembl and then restrict them to 1 bp, since we're interested in the transcription start site only.
 
 ```{r Build TSS features}
-EnsDb = loadEnsDb("hg19")
-featsWide = ensembldb::genes(EnsDb, columns=NULL)
-
-# Now, grab just a single base pair at the TSS
-feats = promoters(featsWide, 1, 1)
-
-# Change from ensembl-style chrom annotation to UCSC_style
-seqlevels(feats) = paste0("chr", seqlevels(feats))
 ```
 
 With your features in hand as GenomicRanges object, it's just one line of code to check distances from query to your features, and then a second line of code to plot those distances:
 
 ```{r tss-distribution, fig.cap="TSS plot. Distribution of query regions relative to TSSs", fig.small=TRUE}
 # Calculate the distances:
-featureDistance = featureDistribution(query, feats)
+#' featureDistance = featureDistribution(query, feats)
+featureDistance = featureDistOverGenome(query, "hg19")
 
 # Then plot the result:
 plotFeatureDist(featureDistance)

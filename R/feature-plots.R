@@ -39,6 +39,19 @@ featureDistribution = function(query, feats) {
 	return(dists)
 }
 
+
+#' @export
+featureDistOverGenome = function(query, refAssembly) {
+	if (is(query, "GRangesList")) {
+		# Recurse over each GRanges object
+		x = lapply(query, featureDistOverGenome, refAssembly)
+		return(x)
+	}
+
+	feats = getTSSs(refAssembly)
+	return(featureDistribution(query, feats))
+}
+
 #' Plots a histogram of distances to genomic features
 #' 
 #' Given the results from \code{featureDistribution}, plots a histogram of
