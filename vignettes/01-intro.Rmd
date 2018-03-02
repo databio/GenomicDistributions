@@ -14,6 +14,8 @@ vignette: >
 ```{r, echo=FALSE}
 # These settings make the vignette prettier
 knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+#refreshPackage("GenomicDistributions")
+#devtools::build_vignettes("code/GenomicDistributions")
 ```
 
 If you have a set of genomic ranges, the GenomicDistributions R package can help you with some simple visualizations. Currently, it can produce two kinds of plots: First, the *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes; and second, the *feature distribution plot*, which visualizes how your regions are distributed relative to a feature of interest, like Transcription Start Sites (TSSs).
@@ -38,7 +40,11 @@ query = rtracklayer::import(queryFile)
 
 ## Chromosome distribution plots
 
-*Chromosome distribution plots* help you visualize how your regions are distributed across chromosomes. To produce these, you'll need to install the BSgenome package for the reference assembly for your query regions. I haven't included any of these as formal dependencies, because I don't presume to know which genome you want to query. For example, if you want `hg38`, you'll need to make sure to install `BSgenome.Hsapiens.UCSC.hg38.masked` (like this: `biocLite("BSgenome.Hsapiens.UCSC.hg38.masked")`).
+*Chromosome distribution plots* help you visualize how your regions are distributed across chromosomes. To produce these, you'll need to specify the chomosome lengths for your reference assembly. There are a few ways to do this.
+
+For the common reference assemblies that I use (hg19, hg38, mm9, and mm10), I've included the metadata in the package.
+
+de install the BSgenome package for the reference assembly for your query regions. I haven't included any of these as formal dependencies, because I don't presume to know which genome you want to query. For example, if you want `hg38`, you'll need to make sure to install `BSgenome.Hsapiens.UCSC.hg38.masked` (like this: `biocLite("BSgenome.Hsapiens.UCSC.hg38.masked")`).
 
 With that, making a plot of the distribution across chromosomes takes just a couple of lines of code:
 
@@ -54,7 +60,7 @@ What if we want to do the same thing but on 2 query sets at the same time? No pr
 
 ```{r Chromosome distribution plots with multiple region sets}
 # Let's fudge a second region set by shifting the first one over 
-query2 = shift(query, 1e6)
+query2 = GenomicRanges::shift(query, 1e6)
 queryList = GRangesList(vistaEnhancers=query, shifted=query2)
 x2 = genomicDistribution(queryList, "hg19")
 plotGenomicDist(x2)

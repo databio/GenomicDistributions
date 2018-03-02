@@ -85,12 +85,20 @@ binChroms = function(binCount, chromSizes) {
 	return(binnedDT)
 }
 
-getChromSizes = function(genome) {
-	data("chromSizes", package="GenomicDistributions")
-	if (genome %in% names(chromSizes)) {
-		return(chromSizes[[genome]])
-	} else{
-		return(binBSGenome(genome, binCount))
+getChromSizes = function(refAssembly) {
+	# query available datasets
+	ad = data(package="GenomicDistributions")
+	adm = ad$results[,"Item"]
+	chromSizesGenomeVar = paste0("chromSizes_", refAssembly)
+	if (chromSizesGenomeVar %in% adm){
+		# load it!
+		data(list=chromSizesGenomeVar,
+				package="GenomicDistributions",
+				envir=environment())
+		return(get(chromSizesGenomeVar))
+	} else {
+		message("I don't have archived chromSizes for reference assembly ",
+			refAssembly)
 	}
 
 }
@@ -108,16 +116,16 @@ binGenome = function(genome, binCount) {
 #' Returns a data.table showing counts of regions in GR, in the bins
 #' In other words, where on which chromosomes are the ranges distributed?
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
-#' @param genome A character vector that will be used to grab a BSGenome object
+#' @param refAssembly A character vector that will be used to grab a BSGenome object
 #'     by \code{binBSGenome}
 #' @param binCount Number of bins to divide the chromosomes into
 #' @param genomeBins You may supply pre-computed genome bins here (output from
 #'     \code{binBSGenome}); if this is left empty, they will be computed
 #' @export
-genomicDistribution = function(query, genome, binCount=10000, genomeBins=NULL) {
+genomicDistribution = function(query, refAssembly, binCount=10000, genomeBins=NULL) {
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
-		x = lapply(query, genomicDistribution, genome, binCount, genomeBins)
+		x = lapply(query, genomicDistribution, refAssembly, binCount, genomeBins)
 
 		# To accomodate multiple regions, we'll need to introduce a new 'name'
 		# column to distinguish them.
@@ -134,11 +142,11 @@ genomicDistribution = function(query, genome, binCount=10000, genomeBins=NULL) {
 	}
 
 	if (is.null(genomeBins)) {
-		binnedDT = binGenome(genome, binCount)
+		binnedDT = binGenome(refAssembly, binCount)
 	}
 
-	sdt = GenomicDistributions:::splitDataTable(binnedDT, "id")
-	sdtl = lapply(sdt, GenomicDistributions:::dtToGr)
+	sdt = GenomicDistributions:::splitDataTable(binnedDT, "idCol")
+	sdtl = lapply(sdt, GenomicDistributions:::dtToGr, chr="idCol")
 
 	RDT = GenomicDistributions:::grToDt(query)
 	# This jExpression will just count the number of regions.

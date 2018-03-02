@@ -66,15 +66,13 @@ loadEnsDb = function(genomeBuild) {
 
 
 # Generate chromSizes for common genome assemblies
-buildChromSizes = function(genomeList) {
-	chromSizes = list()
-	for (genome in genomeList) {
-		message("Retrieving chromSizes for ", genome)
-		BSG = loadBSgenome(genome)
-		chromSizes[[genome]] = seqlengths(BSG)
+buildChromSizes = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
+	for (refAssembly in assemblyList) {
+		message(refAssembly)
+		chromSizesGenomeVar = paste0("chromSizes_", refAssembly)
+		BSG = loadBSgenome(refAssembly)
+		chromSizesGenome = seqlengths(BSG)
+		assign(chromSizesGenomeVar, chromSizesGenome, envir=environment())
+		save(file=paste0(chromSizesGenomeVar, ".RData"), list=chromSizesGenomeVar)
 	}
-	return(chromSizes)
 }
-
-#' chromSizes = getChromSizes(list("hg38", "hg19", "mm10", "mm9"))
-#' save(file="chromSizes.Rdata", chromSizes)

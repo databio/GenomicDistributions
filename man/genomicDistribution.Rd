@@ -4,12 +4,12 @@
 \alias{genomicDistribution}
 \title{Calculates the distribution of a query set over the genome}
 \usage{
-genomicDistribution(query, genome, binCount = 10000, genomeBins = NULL)
+genomicDistribution(query, refAssembly, binCount = 10000, genomeBins = NULL)
 }
 \arguments{
 \item{query}{A GenomicRanges or GenomicRangesList object with query regions}
 
-\item{genome}{A character vector that will be used to grab a BSGenome object
+\item{refAssembly}{A character vector that will be used to grab a BSGenome object
 by \code{binBSGenome}}
 
 \item{binCount}{Number of bins to divide the chromosomes into}

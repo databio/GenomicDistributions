@@ -12,15 +12,13 @@ Authors@R: c(
 	person(given=c("Nathan", "C."), "Sheffield",
 	email = "nathan@code.databio.org", role=c("aut", "cre")))
 Depends:
-    GenomicRanges,
-    data.table,
-    ensembldb,
-    ggplot2
+    R (> 3.0),
+    GenomicRanges
 Imports:
-    GenomicRanges,
-    rtracklayer,
-    IRanges
+    data.table,
+    ggplot2
 Suggests:
+    rtracklayer,
     testthat,
     extrafont,
     knitr,
