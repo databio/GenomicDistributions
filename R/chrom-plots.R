@@ -145,7 +145,7 @@ genomicDistribution = function(query, refAssembly, binCount=10000, genomeBins=NU
 		binnedDT = binGenome(refAssembly, binCount)
 	}
 
-	sdt = GenomicDistributions:::splitDataTable(binnedDT, "idCol")
+	sdt = GenomicDistributions:::splitDataTable(binnedDT, "id")
 	sdtl = lapply(sdt, GenomicDistributions:::dtToGr, chr="idCol")
 
 	RDT = GenomicDistributions:::grToDt(query)
