@@ -158,7 +158,7 @@ aggregateOverGenomeBins = function(query, refAssembly, binCount=10000) {
 #' Plots result from \code{genomicDistribution} calculation
 #' @param genomeAggregate The output from the genomicDistribution function
 #' @param binCount Number of bins (should match the call to
-#'     \code{genomicDistribution}
+#'     \code{genomicDistribution})
 #' @param plotTitle Title for plot.
 #' @export
 plotGenomeAggregate = function(genomeAggregate, binCount=10000, plotTitle="Distribution over chromosomes") {
