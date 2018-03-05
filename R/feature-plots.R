@@ -1,3 +1,28 @@
+# Old, slow version based on GRanges methods
+featureDistanceDistributionBioc = function(query, features) {
+	if (is(query, "GRangesList")) {
+		# Recurse over each GRanges object
+		x = lapply(query, featureDistanceDistribution, features)
+		return(x)
+	}
+
+	precedeInd = precede(query, features)
+	preIndNA = is.na(precedeInd)
+	followInd = follow(query, features)
+	folIndNA = is.na(followInd)
+	preDist = rep(NA, length(query))
+
+	preDist[!preIndNA] = -distance(query[!preIndNA], features[precedeInd[!preIndNA]])
+
+	postDist = rep(NA, length(query))
+	postDist[!folIndNA] = distance(query[!folIndNA], features[followInd[!folIndNA]])
+
+	postHits = -preDist > postDist
+	postHitsNA = is.na(postHits)
+	dists = preDist
+	dists[postHits[!postHitsNA]] = postDist[postHits[!postHitsNA]]
+	return(dists)
+}
 
 #' Find the distance to the nearest genomic feature
 #' 
@@ -11,45 +36,46 @@
 #' This allows you to assess the relative location.
 #' 
 #' @param query A GRanges or GRangesList object with query sets
-#' @param feats A GRanges object with features to test distance to
-
+#' @param features A GRanges object with features to test distance to
+#' 
 #' @export
-featureDistribution = function(query, feats) {
+featureDistanceDistribution = function(query, features) {
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
-		x = lapply(query, featureDistribution, feats)
+		x = lapply(query, featureDistanceDistribution, features)
 		return(x)
 	}
+	queryDT = GenomicDistributions:::grToDt(query)
+	featureDT = GenomicDistributions:::grToDt(features)
+	queryDTs = GenomicDistributions:::splitDataTable(queryDT, "chr")
+	featureDTs = GenomicDistributions:::splitDataTable(featureDT, "chr")
+	as.vector(unlist(mapply(queryDTs, featureDTs[names(queryDTs)], FUN=DTNearest)))
+}
 
-	precedeInd = precede(query, feats)
-	preIndNA = is.na(precedeInd)
-	followInd = follow(query, feats)
-	folIndNA = is.na(followInd)
-	preDist = rep(NA, length(query))
-
-	preDist[!preIndNA] = -distance(query[!preIndNA], feats[precedeInd[!preIndNA]])
-
-	postDist = rep(NA, length(query))
-	postDist[!folIndNA] = distance(query[!folIndNA], feats[followInd[!folIndNA]])
-
-	postHits = -preDist > postDist
-	postHitsNA = is.na(postHits)
-	dists = preDist
-	dists[postHits[!postHitsNA]] = postDist[postHits[!postHitsNA]]
-	return(dists)
+DTNearest = function(DT1, DT2) {
+	DT1[, mid:=start + round((end-start)/2)]
+	DT2[, mid:=start + round((end-start)/2)]
+	data.table::setattr(DT1, "sorted", "mid")
+	data.table::setattr(DT2, "sorted", "mid")
+	DT2[J(DT1), roll="nearest"]
+	DT2[J(DT1), start+round((end-start)/2)-mid, roll="nearest"]
 }
 
 
+#' Calculates the distribution of distances from a query set to closest TSS
+#' 
+#' Given a query GRanges object and an assembly string, this function will grab the
+#' TSS list for the given reference assembly and then calculate the distance from
+#' each query feature to the closest TSS.
+#' 
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector specifying the reference genome
+#'     assembly (*e.g.* 'hg19'). THis will be used to grab chromosome sizes with
+#'     \code{getTSSs}.
 #' @export
-featureDistOverGenome = function(query, refAssembly) {
-	if (is(query, "GRangesList")) {
-		# Recurse over each GRanges object
-		x = lapply(query, featureDistOverGenome, refAssembly)
-		return(x)
-	}
-
-	feats = getTSSs(refAssembly)
-	return(featureDistribution(query, feats))
+TSSDistance = function(query, refAssembly) {
+	features = getTSSs(refAssembly)
+	return(featureDistanceDistribution(query, features))
 }
 
 #' Plots a histogram of distances to genomic features
@@ -60,7 +86,7 @@ featureDistOverGenome = function(query, refAssembly) {
 #' @param dists Results from \code{featureDistribution}
 #' @param plotTitle Title for plot.
 #' @export
-plotFeatureDist = function(dists, plotTitle="Distribution relative to features") {
+plotFeatureDist = function(dists, featureName="features") {
 
 	df = cutDists(dists)
 	if ("name" %in% names(df)){
@@ -77,11 +103,11 @@ plotFeatureDist = function(dists, plotTitle="Distribution relative to features")
 		theme_classic() + 
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
-		xlab("Distance to feature") +
+		xlab(paste("Distance to", featureName)) +
 		ylab("Number of regions") +
 		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
-		ggtitle(plotTitle) +
+		ggtitle(paste("Distribution relative to", featureName)) +
 		theme(legend.position="bottom")
 
 	return(g)

@@ -43,7 +43,6 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 	endpoints = cumsum(binCountByChrom + 1) 
 	startpoints = c(1, endpoints[-length(endpoints)]+1)
 
-
 	dt = data.table(start=breaks[-endpoints]+1, 
 					end=breaks[-startpoints],
 					id=rep((1:length(start)), binCountByChrom),
@@ -60,56 +59,54 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 
 #' Bins a BSgenome object.
 #'
-#' Given a BSgenome object (possibly loaded via \code{loadBSgenome}), and a
-#' number of bins for each chromosome, this will 
+#' Given a BSgenome object (to be loaded via \code{loadBSgenome}), and a number
+#' of bins, this will bin that genome. It is a simple wrapper of the
+#' \code{binChroms} function
+#' 
 #' @param genome A UCSC-style string denoting reference assembly (e.g. 'hg38')
 #' @param binCount number of bins per chromosome
 #' @export
 binBSGenome = function(genome, binCount) {
 	BSG = loadBSgenome(genome)
 	chromSizes = seqlengths(BSG)
-	binChroms(binCount, chromSizes)
+	return(binChroms(binCount, chromSizes))
 }
 
-#' Splits a chromosome into binSize
-
-#' Given a list of chromosomes with corresponding sizes, this script will produce
-#' (roughly) evenly-sized bins across the chromosomes
-#' @param binCount number of bins per chromosome
+#' Naively splits a chromosome into bins
+#' 
+#' Given a list of chromosomes with corresponding sizes, this script will
+#' produce (roughly) evenly-sized bins across the chromosomes. It does not
+#' account for assembly gaps or the like.
+#' 
+#' @param binCount number of bins (total; *not* per chromosome)
 #' @param chromSizes a named list of size (length) for each chromosome
 #' @export
 binChroms = function(binCount, chromSizes) {
 	seqnamesColName="chr"
 	rangeDT = data.table(chr=names(chromSizes), start=1, end=chromSizes)
-	binnedDT = rangeDT[, binRegion(start, end, binCount=binCount, indicator=get(seqnamesColName))]
+	binnedDT = rangeDT[, binRegion(start, end, binCount=binCount,
+							indicator=get(seqnamesColName))]
 	return(binnedDT)
 }
-
-binGenome = function(genome, binCount) {
-	chromSizes = getChromSizes(genome)
-	return(binChroms(binCount, chromSizes))
-}
-
-
 
 
 #' Calculates the distribution of a query set over the genome
 #' 
 #' Returns a data.table showing counts of regions in GR, in the bins
 #' In other words, where on which chromosomes are the ranges distributed?
+#' You must provide *either* a refAssembly (and binCount), or a GRangesList object
+#' as already binned regions
+#' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
-#' @param refAssembly A character vector that will be used to grab a BSGenome object
-#'     by \code{binBSGenome}
-#' @param binCount Number of bins to divide the chromosomes into
-#' @param genomeBins You may supply pre-computed genome bins here (output from
-#'     \code{binBSGenome}); if this is left empty, they will be computed
+#' @param features Pre-computed features (as a GRangesList object) to aggregate
+#'     over; for example, these could be genome bins
 #' @export
-genomicDistribution = function(query, refAssembly, binCount=10000, genomeBins=NULL) {
+featureAggregateDistribution = function(query, features) {
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
-		x = lapply(query, genomicDistribution, refAssembly, binCount, genomeBins)
+		x = lapply(query, featureAggregateDistribution, features)
 
-		# To accomodate multiple regions, we'll need to introduce a new 'name'
+		# To accommodate multiple regions, we'll need to introduce a new 'name'
 		# column to distinguish them.
 		nameList = names(query)
 		if(is.null(nameList)) {
@@ -123,44 +120,54 @@ genomicDistribution = function(query, refAssembly, binCount=10000, genomeBins=NU
 		return(xb)
 	}
 
-	if (is.null(genomeBins)) {
-		binnedDT = binGenome(refAssembly, binCount)
-	}
-
-	sdt = GenomicDistributions:::splitDataTable(binnedDT, "id")
-	sdtl = lapply(sdt, GenomicDistributions:::dtToGr, chr="idCol")
-
-	RDT = GenomicDistributions:::grToDt(query)
+	queryDT = GenomicDistributions:::grToDt(query)
+	
 	# This jExpression will just count the number of regions.
 	jExpr = ".N"
-	res = GenomicDistributions:::BSAggregate(RDT, GRangesList(sdtl), jExpr=jExpr)
+	res = GenomicDistributions:::BSAggregate(queryDT, features, jExpr=jExpr)
 
 	# order chromosomes by current order.
 	res[, chr:=factor(chr, levels=unique(res$chr))]
 	return(res)
 }
 
+#' Returns the distribution of query over a reference assembly
 
-genomicDistOverGenome = function(query, refAssembly) {
+#' Given a query set of elements (a GRanges object) and a reference assembly (*e.g.
+#' 'hg38'), this will aggregate and count the distribution of the query elements
+#' across bins of the reference genome
 
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector that will be used to grab chromosome
+#'     sizes with \code{getChromSizes}
+#' @param binCount Number of bins to divide the chromosomes into
+#' @export
+aggregateOverGenomeBins = function(query, refAssembly, binCount=10000) {
+	# Bin the genome
+	chromSizes = getChromSizes(refAssembly)
+	binnedDT = binChroms(binCount, chromSizes)
+	splitBinnedDT = GenomicDistributions:::splitDataTable(binnedDT, "id")
+	listGR = lapply(splitBinnedDT, GenomicDistributions:::dtToGr, chr="idCol")
+	genomeBins =  GRangesList(listGR)
 
+	return(featureAggregateDistribution(query, genomeBins))
 }
 
 #' Plot distribution over chromosomes
 #' 
 #' Plots result from \code{genomicDistribution} calculation
-#' @param GD The output from the genomicDistribution function
+#' @param genomeAggregate The output from the genomicDistribution function
 #' @param binCount Number of bins (should match the call to
 #'     \code{genomicDistribution}
 #' @param plotTitle Title for plot.
 #' @export
-plotGenomicDist = function(GD, binCount=10000, plotTitle="Distribution over chromosomes") {
-	if ("name" %in% names(GD)){
+plotGenomeAggregate = function(genomeAggregate, binCount=10000, plotTitle="Distribution over chromosomes") {
+	if ("name" %in% names(genomeAggregate)){
 		# It has multiple regions
-		g = ggplot(GD, aes(x=withinGroupID, y=N, fill=name, color=name))
+		g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N, fill=name, color=name))
 	} else {
 		# It's a single region
-		g = ggplot(GD, aes(x=withinGroupID, y=N))
+		g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N))
 	}
 	g = g +
 		xlab("Genome") + ylab("Number of regions") +

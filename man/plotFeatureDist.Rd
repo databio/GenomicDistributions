@@ -4,7 +4,7 @@
 \alias{plotFeatureDist}
 \title{Plots a histogram of distances to genomic features}
 \usage{
-plotFeatureDist(dists, plotTitle = "Distribution relative to features")
+plotFeatureDist(dists, featureName = "features")
 }
 \arguments{
 \item{dists}{Results from \code{featureDistribution}}

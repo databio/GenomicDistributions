@@ -1,12 +1,12 @@
 ---
-title: "Getting Started with GenomicDistributions"
+title: "Getting started with GenomicDistributions"
 author: "Nathan Sheffield"
 date: "`r Sys.Date()`"
 output: 
   BiocStyle::html_document:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{1. Getting Started with GenomicDistributions}
+  %\VignetteIndexEntry{1. Getting started with GenomicDistributions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -50,10 +50,10 @@ With that, making a plot of the distribution across chromosomes takes just a cou
 
 ```{r chromosome-distribution}
 # First, calculate the distribution:
-x = genomicDistribution(query, "hg19")
+x = aggregateOverGenomeBins(query, "hg19")
 
 # Then, plot the result:
-plotGenomicDist(x)
+plotGenomeAggregate(x)
 ```
 
 What if we want to do the same thing but on 2 query sets at the same time? No problem:
@@ -62,8 +62,8 @@ What if we want to do the same thing but on 2 query sets at the same time? No pr
 # Let's fudge a second region set by shifting the first one over 
 query2 = GenomicRanges::shift(query, 1e6)
 queryList = GRangesList(vistaEnhancers=query, shifted=query2)
-x2 = genomicDistribution(queryList, "hg19")
-plotGenomicDist(x2)
+x2 = aggregateOverGenomeBins(queryList, "hg19")
+plotGenomeAggregate(x2)
 ```
 
 
@@ -71,29 +71,34 @@ plotGenomicDist(x2)
 
 *Feature distance distribution plots* will show you how your regions are distributed with respect to the nearest feature of interest. To illustrate, we'll use Transcription Start Sites (TSS) as our example feature of interest (but really, you can use any region set).
 
-For TSS plots, we'll first need a gene annotation. You'll need to install the data package with ensembl annotations for the reference assembly of your query features. For hg38, that would be `EnsDb.Hsapiens.v86`. We'll grab the gene annotations from Ensembl and then restrict them to 1 bp, since we're interested in the transcription start site only.
-
-```{r Build TSS features}
-```
-
-With your features in hand as GenomicRanges object, it's just one line of code to check distances from query to your features, and then a second line of code to plot those distances:
+For TSS plots, since this is such a common use case, we can use a handy built-in function that does everything for us. It's just one line of code to check distances from query to your TSSs (for common genomes), and then a second line of code to plot those distances:
 
 ```{r tss-distribution, fig.cap="TSS plot. Distribution of query regions relative to TSSs", fig.small=TRUE}
 # Calculate the distances:
-#' featureDistance = featureDistribution(query, feats)
-featureDistance = featureDistOverGenome(query, "hg19")
+TSSDist = TSSDistance(query, "hg19")
 
 # Then plot the result:
-plotFeatureDist(featureDistance)
+plotFeatureDist(TSSDist, featureName="TSS")
 ```
 
 This plot uses log-scale increasing bins to show how your regions are distributed. Now, let's make a similar plot with multiple region sets input:
 
 ```{r TSS plots with multiple region sets}
 
-featureDistance2 = featureDistribution(queryList, feats)
-plotFeatureDist(featureDistance2)
+TSSDist2 = TSSDistance(queryList, "hg19")
+plotFeatureDist(TSSDist2)
 
 ```
 
+If you want to check distances to other features, that's no problem; `TSSDistance()` is really just a wrapper for the workhorse function, `featureDistanceDistribution()`. To show how this works, get some features you want to check the distance to. Here, let's just shift our query set by a normally distributed random number:
 
+```{r Build features}
+featureExample = GenomicRanges::shift(query, round(rnorm(length(query), 0,1000)))
+```
+
+Now, with these features, we just use the `featureDistanceDistribution` function to calculate the distances. This function using the fast rolling joins from `data.table` under the hood, so it complete very quickly. The result of this gets piped right into the plotting function as before:
+
+```{r Calculate distances and plot, fig.cap="Feature plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
+fdd = featureDistanceDistribution(query, featureExample)
+plotFeatureDist(fdd)
+```

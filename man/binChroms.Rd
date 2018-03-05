@@ -2,19 +2,17 @@
 % Please edit documentation in R/chrom-plots.R
 \name{binChroms}
 \alias{binChroms}
-\title{Splits a chromosome into binSize
-Given a list of chromosomes with corresponding sizes, this script will produce
-(roughly) evenly-sized bins across the chromosomes}
+\title{Naively splits a chromosome into bins}
 \usage{
 binChroms(binCount, chromSizes)
 }
 \arguments{
-\item{binCount}{number of bins per chromosome}
+\item{binCount}{number of bins (total; *not* per chromosome)}
 
 \item{chromSizes}{a named list of size (length) for each chromosome}
 }
 \description{
-Splits a chromosome into binSize
-Given a list of chromosomes with corresponding sizes, this script will produce
-(roughly) evenly-sized bins across the chromosomes
+Given a list of chromosomes with corresponding sizes, this script will
+produce (roughly) evenly-sized bins across the chromosomes. It does not
+account for assembly gaps or the like.
 }

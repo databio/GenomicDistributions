@@ -12,6 +12,7 @@ binBSGenome(genome, binCount)
 \item{binCount}{number of bins per chromosome}
 }
 \description{
-Given a BSgenome object (possibly loaded via \code{loadBSgenome}), and a
-number of bins for each chromosome, this will
+Given a BSgenome object (to be loaded via \code{loadBSgenome}), and a number
+of bins, this will bin that genome. It is a simple wrapper of the
+\code{binChroms} function
 }
