@@ -16,7 +16,8 @@ Depends:
     GenomicRanges
 Imports:
     data.table,
-    ggplot2
+    ggplot2,
+    methods
 Suggests:
     rtracklayer,
     testthat,
@@ -25,7 +26,8 @@ Suggests:
     BiocStyle,
     rmarkdown
 Enhances:
-    BSgenome
+    BSgenome,
+    ensembldb
 LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE

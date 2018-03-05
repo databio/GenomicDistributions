@@ -34,9 +34,9 @@ BSAggregate = function(BSDT, regionsGRL, excludeGR=NULL, regionsGRL.length=NULL,
 
 	# Assert that regionsGRL is a GRL.
 	# If regionsGRL is given as a GRanges, we convert to GRL
-	if( "GRanges" %in% class(regionsGRL)) {
+	if( methods::is(regionsGRL,"GRanges")) {
 		regionsGRL = GRangesList(regionsGRL)
-	} else if (! "GRangesList" %in% class(regionsGRL)) {
+	} else if (! methods::is(regionsGRL, "GRangesList")) {
 		stop("regionsGRL is not a GRanges or GRangesList object")
 	}
 
