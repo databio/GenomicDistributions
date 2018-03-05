@@ -1,25 +1,27 @@
 
 
 # Checks to make sure a BSgenome object is installed,
-# and if so, returns it.
+# and if so, returns it. If the genome is not installed, it issues a warning
+# and returns NULL.
 .requireAndReturn = function(BSgenomeString) {
 	if (requireNamespace(BSgenomeString))
-		return(getAnywhere(BSgenomeString)$objs[[1]])
+		return(utils::getAnywhere(BSgenomeString)$objs[[1]])
 	else
-		stop(BSgenomeString, " is not installed")
+		warning(BSgenomeString, " is not installed")
+		return(NULL)
 }
 
 
-#' Efficiently split a data.table by a column in the table
-#' 
-#' @param DT Data.table to split
-#' @param splitFactor Column to split, which can be a character vector
-#'	or an integer.
-#' @return	List of data.table objects, split by column
-#' @examples
-#' DT = data.table(letters, grp = rep(c("group1", "group2"), 13))
-#' splitDataTable(DT, "grp")
-#' splitDataTable(DT, 2)
+# Efficiently split a data.table by a column in the table
+# 
+# @param DT Data.table to split
+# @param splitFactor Column to split, which can be a character vector
+#	or an integer.
+# @return	List of data.table objects, split by column
+# @examples
+# DT = data.table::data.table(letters, grp = rep(c("group1", "group2"), 13))
+# splitDataTable(DT, "grp")
+# splitDataTable(DT, 2)
 splitDataTable = function(DT, splitFactor) {
 	if (is.numeric(splitFactor)) {
 		splitFactor = colnames(DT)[splitFactor]

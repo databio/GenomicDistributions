@@ -14,6 +14,19 @@
 #' @author Nathan C. Sheffield
 #'
 #' @references \url{http://github.com/nsheff}
-#' @import data.table
+#' @import GenomicRanges
 #' @import ggplot2
+#' @import data.table
+#' @importFrom methods is
 NULL
+
+
+# Because of some issues with NOTEs on R CMD CHeck and CRAN submission,
+# (see here: http://stackoverflow.com/questions/9439256/)
+# I have to register stuff used in data.table as non-standard evaluation,
+# in order to pass some R CMD check NOTES.
+if(getRversion() >= "2.15.1") {
+	utils::globalVariables(c(
+	"cuts", "mid", "J", "chr", "N",
+	"regionID", "x", "name", "BSFilter"))
+}

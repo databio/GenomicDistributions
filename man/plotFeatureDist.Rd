@@ -9,7 +9,7 @@ plotFeatureDist(dists, featureName = "features")
 \arguments{
 \item{dists}{Results from \code{featureDistribution}}
 
-\item{plotTitle}{Title for plot.}
+\item{featureName}{Character vector for plot labels (optional).}
 }
 \description{
 Given the results from \code{featureDistribution}, plots a histogram of

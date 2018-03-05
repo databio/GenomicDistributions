@@ -78,6 +78,9 @@ buildChromSizes = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 }
 
 buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10")) {
+	if (!requireNamespace("ensembldb", quietly=TRUE)) {
+		message("ensembldb package is not installed.")
+	}
 	for (refAssembly in assemblyList) {
 		message(refAssembly)
 		TSSGenomeVar = paste0("TSS_", refAssembly)
@@ -104,12 +107,12 @@ getTSSs = function(refAssembly) {
 
 getReferenceData = function(refAssembly, tagline) {
 	# query available datasets
-	ad = data(package="GenomicDistributions")
+	ad = utils::data(package="GenomicDistributions")
 	adm = ad$results[,"Item"]
 	chromSizesGenomeVar = paste0(tagline, refAssembly)
 	if (chromSizesGenomeVar %in% adm){
 		# load it!
-		data(list=chromSizesGenomeVar,
+		utils::data(list=chromSizesGenomeVar,
 				package="GenomicDistributions",
 				envir=environment())
 		return(get(chromSizesGenomeVar))

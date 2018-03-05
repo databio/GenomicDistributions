@@ -45,10 +45,10 @@ featureDistanceDistribution = function(query, features) {
 		x = lapply(query, featureDistanceDistribution, features)
 		return(x)
 	}
-	queryDT = GenomicDistributions:::grToDt(query)
-	featureDT = GenomicDistributions:::grToDt(features)
-	queryDTs = GenomicDistributions:::splitDataTable(queryDT, "chr")
-	featureDTs = GenomicDistributions:::splitDataTable(featureDT, "chr")
+	queryDT = grToDt(query)
+	featureDT = grToDt(features)
+	queryDTs = splitDataTable(queryDT, "chr")
+	featureDTs = splitDataTable(featureDT, "chr")
 	as.vector(unlist(mapply(queryDTs, featureDTs[names(queryDTs)], FUN=DTNearest)))
 }
 
@@ -84,7 +84,7 @@ TSSDistance = function(query, refAssembly) {
 #' distances surrounding the features of interest
 #' 
 #' @param dists Results from \code{featureDistribution}
-#' @param plotTitle Title for plot.
+#' @param featureName Character vector for plot labels (optional).
 #' @export
 plotFeatureDist = function(dists, featureName="features") {
 
@@ -132,7 +132,7 @@ cutDists = function(dists, divisions = c(-Inf, -1e6, -1e4, -1000, -100, 0, 100, 
 		return(xb)
 	}
 
-	labels = GenomicDistributions:::labelCuts(divisions, collapse=" to ", infBins=TRUE)
+	labels = labelCuts(divisions, collapse=" to ", infBins=TRUE)
 	cuts = cut(dists, divisions, labels)
 	df = as.data.frame(table(cuts))
 	return(df)

@@ -102,7 +102,7 @@ binChroms = function(binCount, chromSizes) {
 #'     over; for example, these could be genome bins
 #' @export
 featureAggregateDistribution = function(query, features) {
-	if (is(query, "GRangesList")) {
+	if (methods::is(query, "GRangesList")) {
 		# Recurse over each GRanges object
 		x = lapply(query, featureAggregateDistribution, features)
 
@@ -120,11 +120,11 @@ featureAggregateDistribution = function(query, features) {
 		return(xb)
 	}
 
-	queryDT = GenomicDistributions:::grToDt(query)
+	queryDT = grToDt(query)
 	
 	# This jExpression will just count the number of regions.
 	jExpr = ".N"
-	res = GenomicDistributions:::BSAggregate(queryDT, features, jExpr=jExpr)
+	res = BSAggregate(queryDT, features, jExpr=jExpr)
 
 	# order chromosomes by current order.
 	res[, chr:=factor(chr, levels=unique(res$chr))]
@@ -146,8 +146,8 @@ aggregateOverGenomeBins = function(query, refAssembly, binCount=10000) {
 	# Bin the genome
 	chromSizes = getChromSizes(refAssembly)
 	binnedDT = binChroms(binCount, chromSizes)
-	splitBinnedDT = GenomicDistributions:::splitDataTable(binnedDT, "id")
-	listGR = lapply(splitBinnedDT, GenomicDistributions:::dtToGr, chr="idCol")
+	splitBinnedDT = splitDataTable(binnedDT, "id")
+	listGR = lapply(splitBinnedDT, dtToGr, chr="idCol")
 	genomeBins =  GRangesList(listGR)
 
 	return(featureAggregateDistribution(query, genomeBins))
