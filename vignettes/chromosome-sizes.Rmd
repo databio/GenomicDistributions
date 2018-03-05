@@ -1,0 +1,32 @@
+---
+title: "Using custom features"
+author: "Nathan Sheffield"
+date: "`r Sys.Date()`"
+output: 
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{2. Using custom features}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+# These settings make the vignette prettier
+knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+```
+
+NOTE: This vignette is under construction.
+
+In the getting started vignette, we used convenience wrapper functions to just explore the distribution over genomic bins, or to grab TSSs. But really, `GenomicDistributions` is flexible and can produce both aggregates and distances to any kind of genomic feature. This vignette will show you how  will help you produce `chromSizes` data (eventually).
+
+```{r, eval=FALSE}
+EnsDb = loadEnsDb("hg19")
+featsWide = ensembldb::genes(EnsDb, columns=c("gene_biotype"))
+
+# Now, restrict to protein-coding genes and grab just a single base pair at the TSS
+feats = promoters(featsWide[featsWide$gene_biotype == "protein_coding"], 1, 1)
+
+# Change from ensembl-style chrom annotation to UCSC_style
+seqlevels(feats) = paste0("chr", seqlevels(feats))
+```
