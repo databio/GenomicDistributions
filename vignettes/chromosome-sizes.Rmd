@@ -20,6 +20,12 @@ NOTE: This vignette is under construction.
 
 In the getting started vignette, we used convenience wrapper functions to just explore the distribution over genomic bins, or to grab TSSs. But really, `GenomicDistributions` is flexible and can produce both aggregates and distances to any kind of genomic feature. This vignette will show you how  will help you produce `chromSizes` data (eventually).
 
+
+
+de install the BSgenome package for the reference assembly for your query regions. I haven't included any of these as formal dependencies, because I don't presume to know which genome you want to query. For example, if you want `hg38`, you'll need to make sure to install `BSgenome.Hsapiens.UCSC.hg38.masked` (like this: `biocLite("BSgenome.Hsapiens.UCSC.hg38.masked")`).
+
+
+
 ```{r, eval=FALSE}
 EnsDb = loadEnsDb("hg19")
 featsWide = ensembldb::genes(EnsDb, columns=c("gene_biotype"))
