@@ -10,4 +10,4 @@ devtools::install_github("databio/GenomicDistributions")
 
 ## Quick start
 
-Please see the vignettes for more information.
+See the vignettes for more information: http://code.databio.org/GenomicDistributions
