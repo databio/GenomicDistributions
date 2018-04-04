@@ -19,7 +19,11 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 #devtools::test("code/GenomicDistributions")
 ```
 
-If you have a set of genomic ranges, the GenomicDistributions R package can help you with some simple visualizations. Currently, it can produce two kinds of plots: First, the *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes; and second, the *feature distribution plot*, which visualizes how your regions are distributed relative to a feature of interest, like Transcription Start Sites (TSSs).
+If you have a set of genomic ranges, the GenomicDistributions R package can help you with some simple visualizations. Currently, it can produce three kinds of plots:
+
+- The *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes
+- The *feature distance distribution plot*, which visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
+- The *partition distribution plot*, which visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
 
 ## Install
 
@@ -100,3 +104,18 @@ Now, with these features, we just use the `featureDistanceDistribution` function
 fdd = featureDistanceDistribution(query, featureExample)
 plotFeatureDist(fdd)
 ```
+
+
+## Partition distribution plots
+
+Genomic partition distribution plots show you how your regions are distributed among promoters, exons, introns, or intergenic regions. You can produce one or two-set plots like so:
+
+
+```{r partition plots}
+gp = genomicPartitions(query, "hg19")
+partitionPlot(gp)
+
+gp2 = genomicPartitions(GRangesList(query, query2), "hg19")
+partitionPlot(gp2)
+```
+

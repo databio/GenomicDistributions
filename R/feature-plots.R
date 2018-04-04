@@ -78,7 +78,7 @@ DTNearest = function(DT1, DT2) {
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). THis will be used to grab chromosome sizes with
+#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
 #' @export
 TSSDistance = function(query, refAssembly) {
