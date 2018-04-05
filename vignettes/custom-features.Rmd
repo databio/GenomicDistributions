@@ -18,12 +18,9 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 
 NOTE: This vignette is under construction.
 
-In the getting started vignette, we used convenience wrapper functions to just explore the distribution over genomic bins, or to grab TSSs. But really, `GenomicDistributions` is flexible and can produce both aggregates and distances to any kind of genomic feature. This vignette will show you how  will help you produce `chromSizes` data (eventually).
+In the getting started vignette, we used convenience wrapper functions to explore how your regions are distributed across some common features and partitions in human reference assemblies. That's great if you just want the basics, but really, `GenomicDistributions` is more powerful and flexible, and can run the same analysis on any kind of genomic feature from any reference genome. This vignette will show you how to do this.
 
-
-
-de install the BSgenome package for the reference assembly for your query regions. I haven't included any of these as formal dependencies, because I don't presume to know which genome you want to query. For example, if you want `hg38`, you'll need to make sure to install `BSgenome.Hsapiens.UCSC.hg38.masked` (like this: `biocLite("BSgenome.Hsapiens.UCSC.hg38.masked")`).
-
+But alas, it is not yet finished. So, you'll just have to read the documentation. It's all in there and working, I promise.
 
 
 ```{r, eval=FALSE}

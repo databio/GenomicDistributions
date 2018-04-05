@@ -92,7 +92,7 @@ assignPartitions = function(query, partitionList, remainder="intergenic") {
 #'     query regions for overlaps
 #'
 #' @export
-partitionPlot = function(assignedPartitions, labels=NULL) {
+plotPartitions = function(assignedPartitions, labels=NULL) {
 	# resAll = t(sapply(assignedPartitions, table))
 	# resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
 	# df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
@@ -143,7 +143,8 @@ partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
 	return(nlist(resAllAve))
 }
 
-partitionPlots = function(percList, labels = NULL) {
+# A version for percentages, not yet activated
+plotPartitionPercents = function(percList, labels = NULL) {
 	if(is.null(labels)) {
 		labels = rownames(percList$resAllAve)
 	}
