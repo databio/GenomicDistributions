@@ -1,4 +1,18 @@
 
+#' Calculates the distribution of overlaps for a query set to genomic partitions
+#' 
+#' 
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector specifying the reference genome
+#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
+#'     \code{getTSSs}.
+#' @export
+genomicPartitions = function(query, refAssembly) {
+	geneModels = GenomicDistributions:::getGeneModels(refAssembly)
+	partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+	return(assignPartitions(query, partitionList))
+}
+
 
 #' Create a basic genome partition list of genes, exons, introns, and intergenic
 #' 
@@ -13,27 +27,17 @@
 #' eload(loadGencodeGenes("human"))
 #' partitionList = genomePartitionList(SV$gencodeContainer$genesGR, SV$gencodeContainer$exonsGR)
 genomePartitionList = function(genesGR, exonsGR) {
-	promCore = promoters(genesGR, upstream=100, downstream=0)  # identical
-	promProx = promoters(genesGR, upstream=2000, downstream=0)
+	tryCatch( {
+		# Discard warnings (prompted from notifications to trim, which I do)
+		promCore = trim(promoters(genesGR, upstream=100, downstream=0))
+		promProx = trim(promoters(genesGR, upstream=2000, downstream=0))
+	}, warning = function(x) { })
+
 	partitionList = list(promoterCore=promCore,
 							promoterProx=promProx,
 							exon=exonsGR,
 							intron=genesGR)
 	return(partitionList)
-}
-
-#' Calculates the distribution of overlaps for a query set to genomic partitions
-#' 
-#' 
-#' @param query A GenomicRanges or GenomicRangesList object with query regions
-#' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
-#'     \code{getTSSs}.
-#' @export
-genomicPartitions = function(query, refAssembly) {
-	geneModels = GenomicDistributions:::getGeneModels(refAssembly)
-	partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-	return(assignPartitions(query, partitionList))
 }
 
 
