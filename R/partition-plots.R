@@ -27,12 +27,14 @@ genomicPartitions = function(query, refAssembly) {
 #' eload(loadGencodeGenes("human"))
 #' partitionList = genomePartitionList(SV$gencodeContainer$genesGR, SV$gencodeContainer$exonsGR)
 genomePartitionList = function(genesGR, exonsGR) {
-	tryCatch( {
-		# Discard warnings (prompted from notifications to trim, which I do)
+	# Discard warnings (prompted from notifications to trim, which I do)
+	withCallingHandlers({
 		promCore = trim(promoters(genesGR, upstream=100, downstream=0))
 		promProx = trim(promoters(genesGR, upstream=2000, downstream=0))
-	}, warning = function(x) { })
-
+	}, warning=function(w) {
+	    if (startsWith(conditionMessage(w), "GRanges object contains"))
+	        invokeRestart("muffleWarning")
+	})
 	partitionList = list(promoterCore=promCore,
 							promoterProx=promProx,
 							exon=exonsGR,
