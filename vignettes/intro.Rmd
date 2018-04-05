@@ -131,5 +131,5 @@ gp2 = genomicPartitions(queryList, "hg19")
 plotPartitions(gp2)
 ```
 
-Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else?. No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
+Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
