@@ -52,6 +52,8 @@ featureDistanceDistribution = function(query, features) {
 	as.vector(unlist(mapply(queryDTs, featureDTs[names(queryDTs)], FUN=DTNearest)))
 }
 
+# Function uses dat.table rolling join to identify the nearest features
+# really quickly.
 DTNearest = function(DT1, DT2) {
 	#data.table::set(DT1, j=mid, value=start + round((end-start)/2))
 	#data.table::set(DT2, j=mid, value=start + round((end-start)/2))

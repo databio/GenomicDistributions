@@ -17,7 +17,3 @@ corresponding to various breakdown of the genome, based on the given
 annotations; it gives you proximal and core promoters, exons, and introns. To
 be used as a partionList for assignPartitions()
 }
-\examples{
-eload(loadGencodeGenes("human"))
-partitionList = genomePartitionList(SV$gencodeContainer$genesGR, SV$gencodeContainer$exonsGR)
-}

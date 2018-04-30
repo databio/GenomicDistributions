@@ -23,9 +23,6 @@ genomicPartitions = function(query, refAssembly) {
 #' @param genesGR a GRanges object of gene coordinates
 #' @param exonsGR a GRanges object of exons coordinates
 #' @export
-#' @examples
-#' eload(loadGencodeGenes("human"))
-#' partitionList = genomePartitionList(SV$gencodeContainer$genesGR, SV$gencodeContainer$exonsGR)
 genomePartitionList = function(genesGR, exonsGR) {
 	# Discard warnings (prompted from notifications to trim, which I do)
 	withCallingHandlers({
