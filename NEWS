@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
+## [0.5] -- 2018-04-30
+
+	- Built-in data added for mm9 assembly
+	- Functions can now accept TxDb objects, in addition to EnsDb objects
+
+## [0.4] -- 2018-04-05
+
+	- Add partition plots
+
 ## [0.3] -- 2018-03-05
 
 	- Revamp all function names, make functions more parallel and modular
