@@ -77,6 +77,7 @@ buildChromSizes = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	}
 }
 
+
 # Generates Rdata objects for TSSs, to be included in the package for example.
 buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	if (!requireNamespace("ensembldb", quietly=TRUE)) {
@@ -85,14 +86,16 @@ buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	for (refAssembly in assemblyList) {
 		message(refAssembly)
 		TSSGenomeVar = paste0("TSS_", refAssembly)
-
 		# Using EnsDb
 		EnsDb = NULL
 		tryCatch( {
 			EnsDb = loadEnsDb(refAssembly)
-			featsWide = ensembldb::genes(EnsDb, columns=c("gene_biotype"))
-			# Now, restrict to protein-coding genes and grab just a single base pair at the TSS
-			feats = promoters(featsWide[featsWide$gene_biotype == "protein_coding"], 1, 1)
+			codingFilter = AnnotationFilter::AnnotationFilter(
+				~ gene_biotype == "protein_coding")
+			featsWide = ensembldb::genes(EnsDb, filter=codingFilter)
+
+			# Grab just a single base pair at the TSS
+			feats = promoters(featsWide, 1, 1)
 			# Change from ensembl-style chrom annotation to UCSC_style
 			seqlevels(feats) = paste0("chr", seqlevels(feats))
 		}, error=function(err) NA)
@@ -107,7 +110,6 @@ buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 		save(file=paste0(TSSGenomeVar, ".RData"), list=TSSGenomeVar)
 	}
 }
-
 
 
 loadTxDb = function(genomeBuild) {
@@ -134,6 +136,7 @@ loadTxDb = function(genomeBuild) {
 # Generates RData objects for gene models, which can then be included in the 
 # package
 buildGeneModels = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
+
 	if (!requireNamespace("ensembldb", quietly=TRUE)) {
 		message("ensembldb package is not installed.")
 	}
@@ -141,6 +144,7 @@ buildGeneModels = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 		message(refAssembly)
 		tagline = "geneModels_"
 		storedObjectName = paste0(tagline, refAssembly)
+
 		tryCatch( { 
 			EnsDb = loadEnsDb(refAssembly)
 			codingFilter = AnnotationFilter::AnnotationFilter(
@@ -180,12 +184,21 @@ getTSSs = function(refAssembly) {
 	getReferenceData(refAssembly, tagline="TSS_")
 }
 
+getGeneModels = function(refAssembly) { 
+	getReferenceData(refAssembly, tagline="geneModels_")
+}
+
+# This is a generic getter function that will return
+# @refAssembly Reference assembly string (like hg38)
+# @tagline the string that was used to identify data of a given type in the 
+# data building step. It's used for the filename so we know what to load, and is 
+# what makes this function generic (so it can load different data types).
 getReferenceData = function(refAssembly, tagline) {
-	# query available datasets
-	ad = utils::data(package="GenomicDistributions")
-	adm = ad$results[,"Item"]
+	# query available datasets and convert the packageIQR object into a vector
+	datasetListIQR = utils::data(package="GenomicDistributions")
+	datasetList = datasetListIQR$results[,"Item"]
 	chromSizesGenomeVar = paste0(tagline, refAssembly)
-	if (chromSizesGenomeVar %in% adm){
+	if (chromSizesGenomeVar %in% datasetList){
 		# load it!
 		utils::data(list=chromSizesGenomeVar,
 				package="GenomicDistributions",

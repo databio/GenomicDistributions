@@ -19,7 +19,19 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 #devtools::test("code/GenomicDistributions")
 ```
 
-If you have a set of genomic ranges, the GenomicDistributions R package can help you with some simple visualizations. Currently, it can produce two kinds of plots: First, the *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes; and second, the *feature distribution plot*, which visualizes how your regions are distributed relative to a feature of interest, like Transcription Start Sites (TSSs).
+If you have a set of genomic ranges, the GenomicDistributions R package can help you with visualize some interesting properties of your regions. Currently, it can produce three kinds of plots:
+
+- The *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes
+- The *feature distance distribution plot*, which visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
+- The *partition distribution plot*, which visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
+
+GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes, locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible with GenomicDistributions, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
+
+In this vignette, we'll go through examples of each of the plots using my common built-in features and partitions. If you want more control, there's another advanced vignette that will introduce you how to define your own features, partitions, and chromosome sizes for custom analysis.
+
+## Modular plotting functions in the package
+
+Before we start, I want to explain my philosophy for designing the functions in this package. Many R plotting packages combine calculations and plotting into one giant function, but the problem with this is that if you want to take the underlying summarized data and plot it in a different way or combine it with something else, you can't. You only have access to the final plot. GenomicDistributions divides these tasks so you can use the intermediate data to design your own custom plot style if you want. Thus, each plot type has two different functions that work together to produce the plots: a *calculate* function and a *plot* function. The *calculate* functions take your GRanges object and return a table that summarizes your regions for the given analysis type. You can use these summary statistics how you like -- aggregate them across multiple region sets, insert them into other plots you have, and so forth; or, you can simply plug that result directly into the corresponding *plot* function, which returns a *ggplot2* object. Separating the calculation and plotting functions like this gives you more control over your results.
 
 ## Install
 
@@ -41,7 +53,7 @@ query = rtracklayer::import(queryFile)
 
 ## Chromosome distribution plots
 
-*Chromosome distribution plots* help you visualize how your regions are distributed across chromosomes. To produce these, you'll need to specify the chomosome lengths for your reference assembly. There are a few ways to do this.
+*Chromosome distribution plots* help you visualize how your regions are distributed across chromosomes. To produce these, you'll need to specify the chromosome lengths for your reference assembly. There are a few ways to do this.
 
 For the common reference assemblies that I use (hg19, hg38, mm9, and mm10), I've included the metadata in the package. If you're working with one of these genomes, making a plot of the distribution across chromosomes takes just a couple of lines of code:
 
@@ -100,3 +112,24 @@ Now, with these features, we just use the `featureDistanceDistribution` function
 fdd = featureDistanceDistribution(query, featureExample)
 plotFeatureDist(fdd)
 ```
+
+
+## Partition distribution plots
+
+Genomic partition distribution plots show you how your regions are distributed among promoters, exons, introns, or intergenic regions. You can produce one or two-set plots like so:
+
+
+```{r a partition plot}
+gp = genomicPartitions(query, "hg19")
+plotPartitions(gp)
+```
+
+Can you do 2 at a time? Yep:
+
+```{r multiple partition plots in one}
+gp2 = genomicPartitions(queryList, "hg19")
+plotPartitions(gp2)
+```
+
+Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
+

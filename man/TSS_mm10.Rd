@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{TSS_mm10}
 \alias{TSS_mm10}
-\title{Chromosome sizes}
+\title{TSS locations}
 \format{A named vectors of lengths with one item per chromosome}
 \source{
 BSGenome package

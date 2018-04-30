@@ -53,6 +53,14 @@ featureDistanceDistribution = function(query, features) {
 }
 
 DTNearest = function(DT1, DT2) {
+	#data.table::set(DT1, j=mid, value=start + round((end-start)/2))
+	#data.table::set(DT2, j=mid, value=start + round((end-start)/2))
+	if (is.null(DT1)) {
+		return(NULL)
+	}
+	if (is.null(DT2)) {
+		return(rep(NA, nrow(DT1)))
+	}
 	DT1[, mid:=start + round((end-start)/2)]
 	DT2[, mid:=start + round((end-start)/2)]
 	data.table::setattr(DT1, "sorted", "mid")
@@ -70,7 +78,7 @@ DTNearest = function(DT1, DT2) {
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). THis will be used to grab chromosome sizes with
+#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
 #' @export
 TSSDistance = function(query, refAssembly) {

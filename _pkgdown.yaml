@@ -23,4 +23,6 @@ navbar:
 articles:
   - title: Vignettes
     contents:
-      - 01-intro
+      - intro
+      - custom-features
+

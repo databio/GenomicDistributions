@@ -1,13 +1,15 @@
 Package: GenomicDistributions
-Version: 0.3
+Version: 0.4
 Date: 2018-02
 Title: Produces Summaries and Plots of Features Distributed Across Genomes
 Description: If you have a set of genomic ranges, this package can help you with
- some simple visualizations. Currently, it can produce two kinds of plots:
- First, the chromosome distribution plot, which visualizes how your regions are
- distributed over chromosomes; and second, the feature distribution plot, which
- visualizes how your regions are distributed relative to a feature of interest,
- like Transcription Start Sites (TSSs).
+ some simple visualizations. It produces several kinds of plots, for example:
+ Chromosome distribution plots, which visualize how your regions are distributed
+ over chromosomes; feature distance distribution plots, which visualizes how
+ your regions are distributed relative to a feature of interest, like
+ Transcription Start Sites (TSSs); genomic partition plots, which visualize how
+ your regions overlap given genomic features such as promoters, introns, exons,
+ or intergenic regions.
 Authors@R: c(
 	person(given=c("Nathan", "C."), "Sheffield",
 	email = "nathan@code.databio.org", role=c("aut", "cre")))

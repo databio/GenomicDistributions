@@ -172,15 +172,15 @@ plotGenomeAggregate = function(genomeAggregate, binCount=10000, plotTitle="Distr
 	g = g +
 		xlab("Genome") + ylab("Number of regions") +
 		geom_bar(stat="identity") + # Spread out to max width
-		facet_grid(chr ~ .) + # Place chroms one on top of another
+		facet_grid(chr ~ .) + # Place chromosomes one on top of another
 		theme_classic() + # Clean up cruft
 		theme_blank_facet_label() + # No boxes around labels
 		theme(panel.spacing=unit(0, "lines")) + # Reduce whitespace
-		theme(strip.text.y=element_text(size=8, angle=0)) + # Rotate labels
-		geom_hline(yintercept = 0, color="#EEEEEE") + # Light chrom lines
-		scale_y_discrete(breaks=c(0, max(x$N)), limits=c(max(x$N))) + 
-		scale_x_continuous(breaks=c(0,binCount), labels=c("Start", "End")) +
-		theme(plot.title = element_text(hjust = 0.5)) + # Center title
+		theme(strip.text.y=element_text(size=12, angle=0)) + # Rotate labels
+		geom_hline(yintercept=0, color="#EEEEEE") + # Light chrom lines
+		scale_y_discrete(breaks=c(0, max(genomeAggregate$N)), limits=c(max(genomeAggregate$N))) + 
+		scale_x_continuous(breaks=c(0, binCount), labels=c("Start", "End")) +
+		theme(plot.title=element_text(hjust=0.5)) + # Center title
 		ggtitle(plotTitle) +
 		theme(legend.position="bottom")
 	return(g)
