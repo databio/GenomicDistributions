@@ -57,7 +57,7 @@ loadEnsDb = function(genomeBuild) {
 
 	if (is.null(databasePkgString)) {
 		stop("I don't know how to map the string ", genomeBuild,
-			" to a BSgenome")
+			" to a EnsDb")
 	}
 
 	return(.requireAndReturn(databasePkgString))
@@ -77,23 +77,98 @@ buildChromSizes = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	}
 }
 
-buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10")) {
+# Generates Rdata objects for TSSs, to be included in the package for example.
+buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	if (!requireNamespace("ensembldb", quietly=TRUE)) {
 		message("ensembldb package is not installed.")
 	}
 	for (refAssembly in assemblyList) {
 		message(refAssembly)
 		TSSGenomeVar = paste0("TSS_", refAssembly)
-		EnsDb = loadEnsDb(refAssembly)
-		featsWide = ensembldb::genes(EnsDb, columns=c("gene_biotype"))
 
-		# Now, restrict to protein-coding genes and grab just a single base pair at the TSS
-		feats = promoters(featsWide[featsWide$gene_biotype == "protein_coding"], 1, 1)
-		# Change from ensembl-style chrom annotation to UCSC_style
-		seqlevels(feats) = paste0("chr", seqlevels(feats))
-		
+		# Using EnsDb
+		EnsDb = NULL
+		tryCatch( {
+			EnsDb = loadEnsDb(refAssembly)
+			featsWide = ensembldb::genes(EnsDb, columns=c("gene_biotype"))
+			# Now, restrict to protein-coding genes and grab just a single base pair at the TSS
+			feats = promoters(featsWide[featsWide$gene_biotype == "protein_coding"], 1, 1)
+			# Change from ensembl-style chrom annotation to UCSC_style
+			seqlevels(feats) = paste0("chr", seqlevels(feats))
+		}, error=function(err) NA)
+
+		if (is.null(EnsDb)) {
+			# Using TxDb
+			txdb = loadTxDb(refAssembly)
+			# Grab just a single base pair at the TSS
+			feats = GenomicFeatures::promoters(txdb, 1, 1)
+		}
 		assign(TSSGenomeVar, feats, envir=environment())
 		save(file=paste0(TSSGenomeVar, ".RData"), list=TSSGenomeVar)
+	}
+}
+
+
+
+loadTxDb = function(genomeBuild) {
+	databasePkgString = switch (genomeBuild,
+		grch38 = "TxDb.Hsapiens.UCSC.hg38.knownGene",
+		hg38 = "TxDb.Hsapiens.UCSC.hg38.knownGene",
+		hg19 = "TxDb.Hsapiens.UCSC.hg19.knownGene",
+		mm10 = "TxDb.Mmusculus.UCSC.mm10.knownGene",
+		mm9 = "TxDb.Mmusculus.UCSC.mm9.knownGene",
+		bogus = "bogus" # a bogus (uninstalled) db for unit tests
+	)
+
+	if (is.null(databasePkgString)) {
+		stop("I don't know how to map the string ", genomeBuild,
+			" to a TxDb")
+	}
+
+	return(.requireAndReturn(databasePkgString))
+}
+
+
+
+
+# Generates RData objects for gene models, which can then be included in the 
+# package
+buildGeneModels = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
+	if (!requireNamespace("ensembldb", quietly=TRUE)) {
+		message("ensembldb package is not installed.")
+	}
+	for (refAssembly in assemblyList) {
+		message(refAssembly)
+		tagline = "geneModels_"
+		storedObjectName = paste0(tagline, refAssembly)
+		tryCatch( { 
+			EnsDb = loadEnsDb(refAssembly)
+			codingFilter = AnnotationFilter::AnnotationFilter(
+				~ gene_biotype == "protein_coding")
+			geneFeats = ensembldb::genes(EnsDb, filter = codingFilter, columns=NULL)
+			exonFeats = ensembldb::exons(EnsDb, filter = codingFilter, columns=NULL)
+
+			# Smash 
+			exonFeats = reduce(exonFeats)
+			# Since we're storing this data, we want it to be small.
+			elementMetadata(geneFeats) = NULL
+			elementMetadata(exonFeats) = NULL
+			# Change from ensembl-style chrom annotation to UCSC_style
+			seqlevels(geneFeats) = paste0("chr", seqlevels(geneFeats))
+			seqlevels(exonFeats) = paste0("chr", seqlevels(exonFeats))
+		}, error=function(err) NA)
+		if (is.null(EnsDb)) {
+			# Try a TxDb instead
+			txdb = loadTxDb(refAssembly)
+			exonFeats = GenomicFeatures::exons(txdb)
+			geneFeats = GenomicFeatures::transcripts(txdb)
+			geneFeats = reduce(geneFeats)
+			exonFeats = reduce(exonFeats)
+		}
+
+		geneModels = list(genesGR=geneFeats, exonsGR=exonFeats)
+		assign(storedObjectName, geneModels, envir=environment())
+		save(file=paste0(storedObjectName, ".RData"), list=storedObjectName)
 	}
 }
 
@@ -125,4 +200,5 @@ getReferenceData = function(refAssembly, tagline) {
 
 
 
-
+#' GenomicDistributions:::buildGeneModels()
+#' GenomicDistributions:::buildTSSs()

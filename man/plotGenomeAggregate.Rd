@@ -11,7 +11,7 @@ plotGenomeAggregate(genomeAggregate, binCount = 10000,
 \item{genomeAggregate}{The output from the genomicDistribution function}
 
 \item{binCount}{Number of bins (should match the call to
-\code{genomicDistribution}}
+\code{genomicDistribution})}
 
 \item{plotTitle}{Title for plot.}
 }
