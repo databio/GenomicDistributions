@@ -44,4 +44,5 @@ test_that("Partitions", {
 	gp = genomicPartitions(query, "hg19")
 	gp = genomicPartitions(query, "mm10")
 	gp = genomicPartitions(query, "mm9")
+	plotPartitions(gp)
 })

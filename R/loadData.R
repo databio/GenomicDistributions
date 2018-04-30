@@ -188,7 +188,10 @@ getGeneModels = function(refAssembly) {
 	getReferenceData(refAssembly, tagline="geneModels_")
 }
 
-# This is a generic getter function that will return
+# This is a generic getter function that will return a data object requested,
+# if it is included in the built-in data with the package. Data objects can 
+# be requested for different reference assemblies and data types (specified by a
+# tagline, which is a unique string identifying the data type).
 # @refAssembly Reference assembly string (like hg38)
 # @tagline the string that was used to identify data of a given type in the 
 # data building step. It's used for the filename so we know what to load, and is 
@@ -197,16 +200,16 @@ getReferenceData = function(refAssembly, tagline) {
 	# query available datasets and convert the packageIQR object into a vector
 	datasetListIQR = utils::data(package="GenomicDistributions")
 	datasetList = datasetListIQR$results[,"Item"]
-	chromSizesGenomeVar = paste0(tagline, refAssembly)
-	if (chromSizesGenomeVar %in% datasetList){
+	dataObjectVar = paste0(tagline, refAssembly)
+	if (dataObjectVar %in% datasetList){
 		# load it!
-		utils::data(list=chromSizesGenomeVar,
+		utils::data(list=dataObjectVar,
 				package="GenomicDistributions",
 				envir=environment())
-		return(get(chromSizesGenomeVar))
+		return(get(dataObjectVar))
 	} else {
-		message("I don't have data for reference assembly ",
-			refAssembly)
+		error("I don't have built-in data for reference assembly ",
+			refAssembly, "(looking for ", tagline, ")")
 	}
 }
 
