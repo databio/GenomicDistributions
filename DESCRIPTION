@@ -35,3 +35,5 @@ LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
 RoxygenNote: 6.0.1
+URL: http://code.databio.org/GenomicDistributions
+BugReports: http://github.com/databio/GenomicDistributions

@@ -9,7 +9,9 @@
 #' @param genomeBuild	One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
 #' @export
 #' @examples
+#' \dontrun{
 #' bsg = loadBSgenome('hg19')
+#' }
 # TODO: allow for grabbing either masked or unmasked BSgenome objects
 loadBSgenome = function(genomeBuild) {
 	# Convert the given string into the BSgenome notation
@@ -44,7 +46,9 @@ loadBSgenome = function(genomeBuild) {
 #' @param genomeBuild	One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
 #' @export
 #' @examples
+#' \dontrun{
 #' ensDb = loadEnsDb('hg19')
+#' }
 loadEnsDb = function(genomeBuild) {
 
 	databasePkgString = switch (genomeBuild,
