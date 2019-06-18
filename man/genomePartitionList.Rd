@@ -15,5 +15,5 @@ genomePartitionList(genesGR, exonsGR)
 Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
 corresponding to various breakdown of the genome, based on the given
 annotations; it gives you proximal and core promoters, exons, and introns. To
-be used as a partionList for assignPartitions()
+be used as a partionList for calcPartitions()
 }

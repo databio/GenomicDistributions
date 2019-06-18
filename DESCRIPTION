@@ -1,6 +1,6 @@
 Package: GenomicDistributions
-Version: 0.5
-Date: 2018-04
+Version: 0.6
+Date: 2019-06
 Title: Produces Summaries and Plots of Features Distributed Across Genomes
 Description: If you have a set of genomic ranges, this package can help you with
  some simple visualizations. It produces several kinds of plots, for example:
@@ -21,19 +21,20 @@ Imports:
     ggplot2,
     methods
 Suggests:
+    AnnotationFilter,
     rtracklayer,
     testthat,
-    extrafont,
     knitr,
     BiocStyle,
     rmarkdown
 Enhances:
     BSgenome,
+    extrafont,
     ensembldb,
     GenomicFeatures
 LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 URL: http://code.databio.org/GenomicDistributions
 BugReports: http://github.com/databio/GenomicDistributions

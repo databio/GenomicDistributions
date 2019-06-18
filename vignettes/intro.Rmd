@@ -59,10 +59,10 @@ For the common reference assemblies that I use (hg19, hg38, mm9, and mm10), I've
 
 ```{r chromosome-distribution}
 # First, calculate the distribution:
-x = aggregateOverGenomeBins(query, "hg19")
+x = calcChromBinsRef(query, "hg19")
 
 # Then, plot the result:
-plotGenomeAggregate(x)
+plotChromBins(x)
 ```
 
 What if we want to do the same thing but on 2 query sets at the same time? No problem:
@@ -71,8 +71,8 @@ What if we want to do the same thing but on 2 query sets at the same time? No pr
 # Let's fudge a second region set by shifting the first one over 
 query2 = GenomicRanges::shift(query, 1e6)
 queryList = GRangesList(vistaEnhancers=query, shifted=query2)
-x2 = aggregateOverGenomeBins(queryList, "hg19")
-plotGenomeAggregate(x2)
+x2 = calcChromBinsRef(queryList, "hg19")
+plotChromBins(x2)
 ```
 
 These functions just do a naive binning across the genome. If you want to tweak the way the bins are handled, or use a different reference assembly, that's also possible and is only slightly more complicated. There are other functions you can use for that, which are outlined in another vignette.
@@ -85,31 +85,31 @@ For TSS plots, since this is such a common use case, we can use a handy built-in
 
 ```{r tss-distribution, fig.cap="TSS plot. Distribution of query regions relative to TSSs", fig.small=TRUE}
 # Calculate the distances:
-TSSDist = TSSDistance(query, "hg19")
+TSSdist = calcFeatureDistRefTSS(query, "hg19")
 
 # Then plot the result:
-plotFeatureDist(TSSDist, featureName="TSS")
+plotFeatureDist(TSSdist, featureName="TSS")
 ```
 
 This plot uses log-scale increasing bins to show how your regions are distributed. Now, let's make a similar plot with multiple region sets input:
 
 ```{r TSS plots with multiple region sets}
 
-TSSDist2 = TSSDistance(queryList, "hg19")
-plotFeatureDist(TSSDist2)
+TSSdist2 = calcFeatureDistRefTSS(queryList, "hg19")
+plotFeatureDist(TSSdist2)
 
 ```
 
-If you want to check distances to other features, that's no problem; `TSSDistance()` is really just a wrapper for the workhorse function, `featureDistanceDistribution()`. To show how this works, get some features you want to check the distance to. Here, let's just shift our query set by a normally distributed random number:
+If you want to check distances to other features, that's no problem; `calcFeatureDistRefTSS()` is really just a wrapper for the workhorse function, `calcFeatureDist()`. To show how this works, get some features you want to check the distance to. Here, let's just shift our query set by a normally distributed random number:
 
 ```{r Build features}
 featureExample = GenomicRanges::shift(query, round(rnorm(length(query), 0,1000)))
 ```
 
-Now, with these features, we just use the `featureDistanceDistribution` function to calculate the distances. This function using the fast rolling joins from `data.table` under the hood, so it complete very quickly. The result of this gets piped right into the plotting function as before:
+Now, with these features, we just use the `calcFeatureDist` function to calculate the distances. This function using the fast rolling joins from `data.table` under the hood, so it complete very quickly. The result of this gets piped right into the plotting function as before:
 
 ```{r Calculate distances and plot, fig.cap="Feature plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
-fdd = featureDistanceDistribution(query, featureExample)
+fdd = calcFeatureDist(query, featureExample)
 plotFeatureDist(fdd)
 ```
 
@@ -120,14 +120,14 @@ Genomic partition distribution plots show you how your regions are distributed a
 
 
 ```{r a partition plot}
-gp = genomicPartitions(query, "hg19")
+gp = calcPartitionsRef(query, "hg19")
 plotPartitions(gp)
 ```
 
 Can you do 2 at a time? Yep:
 
 ```{r multiple partition plots in one}
-gp2 = genomicPartitions(queryList, "hg19")
+gp2 = calcPartitionsRef(queryList, "hg19")
 plotPartitions(gp2)
 ```
 

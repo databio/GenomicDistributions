@@ -8,10 +8,11 @@ across a given partition list}
 plotPartitions(assignedPartitions, labels = NULL)
 }
 \arguments{
-\item{listGR}{a list of GRanges objects with independent region sets of interest}
+\item{assignedPartitions}{A table holding the frequency of assignment to
+each of the partitions. Produced by \code{calcPartitions}}
 
-\item{partitionList}{A priority-ordered and named list of GRanges objects to test
-query regions for overlaps}
+\item{labels}{Character vector with labels for the partitions (optional). By
+default it will use the names from the first argument.}
 }
 \description{
 This function can be used to test a GRanges object against any arbitrary list

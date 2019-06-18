@@ -217,8 +217,3 @@ getReferenceData = function(refAssembly, tagline) {
 	}
 }
 
-
-
-
-#' GenomicDistributions:::buildGeneModels()
-#' GenomicDistributions:::buildTSSs()

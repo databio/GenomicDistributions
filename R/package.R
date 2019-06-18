@@ -13,11 +13,18 @@
 #' @name GenomicDistributions
 #' @author Nathan C. Sheffield
 #'
-#' @references \url{http://github.com/nsheff}
-#' @import GenomicRanges
-#' @import ggplot2
-#' @import data.table
+#' @references \url{http://github.com/databio/GenomicDistributions}
+#' @importFrom GenomicRanges GRanges GRangesList elementMetadata strand
+#'             seqnames granges
+#' @importFrom ggplot2 ggplot aes facet_grid geom_jitter geom_line
+#'             geom_bar theme_classic xlab ylab geom_hline ylim scale_color_discrete
+#'             scale_x_discrete scale_y_discrete scale_fill_brewer scale_color_manual
+#'             scale_x_continuous ggtitle geom_vline scale_fill_discrete
+#'             scale_color_brewer theme element_blank unit element_text
+#' @importFrom data.table ":=" setDT data.table setkey fread setnames 
+#'             setcolorder rbindlist setattr setorder copy is.data.table
 #' @importFrom methods is
+
 NULL
 
 
@@ -26,7 +33,7 @@ NULL
 # I have to register stuff used in data.table as non-standard evaluation,
 # in order to pass some R CMD check NOTES.
 if(getRversion() >= "2.15.1") {
-	utils::globalVariables(c(
-	"cuts", "mid", "J", "chr", "N",
-	"regionID", "x", "name", "BSFilter"))
+    utils::globalVariables(c(
+    "cuts", "mid", "J", "chr", "N",
+    "regionID", "x", "name", "BSFilter"))
 }

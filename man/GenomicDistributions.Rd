@@ -14,7 +14,7 @@ distribution plot, which visualizes how your regions are distributed relative
 to a feature of interest, like Transcription Start Sites (TSSs).
 }
 \references{
-\url{http://github.com/nsheff}
+\url{http://github.com/databio/GenomicDistributions}
 }
 \author{
 Nathan C. Sheffield
