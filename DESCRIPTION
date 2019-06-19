@@ -14,7 +14,7 @@ Authors@R: c(
 	person(given=c("Nathan", "C."), "Sheffield",
 	email = "nathan@code.databio.org", role=c("aut", "cre")))
 Depends:
-    R (> 3.0),
+    R (>= 3.0),
     GenomicRanges
 Imports:
     data.table,
