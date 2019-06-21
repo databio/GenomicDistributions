@@ -1,16 +1,18 @@
 
-#' Calculates the distribution of overlaps for a query set to genomic partitions
+#' Calculates the distribution of overlaps for a query set to a reference assembly
 #' 
+#' This function is a wrapper for \code{calcPartitions} that uses built-in
+#' partitions for a given reference genome assembly.
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
 #' @export
-genomicPartitions = function(query, refAssembly) {
-	geneModels = GenomicDistributions:::getGeneModels(refAssembly)
+calcPartitionsRef = function(query, refAssembly) {
+	geneModels = getGeneModels(refAssembly)
 	partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-	return(assignPartitions(query, partitionList))
+	return(calcPartitions(query, partitionList))
 }
 
 
@@ -19,7 +21,7 @@ genomicPartitions = function(query, refAssembly) {
 #' Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
 #' corresponding to various breakdown of the genome, based on the given
 #' annotations; it gives you proximal and core promoters, exons, and introns. To
-#' be used as a partionList for assignPartitions()
+#' be used as a partionList for calcPartitions()
 #' @param genesGR a GRanges object of gene coordinates
 #' @param exonsGR a GRanges object of exons coordinates
 #' @export
@@ -40,6 +42,10 @@ genomePartitionList = function(genesGR, exonsGR) {
 }
 
 
+
+#' Calculates the distribution of overlaps between query and arbitrary genomic
+#' partitions
+#' 
 #' Takes a GRanges object, then assigns each element to a partition from the
 #' provided partitionList, and then tallies the number of regions assigned to
 #' each partition. A typical example of partitions is promoter, exon, intron,
@@ -53,10 +59,10 @@ genomePartitionList = function(genesGR, exonsGR) {
 #' @param remainder    A character vector to assign any query regions that do
 #'     not overlap with anything in the partitionList. Defaults to "intergenic"
 #' @export
-assignPartitions = function(query, partitionList, remainder="intergenic") {
+calcPartitions = function(query, partitionList, remainder="intergenic") {
 	if (methods::is(query, "GRangesList")) {
 		# Recurse over each GRanges object
-		x = lapply(query, assignPartitions, partitionList, remainder)
+		x = lapply(query, calcPartitions, partitionList, remainder)
 		nameList = names(query)
 		if(is.null(nameList)) {
 			nameList = 1:length(query) # Fallback to sequential numbers
@@ -90,9 +96,10 @@ assignPartitions = function(query, partitionList, remainder="intergenic") {
 #' GRanges objects. Each region in the query will be assigned to a given
 #' partition that it overlaps with the highest priority.
 #' 
-#' @param listGR a list of GRanges objects with independent region sets of interest
-#' @param partitionList A priority-ordered and named list of GRanges objects to test
-#'     query regions for overlaps
+#' @param assignedPartitions  A table holding the frequency of assignment to
+#'     each of the partitions. Produced by \code{calcPartitions}
+#' @param labels Character vector with labels for the partitions (optional). By
+#'     default it will use the names from the first argument.
 #'
 #' @export
 plotPartitions = function(assignedPartitions, labels=NULL) {
@@ -128,7 +135,7 @@ partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
 		# Try to correct for someone providing a single GR instead of a list.
 		listGR = list(listGR)
 	}
-	res = lapply(listGR, assignPartitions, partitionList)
+	res = lapply(listGR, calcPartitions, partitionList)
 	classes = c(names(partitionList), 0)
 	resAll = t(sapply(res, tableCount, classList=classes))
 
@@ -136,7 +143,7 @@ partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
 	rownames(resAllAve) = names(listGR)
 	#incDecCol = c("goldenrod3", "navy", "purple", "orange")
 	if (!is.null(backgroundGR)) {
-		back = assignPartitions(backgroundGR, partitionList)
+		back = calcPartitions(backgroundGR, partitionList)
 		backAll = table(back)
 		backAllAve = sweep(backAll, 1, sum(backAll), FUN="/")*100
 		resDiffAveNorm = log10(sweep(resAllAve, 2, backAllAve, FUN="/"))

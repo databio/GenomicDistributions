@@ -94,17 +94,16 @@ binChroms = function(binCount, chromSizes) {
 #' 
 #' Returns a data.table showing counts of regions in GR, in the bins
 #' In other words, where on which chromosomes are the ranges distributed?
-#' You must provide *either* a refAssembly (and binCount), or a GRangesList object
-#' as already binned regions
+#' You must provide binned regions.
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
-#' @param features Pre-computed features (as a GRangesList object) to aggregate
+#' @param bins Pre-computed bins (as a GRangesList object) to aggregate
 #'     over; for example, these could be genome bins
 #' @export
-featureAggregateDistribution = function(query, features) {
+calcChromBins = function(query, bins) {
 	if (methods::is(query, "GRangesList")) {
 		# Recurse over each GRanges object
-		x = lapply(query, featureAggregateDistribution, features)
+		x = lapply(query, calcChromBins, bins)
 
 		# To accommodate multiple regions, we'll need to introduce a new 'name'
 		# column to distinguish them.
@@ -124,7 +123,7 @@ featureAggregateDistribution = function(query, features) {
 	
 	# This jExpression will just count the number of regions.
 	jExpr = ".N"
-	res = BSAggregate(queryDT, features, jExpr=jExpr)
+	res = BSAggregate(queryDT, bins, jExpr=jExpr)
 
 	# order chromosomes by current order.
 	res[, chr:=factor(chr, levels=unique(res$chr))]
@@ -133,16 +132,18 @@ featureAggregateDistribution = function(query, features) {
 
 #' Returns the distribution of query over a reference assembly
 
-#' Given a query set of elements (a GRanges object) and a reference assembly (*e.g.
-#' 'hg38'), this will aggregate and count the distribution of the query elements
-#' across bins of the reference genome
+#' Given a query set of elements (a GRanges object) and a reference assembly
+#' (*e.g. 'hg38'), this will aggregate and count the distribution of the query
+#' elements across bins of the reference genome. This is a helper function to
+#' create features for common genomes. It is a wrapper of
+#' \code{calcChromBins}, which is more general.
 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector that will be used to grab chromosome
 #'     sizes with \code{getChromSizes}
 #' @param binCount Number of bins to divide the chromosomes into
 #' @export
-aggregateOverGenomeBins = function(query, refAssembly, binCount=10000) {
+calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 	# Bin the genome
 	chromSizes = getChromSizes(refAssembly)
 	binnedDT = binChroms(binCount, chromSizes)
@@ -150,7 +151,7 @@ aggregateOverGenomeBins = function(query, refAssembly, binCount=10000) {
 	listGR = lapply(splitBinnedDT, dtToGr, chr="idCol")
 	genomeBins =  GRangesList(listGR)
 
-	return(featureAggregateDistribution(query, genomeBins))
+	return(calcChromBins(query, genomeBins))
 }
 
 #' Plot distribution over chromosomes
@@ -161,7 +162,7 @@ aggregateOverGenomeBins = function(query, refAssembly, binCount=10000) {
 #'     \code{genomicDistribution})
 #' @param plotTitle Title for plot.
 #' @export
-plotGenomeAggregate = function(genomeAggregate, binCount=10000, plotTitle="Distribution over chromosomes") {
+plotChromBins = function(genomeAggregate, binCount=10000, plotTitle="Distribution over chromosomes") {
 	if ("name" %in% names(genomeAggregate)){
 		# It has multiple regions
 		g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N, fill=name, color=name))

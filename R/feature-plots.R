@@ -1,8 +1,8 @@
 # Old, slow version based on GRanges methods
-featureDistanceDistributionBioc = function(query, features) {
+calcFeatureDistBioc = function(query, features) {
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
-		x = lapply(query, featureDistanceDistribution, features)
+		x = lapply(query, calcFeatureDist, features)
 		return(x)
 	}
 
@@ -39,10 +39,10 @@ featureDistanceDistributionBioc = function(query, features) {
 #' @param features A GRanges object with features to test distance to
 #' 
 #' @export
-featureDistanceDistribution = function(query, features) {
+calcFeatureDist = function(query, features) {
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
-		x = lapply(query, featureDistanceDistribution, features)
+		x = lapply(query, calcFeatureDist, features)
 		return(x)
 	}
 	queryDT = grToDt(query)
@@ -74,18 +74,20 @@ DTNearest = function(DT1, DT2) {
 
 #' Calculates the distribution of distances from a query set to closest TSS
 #' 
-#' Given a query GRanges object and an assembly string, this function will grab the
-#' TSS list for the given reference assembly and then calculate the distance from
-#' each query feature to the closest TSS.
+#' Given a query GRanges object and an assembly string, this function will grab
+#' the TSS list for the given reference assembly and then calculate the distance
+#' from each query feature to the closest TSS. It is a wrapper of
+#' \code{calcFeatureDist} that uses built-in TSS features for a reference
+#' assembly
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
 #' @export
-TSSDistance = function(query, refAssembly) {
+calcFeatureDistRefTSS = function(query, refAssembly) {
 	features = getTSSs(refAssembly)
-	return(featureDistanceDistribution(query, features))
+	return(calcFeatureDist(query, features))
 }
 
 #' Plots a histogram of distances to genomic features
