@@ -75,6 +75,9 @@ x2 = calcChromBinsRef(queryList, "hg19")
 plotChromBins(x2)
 ```
 
+
+
+
 These functions just do a naive binning across the genome. If you want to tweak the way the bins are handled, or use a different reference assembly, that's also possible and is only slightly more complicated. There are other functions you can use for that, which are outlined in another vignette.
 
 ## Feature distance distribution plots
@@ -132,4 +135,6 @@ plotPartitions(gp2)
 ```
 
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
+
+
 
