@@ -4,7 +4,7 @@
 \alias{loadBSgenome}
 \title{Loads BSgenome objects from UCSC-style character vectors.}
 \usage{
-loadBSgenome(genomeBuild)
+loadBSgenome(genomeBuild, masked = TRUE)
 }
 \arguments{
 \item{genomeBuild}{One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'}

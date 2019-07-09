@@ -27,7 +27,7 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
 		bogus = "bogus" # a bogus (uninstalled) genome for unit tests
 	)
 	if (masked) {
-		databasePkgString = databasePkgString + ".masked"
+		databasePkgString = paste0(databasePkgString, ".masked")
 	}
 
 	if (is.null(databasePkgString)) {
