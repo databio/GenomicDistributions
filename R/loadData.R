@@ -13,19 +13,22 @@
 #' bsg = loadBSgenome('hg19')
 #' }
 # TODO: allow for grabbing either masked or unmasked BSgenome objects
-loadBSgenome = function(genomeBuild) {
+loadBSgenome = function(genomeBuild, masked=TRUE) {
 	# Convert the given string into the BSgenome notation
 	if (!requireNamespace("BSgenome", quietly=TRUE)) {
 		message("BSgenome package is not installed.")
 	}
 	databasePkgString = switch (genomeBuild,
-		grch38 = "BSgenome.Hsapiens.UCSC.hg38.masked",
-		hg38 = "BSgenome.Hsapiens.UCSC.hg38.masked",
-		hg19 = "BSgenome.Hsapiens.UCSC.hg19.masked",
-		mm10 = "BSgenome.Mmusculus.UCSC.mm10.masked",
-		mm9 = "BSgenome.Mmusculus.UCSC.mm9.masked",
+		grch38 = "BSgenome.Hsapiens.UCSC.hg38",
+		hg38 = "BSgenome.Hsapiens.UCSC.hg38",
+		hg19 = "BSgenome.Hsapiens.UCSC.hg19",
+		mm10 = "BSgenome.Mmusculus.UCSC.mm10",
+		mm9 = "BSgenome.Mmusculus.UCSC.mm9",
 		bogus = "bogus" # a bogus (uninstalled) genome for unit tests
 	)
+	if (masked) {
+		databasePkgString = paste0(databasePkgString, ".masked")
+	}
 
 	if (is.null(databasePkgString)) {
 		stop("I don't know how to map the string ", genomeBuild,
