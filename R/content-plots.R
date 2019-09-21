@@ -54,7 +54,7 @@ calcGCContentRef = function(query, refAssembly) {
 #' @export
 plotGCContent = function(gcvectors) {
 
-	gcdf = as.data.frame(list(gc=gcvec))
+	gcdf = as.data.frame(list(gc=gcvectors))
 	g = ggplot2::ggplot(gcdf, aes(x=gc)) + 
 		geom_density() + 
 		theme_classic() + 
