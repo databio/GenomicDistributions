@@ -109,7 +109,7 @@ If you want to check distances to other features, that's no problem; `calcFeatur
 featureExample = GenomicRanges::shift(query, round(rnorm(length(query), 0,1000)))
 ```
 
-Now, with these features, we just use the `calcFeatureDist` function to calculate the distances. This function using the fast rolling joins from `data.table` under the hood, so it complete very quickly. The result of this gets piped right into the plotting function as before:
+Now, with these features, we just use the `calcFeatureDist` function to calculate the distances. This function uses the fast rolling joins from `data.table` under the hood, so it completes very quickly. The result of this gets piped right into the plotting function as before:
 
 ```{r Calculate distances and plot, fig.cap="Feature plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
 fdd = calcFeatureDist(query, featureExample)
