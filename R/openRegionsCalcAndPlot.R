@@ -1,15 +1,20 @@
-# The function calcOpenSignal takes the input BED file, overlaps it with all defined
-# open chromatin regions across cell types and returns a matrix, where each row is 
-# the input genomic region (if overlap was found), each column is a cell type and the 
-# value is a normalized ATAC-seq signal in the region for the cell type.
+#' The function calcOpenSignal takes the input BED file, overlaps it with all defined
+#' open chromatin regions across cell types and returns a matrix, where each row is 
+#' the input genomic region (if overlap was found), each column is a cell type and the 
+#' value is a normalized ATAC-seq signal in the region for the cell type.
 #
-# Inputs:
-# bedInput - the genomic regions to be analyzed in form of data.table, data.frame, or 
-#            GRanges object
-# genome - genome version can be either hg19 (default) or hg38
-# useSimpleCahce - defines if simpleCache should be used to upload signal matrix, 
-#             defaults to T
-# cacheDir - set up a directory for simpleCache, default is a tempdir
+#' @param  bedInput Genomic regions to be analyzed in form of data.table, data.frame, or 
+#'            GRanges object
+#' @param genome - genome version can be either hg19 (default) or hg38
+#' @param useSimpleCahce - defines if simpleCache should be used to upload signal matrix, 
+#'             defaults to T
+#' @param cacheDir - set up a directory for simpleCache, default is a tempdir
+#' 
+#' @export
+#' @examples
+#' \dontrun{
+#' signalMatrix = calcOpenSignal(bedInput)
+#' }
 
 calcOpenSignal = function(bedInput, 
                           genome = "hg19", 
@@ -91,20 +96,19 @@ calcOpenSignal = function(bedInput,
   return(signalMatrix)
 }
 
-# The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.
-#
-# Inputs:
-# signalMatrix - output data.frame from calcOpenSignal function
-# plotType - what plot type should be used to visualize the results, options are:
-#           jitter (default) - jitter plot with box plot on top / boxPlot - box plot
-#           without individual points and outliers / barPlot - bar height represents the
-#           median signal value for a given cell type
-# cellGroup - this option allows to selcet a group of cells to be plotted, if NA (default)
-#           all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
-#           "embryonic", "eye", "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
-#           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle", "skin", 
-#            "urinarySystem", "vasculature"}, can be passed as a singe character string or vector
-#            of strings
+#' The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.
+#'
+#' @param signalMatrix - output data.frame from calcOpenSignal function
+#' @param  plotType - what plot type should be used to visualize the results, options are:
+#'           jitter (default) - jitter plot with box plot on top / boxPlot - box plot
+#'           without individual points and outliers / barPlot - bar height represents the
+#'           median signal value for a given cell type
+#' @param cellGroup - this option allows to selcet a group of cells to be plotted, if NA (default)
+#'           all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
+#'           "embryonic", "eye", "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
+#'           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle", "skin", 
+#'            "urinarySystem", "vasculature"}, can be passed as a singe character string or vector
+#'            of strings
 
 plotOpenSignal = function(signalMatrix, 
                           plotType = "jitter", 
@@ -223,13 +227,4 @@ plotOpenSignal = function(signalMatrix,
   
   
 }
-
-# upload the BED file to be analyzed
-bedInput = read.delim("data/PBMC_example.bed", 
-                      sep = "\t", header = F)
-# run the function
-signalMatrix = calcOpenSignal(bedInput)
-plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = c("blood", "CNS"))
-plotOpenSignal(signalMatrix, plotType = "boxPlot")
-plotOpenSignal(signalMatrix, plotType = "barPlot", "blood")
 
