@@ -20,8 +20,6 @@ Imports:
     data.table,
     ggplot2,
     methods
-    tidyverse
-    GenomicRanges
 Suggests:
     AnnotationFilter,
     rtracklayer,
@@ -29,7 +27,6 @@ Suggests:
     knitr,
     BiocStyle,
     rmarkdown
-    simpleCache
 Enhances:
     BSgenome,
     extrafont,
@@ -38,6 +35,6 @@ Enhances:
 LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 URL: http://code.databio.org/GenomicDistributions
 BugReports: http://github.com/databio/GenomicDistributions
