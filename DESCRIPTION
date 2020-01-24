@@ -20,6 +20,8 @@ Imports:
     data.table,
     ggplot2,
     methods
+    tidyverse
+    GenomicRanges
 Suggests:
     AnnotationFilter,
     rtracklayer,
@@ -27,6 +29,7 @@ Suggests:
     knitr,
     BiocStyle,
     rmarkdown
+    simpleCache
 Enhances:
     BSgenome,
     extrafont,
