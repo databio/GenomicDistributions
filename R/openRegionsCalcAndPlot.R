@@ -109,7 +109,13 @@ calcOpenSignal = function(bedInput,
 #'           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle", "skin", 
 #'            "urinarySystem", "vasculature"}, can be passed as a singe character string or vector
 #'            of strings
-
+#' @export
+#' @examples
+#' \dontrun{
+#' signalMatrix = calcOpenSignal(bedInput)
+#' plotOpenSignal(signalMatrix)
+#' plotOpenSignal(signalMatrix, plotType = "barPlot", cellGroup = "blood")
+#' }
 plotOpenSignal = function(signalMatrix, 
                           plotType = "jitter", 
                           cellGroup = NA){
