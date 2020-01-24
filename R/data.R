@@ -107,3 +107,13 @@ NULL
 #' @source BSGenome package
 #' @name geneModels_mm9
 NULL
+
+#' exampleBED
+#' 
+#' A dataset containing example hg19 regions. The dataset is an example of H3K27ac 
+#' regions in PBMCs.
+#' 
+#' @name exampleBED
+#' @usage data(exampleBED)
+#' @format data.frame object
+NULL
