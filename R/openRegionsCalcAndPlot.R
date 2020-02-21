@@ -68,17 +68,23 @@ calcOpenSignal = function(bedInput,
 
 #' The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.
 #'
-#' @param signalMatrix - output data.frame from calcOpenSignal function
-#' @param  plotType - what plot type should be used to visualize the results, options are:
+#' @param signalMatrix Output data.table from calcOpenSignal function.
+#' @param  plotType What plot type should be used to visualize the results. Options are:
 #'           jitter (default) - jitter plot with box plot on top / boxPlot - box plot
 #'           without individual points and outliers / barPlot - bar height represents the
-#'           median signal value for a given cell type
-#' @param cellGroup - this option allows to selcet a group of cells to be plotted, if NA (default)
+#'           median signal value for a given cell type.
+#' @param cellGroup - This option allows to selcet a group of cells to be plotted, if NA (default)
 #'           all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
 #'           "embryonic", "eye", "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
 #'           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle", "skin", 
 #'            "urinarySystem", "vasculature"}, can be passed as a singe character string or vector
-#'            of strings
+#'            of strings.
+#' @param cellTypeMetadata Metadata for cell type - tissue association. This option is for users, 
+#'          who provide their own open region signal matrix. The cellTypeMetadata matrix mast contain
+#'          two columns called cellType and tissue. cellType column containes the cell type names 
+#'          in provided signalMatrix column names. The tissue columns provides an information, which 
+#'          tissue the cell type comes from.
+#' @param colorScheme Provide color values for each tissue if you want to change the default colors.
 #' @export
 #' @examples
 #' \dontrun{
@@ -88,75 +94,62 @@ calcOpenSignal = function(bedInput,
 #' }
 plotOpenSignal = function(signalMatrix, 
                           plotType = "jitter", 
-                          cellGroup = NA){
+                          cellGroup = NA,
+                          cellTypeMetadata = NA, 
+                          colorScheme = c("#E31A1C","#666666","#B3DE69",
+                                          "#A65628","#33A02C","#E6AB02",
+                                          "#F0027F", "#FDC086","#FFFF99",
+                                          "#B3E2CD", "#B3CDE3","#66A61E",
+                                          "#F4CAE4","#80B1D3","#FFED6F",
+                                          "#B15928","#999999")){
   
-  # hg 19 has 67 cell typer, hg38 has 74 cell types - 
-  # based on this fact distinguish between geneome and upload metadata
-  # for color scheme
-  if(ncol(signalMatrix) == 68){
+  if(is.na(cellTypeMetadata)){
     # upload metadata for coloring
-    metadata = read.csv("data/cellTissue_metadata_hg19.csv", as.is = T)
-  } else if (ncol(signalMatrix) == 75){
-    metadata = read.csv("data/cellTissue_metadata_hg38.csv", as.is = T)
-  } else {
-    stop("Signal matrix dimensions do not match the number of available cell types for either hg19 or hg38.")
-  }
-  
+    cellTypeMetadata = fread("data/cellTissue_metadata.csv")
+  } 
   
   # reshape the signal matrix into ggplot usable form 
   # attach the metadata for coloring
   # sort table alphabetically by tissue-cellType
-  plotSignalMatrix = signalMatrix %>% 
-    gather(key = "cellType", value = "signal", -one_of("queryPeak")) %>% 
-    left_join(metadata, by = "cellType") %>% 
-    arrange(tissue, cellType) %>% 
-    unite("mixedVar", tissue, cellType, sep = "_", remove = F)
+  plotSignalMatrix = melt(signalMatrix, id.vars = "queryPeak", variable.name = "cellType", value.name = "signal")
+  setkey(plotSignalMatrix, cellType)
+  setkey(cellTypeMetadata, cellType)
+  plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = F)
+  plotSignalMatrix[, lowerCaseTissue := tolower(tissue)]
+  setorder(plotSignalMatrix, lowerCaseTissue, cellType)
+  plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissue], plotSignalMatrix[,cellType], sep = "_")]
   
   # if user defines cell group, filter the data
   if (length(cellGroup) == 1){
     if (is.na(cellGroup)){
       plotSignalMatrix = plotSignalMatrix
-    } else if (cellGroup %in% levels(factor(metadata$tissue))){
-      plotSignalMatrix = plotSignalMatrix %>% 
-        filter(tissue == cellGroup)
+    } else if (cellGroup %in% levels(factor(cellTypeMetadata$tissue))){
+      plotSignalMatrix = plotSignalMatrix[tissue == cellGroup]
     } else {
       stop("The input cell group is not in predefined list of options.")
     }
-  } else if (all(cellGroup %in% levels(factor(metadata$tissue)))) {
-    plotSignalMatrix = plotSignalMatrix %>% 
-      filter(tissue %in% cellGroup)
+  } else if (all(cellGroup %in% levels(factor(cellTypeMetadata$tissue)))) {
+    plotSignalMatrix = plotSignalMatrix[tissue %in% cellGroup]
   } else {
     stop("At least one of the input cell groups is not in predefined list of options.")
   }
   
   # arrange labels in a way, that corresponding groups are plotted together
-  myLabels = plotSignalMatrix  %>% 
-    ungroup() %>% 
-    select(mixedVar, cellType) %>% 
-    distinct() %>% 
-    arrange(mixedVar) %>% 
-    mutate(spaceLabel = str_replace_all(cellType, "_", " ")) %>% 
-    mutate(spaceLabel = str_replace(spaceLabel, "xx", ",")) %>% 
-    mutate(spaceLabel = str_replace(spaceLabel, " ,", ","))
+  myLabels = unique(plotSignalMatrix[, .(mixedVar, cellType)])
+  myLabels[, spaceLabel := gsub("_", " ", myLabels[, cellType])]
   
-  # set up a color palette for plotting
-  myColors = c("#E31A1C","#666666","#B3DE69","#A65628","#33A02C","#E6AB02","#F0027F",
-               "#FDC086","#FFFF99","#B3E2CD",
-               "#B3CDE3","#66A61E","#F4CAE4","#80B1D3","#FFED6F","#B15928","#999999")
- 
-   # get box plot staistics to set plot limits - outliers throw off the limits a lot
-  boxStats = plotSignalMatrix %>% 
-    group_by(mixedVar) %>% 
-    summarise(boxStats = list(boxplot.stats(signal)$stats)) %>% 
-    unnest(cols = boxStats) 
+  # get box plot staistics to set plot limits - outliers throw off the limits a lot
+  boxStats = plotSignalMatrix[, .(boxStats = list(boxplot.stats(signal)$stats)), by = mixedVar]
+  minBoxLimit = min(unlist(boxStats$boxStats))
+  maxBoxLimit = max(unlist(boxStats$boxStats))
   
   # get mediand of signal values to make a bar plot
-  barPlotStats = plotSignalMatrix %>% 
-    group_by(mixedVar) %>% 
-    summarise(medianBar = median(signal)) %>% 
-    left_join(plotSignalMatrix %>% 
-                select(-c("signal", "queryPeak")) %>% 
-                distinct(), by = "mixedVar")
+  barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), by = mixedVar]
+  tableToMerge = unique(plotSignalMatrix[, .(mixedVar, cellType, tissue, group)])
+  setkey(barPlotStats, mixedVar)
+  setkey(tableToMerge, mixedVar)
+  barPlotStats = merge(barPlotStats, tableToMerge, all = F)
+  
   
   # do the plotting
   p = ggplot(plotSignalMatrix,
@@ -171,8 +164,8 @@ plotOpenSignal = function(signalMatrix,
       xlab("") +
       ylab("normalized signal") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=myColors) + 
-      scale_color_manual(values=myColors)
+      scale_fill_manual(values=colorScheme) + 
+      scale_color_manual(values=colorScheme)
     print(jitterPlot)
   } else if (plotType == "boxPlot") {
     boxPlot = p + geom_boxplot(outlier.colour = NA, aes(fill = tissue), alpha = 0.9) +
@@ -182,9 +175,9 @@ plotOpenSignal = function(signalMatrix,
       xlab("") +
       ylab("normalized signal") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=myColors) + 
-      scale_color_manual(values=myColors) +
-      ylim(min(boxStats$boxStats), max(boxStats$boxStats))
+      scale_fill_manual(values=colorScheme) + 
+      scale_color_manual(values=colorScheme) +
+      ylim(minBoxLimit, maxBoxLimit)
     suppressWarnings(print(boxPlot))
   } else if (plotType == "barPlot") {
     barPlot = ggplot(barPlotStats, aes(x = mixedVar, y = medianBar, fill = tissue)) +
@@ -193,14 +186,12 @@ plotOpenSignal = function(signalMatrix,
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
             text = element_text(size=15)) +
       xlab("") +
-      ylab("median normalized signal") + 
+      ylab("med (normalized signal)") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=myColors)
+      scale_fill_manual(values=colorScheme)
     print(barPlot)
   } else {
     stop("Plot type does not match any of the available options. Available options: jitter, boxPlot, barPlot. ")
   }
   
-  
 }
-
