@@ -1,97 +1,67 @@
 #' The function calcOpenSignal takes the input BED file, overlaps it with all defined
 #' open chromatin regions across cell types and returns a matrix, where each row is 
-#' the input genomic region (if overlap was found), each column is a cell type and the 
-#' value is a normalized ATAC-seq signal in the region for the cell type.
+#' the input genomic region (if overlap was found), each column is a cell type, and the 
+#' value is a normalized ATAC-seq signal.
 #
 #' @param  bedInput Genomic regions to be analyzed in form of data.table, data.frame, or 
-#'            GRanges object
-#' @param genome - genome version can be either hg19 (default) or hg38
-#' @param useSimpleCahce - defines if simpleCache should be used to upload signal matrix, 
-#'             defaults to T
-#' @param cacheDir - set up a directory for simpleCache, default is a tempdir
-#' 
+#'            GRanges object.
+#' @param cellMatrix Matrix with open chromatin signal values, rows are genomic regions, 
+#'            columns are cell types. First column contains information about the genomic 
+#'            region in following form: chr_start_end. Can be either data.frame or data.table.
 #' @export
 #' @examples
 #' \dontrun{
-#' signalMatrix = calcOpenSignal(bedInput)
+#' signalMatrix = calcOpenSignal(bedInput, cellMatrix)
 #' }
 
-calcOpenSignal = function(bedInput, 
-                          genome = "hg19", 
-                          useSimpleCache = T, 
-                          cacheDir = tempdir()){
+calcOpenSignal = function(bedInput,
+                          cellMatrix){
   
-  # upload the matrix with openness signal specific to a given cell type
-  # if useSimpleCache is true - use simpleCache function, otherwise upload normally
-  if (useSimpleCache == T){
-    setCacheDir(cacheDir)
-    
-    if (genome == "hg19"){
-      simpleCache("cellMatrix19",read.delim("data/openSignalMatrix_hg19_quantileNormalized_round4.txt.gz"))
-      cellMatrix = cellMatrix19
-      
-      colnames(cellMatrix) = gsub('\\.', '-', colnames(cellMatrix))
-      colnames(cellMatrix) = gsub('xx', '', colnames(cellMatrix))
-    } else if (genome == "hg38"){
-      simpleCache("cellMatrix38",read.delim("data/openSignalMatrix_hg38_quantileNormalized_round4.txt.gz"))
-      cellMatrix = cellMatrix38
-      
-      colnames(cellMatrix) = gsub('\\.', '-', colnames(cellMatrix))
-      colnames(cellMatrix) = gsub('xx', '', colnames(cellMatrix))
-    } else {
-      stop("Unknown genome. Genome must be hg19 or hg38.")
-    }
-    
-  } else {
-    
-    if (genome == "hg19"){
-      cellMatrix = read.delim("data/openSignalMatrix_hg19_quantileNormalized_round4.txt.gz")
-    } else if (genome == "hg38"){
-      cellMatrix = read.delim("data/openSignalMatrix_hg38_quantileNormalized_round4.txt.gz")
-    } else {
-      stop("Unknown genome. Genome must be hg19 or hg38.")
-    }
-    
+  # if the cellMatrix is in data.frame format, convert it to data.table
+  if(class(cellMatrix)[1] == "data.frame"){
+    cellMatrix = as.data.table(cellMatrix)
   }
   
-  # get the genomic coordinates from the matrix and convert them to GRanges object
-  coordinates = rownames_to_column(cellMatrix, var = "peakName") %>% 
-    select(peakName) %>% 
-    separate(peakName, into = c("chr", "start", "end"), sep = "_")
+  # get the genomic coordinates from the open chromatin signal matrix - the first column
+  # conver the chr_start_end into a three column data.table
+  openRegions = cellMatrix[,1]
+  colnames(openRegions) = "V1"
+  openRegions[, c("chr", "start", "end") := tstrsplit(V1, "_", fixed=TRUE)]
+  numericColumns = c("start", "end")
+  openRegions[, (numericColumns ) := lapply(.SD, as.numeric), .SDcols = numericColumns]
+  openRegions = openRegions[,.(chr, start, end)]
   
-  openRegions = makeGRangesFromDataFrame(coordinates, keep.extra.columns = F, ignore.strand = T)
-  
-  # take just the firt three column from the input BED file
-  # convert the column names to chr, start, end - in this format it can 
-  # be passed to GRanges
-  bedInput = bedInput[,c(1,2,3)]
-  colnames(bedInput) = c("chr", "start", "end")
-  
-  # make GRanges objects out of the bed files and create peak names which will be passed to 
-  # the final signal matrix
-  if (class(bedInput) == "data.frame" | class(bedInput) == "data.table"){
-    bedCoordinates = makeGRangesFromDataFrame(bedInput, keep.extra.columns = F, ignore.strand = T)
-    bedIputWithPeakNames = bedInput %>% 
-      unite(peakName, c("chr", "start", "end"), sep = "_")
+  # if the class of query BED file differs from data.table, convert it to data.table
+  if (class(bedInput)[1] == "data.table") {
+    bedInput = bedInput
+  } else if (class(bedInput) == "data.frame") {
+    bedInput = as.data.table(bedInput)
   } else if (class(bedInput) == "GRanges"){
-    bedCoordinates = bedInput
-    bedIputWithPeakNames = data.frame(chr = seqnames(bedCoordinates), 
-                                      start = start(bedCoordinates), 
-                                      end = end(bedCoordinates)) %>% 
-      unite(peakName, c("chr", "start", "end"), sep = "_")
+    bedInput = as.data.table(data.frame(chr = seqnames(bedInput),
+                                        start = start(bedInput),
+                                        end = end(bedInput)))
   } else {
     stop("Genomic coordinates must be passed as data.frame or data.table or GRanges object.")
   }
   
-  # find which regions of the genomic regions of interest overlap with the openness matrix regions
-  overlaps = findOverlaps(openRegions, bedCoordinates)
+  # select just the fist three columns and give them name chr, start, end
+  # create a 4th column with peak name in following format: chr_start_end
+  bedInput = bedInput[, 1:3]
+  colnames(bedInput) = c("chr", "start", "end")
+  bedInput[, peakName := paste(bedInput[,chr], bedInput[,start], bedInput[,end], sep = "_")]
+  
+  # find which regions of the genomic regions of interest overlap with the open
+  # chromatin signal matrix regions
+  setkey(bedInput, chr, start, end)
+  overlaps = foverlaps(openRegions,bedInput, which = T)
+  overlaps = na.omit(overlaps)
   
   # extract the regions which overlap with query, assign the query peaks to them 
-  # and calculate the mean signal within these regions
-  signalMatrix = cellMatrix[overlaps@from,] %>% 
-    mutate(queryPeak = bedIputWithPeakNames[overlaps@to,]) %>% 
-    group_by(queryPeak) %>% 
-    summarise_all("mean")
+  # and calculate the sum of the signal within these regions
+  signalMatrix = cellMatrix[overlaps[,xid]] 
+  signalMatrix[,V1:=NULL]
+  signalMatrix[, queryPeak := bedInput[overlaps[,yid], peakName]]
+  signalMatrix = signalMatrix[, lapply(.SD, sum), by = .(queryPeak)]
   
   return(signalMatrix)
 }
