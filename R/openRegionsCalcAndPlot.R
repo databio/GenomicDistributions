@@ -3,18 +3,18 @@
 #' the input genomic region (if overlap was found), each column is a cell type, and the 
 #' value is a normalized ATAC-seq signal.
 #
-#' @param  bedInput Genomic regions to be analyzed in form of data.table, data.frame, or 
+#' @param  query Genomic regions to be analyzed in form of data.table, data.frame, or 
 #'            GRanges object.
 #' @param cellMatrix Matrix with open chromatin signal values, rows are genomic regions, 
 #'            columns are cell types. First column contains information about the genomic 
 #'            region in following form: chr_start_end. Can be either data.frame or data.table.
+#' @return 
+#' A data.table with cell specific open chromatin signal values for query regions.
+#' 
 #' @export
-#' @examples
-#' \dontrun{
-#' signalMatrix = calcOpenSignal(bedInput, cellMatrix)
 #' }
 
-calcOpenSignal = function(bedInput,
+calcOpenSignal = function(query,
                           cellMatrix){
   
   # if the cellMatrix is in data.frame format, convert it to data.table
@@ -23,7 +23,7 @@ calcOpenSignal = function(bedInput,
   }
   
   # get the genomic coordinates from the open chromatin signal matrix - the first column
-  # conver the chr_start_end into a three column data.table
+  # convert the chr_start_end into a three column data.table
   openRegions = cellMatrix[,1]
   colnames(openRegions) = "V1"
   openRegions[, c("chr", "start", "end") := tstrsplit(V1, "_", fixed=TRUE)]
@@ -32,35 +32,35 @@ calcOpenSignal = function(bedInput,
   openRegions = openRegions[,.(chr, start, end)]
   
   # if the class of query BED file differs from data.table, convert it to data.table
-  if (class(bedInput)[1] == "data.table") {
-    bedInput = bedInput
-  } else if (class(bedInput) == "data.frame") {
-    bedInput = as.data.table(bedInput)
-  } else if (class(bedInput) == "GRanges"){
-    bedInput = as.data.table(data.frame(chr = seqnames(bedInput),
-                                        start = start(bedInput),
-                                        end = end(bedInput)))
+  if (class(query)[1] == "data.table") {
+    query = query
+  } else if (class(query) == "data.frame") {
+    query = as.data.table(query)
+  } else if (class(query) == "GRanges"){
+    query = as.data.table(data.frame(chr = seqnames(query),
+                                        start = start(query),
+                                        end = end(query)))
   } else {
     stop("Genomic coordinates must be passed as data.frame or data.table or GRanges object.")
   }
   
   # select just the fist three columns and give them name chr, start, end
   # create a 4th column with peak name in following format: chr_start_end
-  bedInput = bedInput[, 1:3]
-  colnames(bedInput) = c("chr", "start", "end")
-  bedInput[, peakName := paste(bedInput[,chr], bedInput[,start], bedInput[,end], sep = "_")]
+  query = query[, 1:3]
+  colnames(query) = c("chr", "start", "end")
+  query[, peakName := paste(query[,chr], query[,start], query[,end], sep = "_")]
   
   # find which regions of the genomic regions of interest overlap with the open
   # chromatin signal matrix regions
-  setkey(bedInput, chr, start, end)
-  overlaps = foverlaps(openRegions,bedInput, which = T)
+  setkey(query, chr, start, end)
+  overlaps = foverlaps(openRegions,query, which = T)
   overlaps = na.omit(overlaps)
   
   # extract the regions which overlap with query, assign the query peaks to them 
   # and calculate the sum of the signal within these regions
   signalMatrix = cellMatrix[overlaps[,xid]] 
-  signalMatrix[,V1:=NULL]
-  signalMatrix[, queryPeak := bedInput[overlaps[,yid], peakName]]
+  signalMatrix[,-1]
+  signalMatrix[, queryPeak := query[overlaps[,yid], peakName]]
   signalMatrix = signalMatrix[, lapply(.SD, sum), by = .(queryPeak)]
   
   return(signalMatrix)
@@ -68,11 +68,10 @@ calcOpenSignal = function(bedInput,
 
 #' The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.
 #'
-#' @param signalMatrix Output data.table from calcOpenSignal function.
-#' @param  plotType What plot type should be used to visualize the results. Options are:
-#'           jitter (default) - jitter plot with box plot on top / boxPlot - box plot
-#'           without individual points and outliers / barPlot - bar height represents the
-#'           median signal value for a given cell type.
+#' @param signalMatrix Output data.table from \code{calcOpenSignal} function.
+#' @param  plotType Options are: jitter (default) - jitter plot with box plot on top / 
+#'           boxPlot - box plot without individual points and outliers / 
+#'           barPlot - bar height represents the median signal value for a given cell type.
 #' @param cellGroup - This option allows to selcet a group of cells to be plotted, if NA (default)
 #'           all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
 #'           "embryonic", "eye", "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
@@ -88,7 +87,7 @@ calcOpenSignal = function(bedInput,
 #' @export
 #' @examples
 #' \dontrun{
-#' signalMatrix = calcOpenSignal(bedInput)
+#' signalMatrix = calcOpenSignal(query, cellMatrix)
 #' plotOpenSignal(signalMatrix)
 #' plotOpenSignal(signalMatrix, plotType = "barPlot", cellGroup = "blood")
 #' }
@@ -105,7 +104,7 @@ plotOpenSignal = function(signalMatrix,
   
   if(is.na(cellTypeMetadata)){
     # upload metadata for coloring
-    cellTypeMetadata = fread("data/cellTissue_metadata.csv")
+    cellTypeMetadata = fread("inst/extdata/cellTissue_metadata.csv.gz")
   } 
   
   # reshape the signal matrix into ggplot usable form 
@@ -150,7 +149,6 @@ plotOpenSignal = function(signalMatrix,
   setkey(tableToMerge, mixedVar)
   barPlotStats = merge(barPlotStats, tableToMerge, all = F)
   
-  
   # do the plotting
   p = ggplot(plotSignalMatrix,
              aes(x = mixedVar, y = signal))
@@ -193,5 +191,4 @@ plotOpenSignal = function(signalMatrix,
   } else {
     stop("Plot type does not match any of the available options. Available options: jitter, boxPlot, barPlot. ")
   }
-  
 }
