@@ -12,7 +12,6 @@
 #' A data.table with cell specific open chromatin signal values for query regions.
 #' 
 #' @export
-#' }
 
 calcOpenSignal = function(query,
                           cellMatrix){
@@ -104,7 +103,7 @@ plotOpenSignal = function(signalMatrix,
   
   if(is.na(cellTypeMetadata)){
     # upload metadata for coloring
-    cellTypeMetadata = fread("inst/extdata/cellTissue_metadata.csv.gz")
+    cellTypeMetadata = data("cellTypeMetadata")
   } 
   
   # reshape the signal matrix into ggplot usable form 
