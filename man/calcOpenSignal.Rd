@@ -4,35 +4,25 @@
 \alias{calcOpenSignal}
 \title{The function calcOpenSignal takes the input BED file, overlaps it with all defined
 open chromatin regions across cell types and returns a matrix, where each row is 
-the input genomic region (if overlap was found), each column is a cell type and the 
-value is a normalized ATAC-seq signal in the region for the cell type.}
+the input genomic region (if overlap was found), each column is a cell type, and the 
+value is a normalized ATAC-seq signal.}
 \usage{
-calcOpenSignal(
-  bedInput,
-  genome = "hg19",
-  useSimpleCache = T,
-  cacheDir = tempdir()
-)
+calcOpenSignal(query, cellMatrix)
 }
 \arguments{
-\item{bedInput}{Genomic regions to be analyzed in form of data.table, data.frame, or 
-GRanges object}
+\item{query}{Genomic regions to be analyzed in form of data.table, data.frame, or 
+GRanges object.}
 
-\item{genome}{- genome version can be either hg19 (default) or hg38}
-
-\item{cacheDir}{- set up a directory for simpleCache, default is a tempdir}
-
-\item{useSimpleCahce}{- defines if simpleCache should be used to upload signal matrix, 
-defaults to T}
+\item{cellMatrix}{Matrix with open chromatin signal values, rows are genomic regions, 
+columns are cell types. First column contains information about the genomic 
+region in following form: chr_start_end. Can be either data.frame or data.table.}
+}
+\value{
+A data.table with cell specific open chromatin signal values for query regions.
 }
 \description{
 The function calcOpenSignal takes the input BED file, overlaps it with all defined
 open chromatin regions across cell types and returns a matrix, where each row is 
-the input genomic region (if overlap was found), each column is a cell type and the 
-value is a normalized ATAC-seq signal in the region for the cell type.
-}
-\examples{
-\dontrun{
-signalMatrix = calcOpenSignal(bedInput)
-}
+the input genomic region (if overlap was found), each column is a cell type, and the 
+value is a normalized ATAC-seq signal.
 }
