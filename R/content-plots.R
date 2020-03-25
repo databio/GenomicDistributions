@@ -55,12 +55,24 @@ calcGCContentRef = function(query, refAssembly) {
 plotGCContent = function(gcvectors) {
 
 	gcdf = as.data.frame(list(gc=gcvectors))
-	g = ggplot2::ggplot(gcdf, aes(x=gc)) + 
-		geom_density() + 
-		theme_classic() + 
-		xlim(0,1) +
-		geom_vline(aes(xintercept=mean(gc)),
-            color="blue", linetype="solid", size=0.5)
+	gcdfReshaped = reshape2::melt(gcdf) 
+	if (methods::is(gcvectors, "list")) {
+	  meansdf = aggregate(gcdfReshaped$value, list(gcdfReshaped$variable), mean)
+	  g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=variable)) +
+	    geom_density() +
+	    geom_vline(data=meansdf, aes(xintercept=x, colour=Group.1),
+	               linetype="solid", size=0.5) +
+	    theme_classic() +
+	    theme(legend.position = "bottom")
+	} else {
+	  g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
+	    geom_density() + 
+	    geom_vline(aes(xintercept=mean(value)),
+	               color="red", linetype="solid", size=0.5) + 
+	    theme_classic()
+	}    
+	g = g +   
+	 xlim(0,1) 
 
 	return(g)
 }
