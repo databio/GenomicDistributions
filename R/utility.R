@@ -146,7 +146,7 @@ theme_blank_facet_label = function() {
 # labelCuts(seq(0,100,by=20))
 labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-", infBins=FALSE) {
       roundedLabels = signif(round(
-      	cbind( breakPoints[-length(breakPoints)],breakPoints[-1]),digits), signif_digits)
+      	cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)
       # set the Inf values to NA so formatC can add commas
       is.na(roundedLabels) = sapply(roundedLabels, is.infinite) 
       labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
