@@ -3,8 +3,11 @@ calcWidth = function(query) {
   width(query)
 }
 
-## plotting function
-plotQthist = function(df, EndBarColor = "gray57", MiddleBarColor = "gray27", quantile=NULL, bins=NULL) {
+#' Plot quantile-trimmed histogram
+
+#' @export
+plotQTHist = function(df, EndBarColor = "gray57", MiddleBarColor = "gray27", quantile=NULL, 
+  bins=NULL) {
   
       output = calcDivisions(df, quantile=quantile, bins=bins)
       bins = output[["bins"]]
@@ -39,7 +42,8 @@ plotQthist = function(df, EndBarColor = "gray57", MiddleBarColor = "gray27", qua
 
 ######################################## helper functions 
 
-############# calulating the divisions for the graph
+#' Calculate distance
+#' @export
 calcDivisions = function(df, bins=NULL, quantile = NULL){
       # calculating bins
       if(!is.null(bins)){
@@ -69,16 +73,3 @@ calcDivisions = function(df, bins=NULL, quantile = NULL){
       return(listOutput)
 }
 
-############ LABEL CUTS
-# I changed this helper function so that the x-axis would have commas
-labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
-      roundedLabels = signif(round(cbind( breakPoints[-length(breakPoints)],breakPoints[-1]),digits), 3)
-      is.na(roundedLabels) <- sapply(roundedLabels, is.infinite) #set the Inf values to NA so that formatC could add commas
-      labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
-      labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
-      if (infBins) {
-        labels[1] = paste0("<", formatC(breakPoints[2], format="d", big.mark=","))
-        labels[length(labels)] = paste0(">", formatC(breakPoints[length(breakPoints)-1], format="d", big.mark=","))
-      }
-      return(labels)
-}
