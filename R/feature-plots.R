@@ -97,27 +97,35 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 #' 
 #' @param dists Results from \code{featureDistribution}
 #' @param featureName Character vector for plot labels (optional).
+#' @param numbers a logical indicating whether the raw numbers should be 
+#'     displayed, rather than percentages (optional).
 #' @export
-plotFeatureDist = function(dists, featureName="features", divisions=NULL) {
-
+plotFeatureDist = function(dists, featureName="features", divisions=NULL, 
+                           numbers=FALSE) {
 	df = cutDists(dists, divisions)
 	if ("name" %in% names(df)){
+	    if (!numbers)
+	        df$Freq = df[, .(Freq.Per = (Freq / max(Freq)) * 100), 
+	                     by = name][, "Freq.Per"]
 		# It has multiple regions
 		g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
 			facet_grid(. ~name)
 	} else {
+	    if (!numbers)
+	        df$Freq = (df$Freq / max(df$Freq)) * 100
 		g = ggplot(df, aes(x=cuts, y=Freq))
 	}
 
 	g = g +
 		geom_bar(stat="identity") + 
-		geom_vline(xintercept = (length(unique(df$cuts))+1)/2, color="darkgreen") +
+		geom_vline(xintercept = (length(unique(df$cuts))+1)/2, 
+		           color="darkgreen") +
 		theme_classic() + 
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
 		xlab(paste("Distance to", featureName)) +
-		ylab("Number of regions") +
-		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
+		ylab(paste0(ifelse(numbers, "Number", "Percentage"), " of regions")) +
+		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + 
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
 		ggtitle(paste("Distribution relative to", featureName)) +
 		theme(legend.position="bottom")
