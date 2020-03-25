@@ -137,4 +137,15 @@ plotPartitions(gp2)
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
 
+## GC content plots 
+*GC content plots* will return a probability density function of GC content percentage over the genomic ranges in the query. 
+
+```{r GC content plots, fig.cap="GC content plot. Probability density function of GC percentage"}
+# Calculate the GC content
+gc1 = calcGCContentRef(query, "hg19")
+
+# Plot the GC distribution
+plotGCContent(gc1)
+```
+
 
