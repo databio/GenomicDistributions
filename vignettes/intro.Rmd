@@ -149,7 +149,7 @@ plotGCContent(gc1)
 ```
 
 
-```{r}
+```{r multiple distributions in one}
 # You can also plot the probability distribution for more than one query.
 gc2 = calcGCContentRef(queryList, "hg19")
 plotGCContent(gc2)
