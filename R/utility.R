@@ -138,19 +138,34 @@ theme_blank_facet_label = function() {
 # \code{labelCuts} will take a cut group, (e.g., a quantile division of 
 # some signal), and give you clean labels (similar to the cut method).
 # @param breakPoints The exact values you want as boundaries for your bins
-# @param digits Number of digits to cut the labels off. 
+# @param round_digits Number of digits to cut round labels to. 
+# @param signif_digits Number of significant digits to specify. 
 # @param collapse Character to separate the labels
 # @param infBins use >/< as labels on the edge bins
 # @examples 
 # labelCuts(seq(0,100,by=20))
-labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
-	labels = 
-	apply(round(cbind( breakPoints[-length(breakPoints)],	
-		breakPoints[-1]),digits), 1, paste0, collapse=collapse) 
-
-	if (infBins) {
-		labels[1] = paste0("<", breakPoints[2])
-		labels[length(labels)] = paste0(">", breakPoints[length(breakPoints)-1])
-	}
-	return(labels)
+labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-", infBins=FALSE) {
+      roundedLabels = signif(round(
+      	cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)
+      # set the Inf values to NA so formatC can add commas
+      is.na(roundedLabels) = sapply(roundedLabels, is.infinite) 
+      labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
+      labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
+      if (infBins) {
+        labels[1] = paste0("<", formatC(breakPoints[2], format="d", big.mark=","))
+        labels[length(labels)] = paste0(">", formatC(breakPoints[length(breakPoints)-1], format="d", big.mark=","))
+      }
+      return(labels)
 }
+
+# labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
+# 	labels = 
+# 	apply(round(cbind( breakPoints[-length(breakPoints)],	
+# 		breakPoints[-1]),digits), 1, paste0, collapse=collapse) 
+
+# 	if (infBins) {
+# 		labels[1] = paste0("<", breakPoints[2])
+# 		labels[length(labels)] = paste0(">", breakPoints[length(breakPoints)-1])
+# 	}
+# 	return(labels)
+# }
