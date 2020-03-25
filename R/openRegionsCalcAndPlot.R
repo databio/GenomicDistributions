@@ -1,53 +1,67 @@
-#' The function calcOpenSignal takes the input BED file, overlaps it with all defined
-#' open chromatin regions across cell types and returns a matrix, where each row is 
-#' the input genomic region (if overlap was found), each column is a cell type, and the 
-#' value is a normalized ATAC-seq signal.
+#' The function calcOpenSignal takes the input BED file, overlaps it with all
+#' defined open chromatin regions across cell types and returns a matrix, 
+#' where each row is the input genomic region (if overlap was found), each 
+#' column is a cell type, and the value is a normalized ATAC-seq signal.
 #
-#' @param  query Genomic regions to be analyzed in form of data.table, data.frame, or 
-#'            GRanges object.
-#' @param cellMatrix Matrix with open chromatin signal values, rows are genomic regions, 
-#'            columns are cell types. First column contains information about the genomic 
-#'            region in following form: chr_start_end. Can be either data.frame or data.table.
+#' @param  query Genomic regions to be analyzed. Can be in GRanges or 
+#'             GRangesList format.
+#' @param cellMatrix Matrix with open chromatin signal values, rows are genomic
+#'            regions, columns are cell types. First column contains 
+#'            information about the genomic region in following form: 
+#'            chr_start_end. Can be either data.frame or data.table.
 #' @return 
-#' A data.table with cell specific open chromatin signal values for query regions.
+#' A data.table with cell specific open chromatin signal values for query 
+#' regions.
 #' 
 #' @export
-
 calcOpenSignal = function(query,
                           cellMatrix){
   
-  # if the cellMatrix is in data.frame format, convert it to data.table
-  if(class(cellMatrix)[1] == "data.frame"){
-    cellMatrix = as.data.table(cellMatrix)
+  if (!is(query, "GRanges") && !is(query, "GRangesList")) {
+    stop("Query must be in either GRanges or GRangesList format.")
+  } else if (is(query, "GRangesList")) {
+    # Recurse over each GRanges object
+    x = lapply(query, calcOpenSignal, cellMatrix)
+    nameList = names(query)
+    if(is.null(nameList)) {
+      nameList = 1:length(query) # Fallback to sequential numbers
+    }
+    # Append names
+    xb = rbindlist(x)
+    xb$name = rep(nameList, sapply(x, nrow))
+    return(xb)
   }
   
-  # get the genomic coordinates from the open chromatin signal matrix - the first column
-  # convert the chr_start_end into a three column data.table
+  # if the cellMatrix is in data.frame format, convert it to data.table
+  if(!is(cellMatrix, "data.table") && is(cellMatrix, "data.frame")){
+    cellMatrix = as.data.table(cellMatrix)
+  } else if (!is(cellMatrix, "data.table")){
+    stop("The cellMatrix object is in incorrect format - must be data.table or
+         data.frame.")
+  }
+  
+  # get the genomic coordinates from the open chromatin signal matrix - 
+  # the first column convert the chr_start_end into a three column data.table
   openRegions = cellMatrix[,1]
   colnames(openRegions) = "V1"
   openRegions[, c("chr", "start", "end") := tstrsplit(V1, "_", fixed=TRUE)]
   numericColumns = c("start", "end")
-  openRegions[, (numericColumns ) := lapply(.SD, as.numeric), .SDcols = numericColumns]
+  openRegions[, (numericColumns ) := lapply(.SD, as.numeric), 
+              .SDcols = numericColumns]
   openRegions = openRegions[,.(chr, start, end)]
   
-  # if the class of query BED file differs from data.table, convert it to data.table
-  if (class(query)[1] == "data.table") {
-    query = query
-  } else if (class(query) == "data.frame") {
-    query = as.data.table(query)
-  } else if (class(query) == "GRanges"){
-    query = as.data.table(data.frame(chr = seqnames(query),
-                                        start = start(query),
-                                        end = end(query)))
-  } else {
-    stop("Genomic coordinates must be passed as data.frame or data.table or GRanges object.")
-  }
+  # check if query BED file is GRanges object and convert it to data.table
+  # otherwise give error
+  query = as.data.table(data.frame(chr = seqnames(query),
+                                   start = start(query),
+                                   end = end(query)))
   
   # select just the fist three columns and give them name chr, start, end
   # create a 4th column with peak name in following format: chr_start_end
   query = query[, 1:3]
   colnames(query) = c("chr", "start", "end")
-  query[, peakName := paste(query[,chr], query[,start], query[,end], sep = "_")]
+  query[, peakName := paste(query[,chr], query[,start], query[,end], 
+                            sep = "_")]
   
   # find which regions of the genomic regions of interest overlap with the open
   # chromatin signal matrix regions
@@ -55,10 +69,10 @@ calcOpenSignal = function(query,
   overlaps = foverlaps(openRegions,query, which = T)
   overlaps = na.omit(overlaps)
   
-  # extract the regions which overlap with query, assign the query peaks to them 
-  # and calculate the sum of the signal within these regions
+  # extract the regions which overlap with query, assign the query peaks to 
+  # them and calculate the sum of the signal within these regions
   signalMatrix = cellMatrix[overlaps[,xid]] 
-  signalMatrix[,-1]
+  signalMatrix = signalMatrix[,-1]
   signalMatrix[, queryPeak := query[overlaps[,yid], peakName]]
   signalMatrix = signalMatrix[, lapply(.SD, sum), by = .(queryPeak)]
   
