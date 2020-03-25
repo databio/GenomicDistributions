@@ -4,8 +4,11 @@
 \alias{plotChromBins}
 \title{Plot distribution over chromosomes}
 \usage{
-plotChromBins(genomeAggregate, binCount = 10000,
-  plotTitle = "Distribution over chromosomes")
+plotChromBins(
+  genomeAggregate,
+  binCount = 10000,
+  plotTitle = "Distribution over chromosomes"
+)
 }
 \arguments{
 \item{genomeAggregate}{The output from the genomicDistribution function}
