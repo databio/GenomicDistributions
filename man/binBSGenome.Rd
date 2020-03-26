@@ -11,6 +11,9 @@ binBSGenome(genome, binCount)
 
 \item{binCount}{number of bins per chromosome}
 }
+\value{
+A data.table object showing the region and bin IDs of the reference genome.
+}
 \description{
 Given a BSgenome object (to be loaded via \code{loadBSgenome}), and a number
 of bins, this will bin that genome. It is a simple wrapper of the

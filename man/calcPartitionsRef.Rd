@@ -13,6 +13,10 @@ calcPartitionsRef(query, refAssembly)
 assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 \code{getTSSs}.}
 }
+\value{
+A data.frame indicating the number of query region overlaps in several  
+genomic partitions.
+}
 \description{
 This function is a wrapper for \code{calcPartitions} that uses built-in
 partitions for a given reference genome assembly.

@@ -2,27 +2,29 @@
 % Please edit documentation in R/openRegionsCalcAndPlot.R
 \name{calcOpenSignal}
 \alias{calcOpenSignal}
-\title{The function calcOpenSignal takes the input BED file, overlaps it with all defined
-open chromatin regions across cell types and returns a matrix, where each row is 
-the input genomic region (if overlap was found), each column is a cell type, and the 
-value is a normalized ATAC-seq signal.}
+\title{The function calcOpenSignal takes the input BED file, overlaps it with all
+defined open chromatin regions across cell types and returns a matrix, 
+where each row is the input genomic region (if overlap was found), each 
+column is a cell type, and the value is a normalized ATAC-seq signal.}
 \usage{
 calcOpenSignal(query, cellMatrix)
 }
 \arguments{
-\item{query}{Genomic regions to be analyzed in form of data.table, data.frame, or 
-GRanges object.}
+\item{query}{Genomic regions to be analyzed. Can be in GRanges or 
+GRangesList format.}
 
-\item{cellMatrix}{Matrix with open chromatin signal values, rows are genomic regions, 
-columns are cell types. First column contains information about the genomic 
-region in following form: chr_start_end. Can be either data.frame or data.table.}
+\item{cellMatrix}{Matrix with open chromatin signal values, rows are genomic
+regions, columns are cell types. First column contains 
+information about the genomic region in following form: 
+chr_start_end. Can be either data.frame or data.table.}
 }
 \value{
-A data.table with cell specific open chromatin signal values for query regions.
+A data.table with cell specific open chromatin signal values for query 
+regions.
 }
 \description{
-The function calcOpenSignal takes the input BED file, overlaps it with all defined
-open chromatin regions across cell types and returns a matrix, where each row is 
-the input genomic region (if overlap was found), each column is a cell type, and the 
-value is a normalized ATAC-seq signal.
+The function calcOpenSignal takes the input BED file, overlaps it with all
+defined open chromatin regions across cell types and returns a matrix, 
+where each row is the input genomic region (if overlap was found), each 
+column is a cell type, and the value is a normalized ATAC-seq signal.
 }

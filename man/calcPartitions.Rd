@@ -17,6 +17,10 @@ to the first partition it overlaps}
 \item{remainder}{A character vector to assign any query regions that do
 not overlap with anything in the partitionList. Defaults to "intergenic"}
 }
+\value{
+A data.frame assigning each element of a GRanges object to a
+ partition from a previously provided partitionList.
+}
 \description{
 Takes a GRanges object, then assigns each element to a partition from the
 provided partitionList, and then tallies the number of regions assigned to

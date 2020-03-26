@@ -9,7 +9,10 @@ binChroms(binCount, chromSizes)
 \arguments{
 \item{binCount}{number of bins (total; *not* per chromosome)}
 
-\item{chromSizes}{a named list of size (length) for each chromosome}
+\item{chromSizes}{a named list of size (length) for each chromosome.}
+}
+\value{
+A data.table object assigning a bin ID to each chromosome region.
 }
 \description{
 Given a list of chromosomes with corresponding sizes, this script will

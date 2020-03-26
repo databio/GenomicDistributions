@@ -6,7 +6,7 @@
 \usage{
 plotOpenSignal(
   signalMatrix,
-  plotType = "jitter",
+  plotType = "barPlot",
   cellGroup = NA,
   cellTypeMetadata = NA,
   colorScheme = c("#E31A1C", "#666666", "#B3DE69", "#A65628", "#33A02C", "#E6AB02",
@@ -17,9 +17,9 @@ plotOpenSignal(
 \arguments{
 \item{signalMatrix}{Output data.table from \code{calcOpenSignal} function.}
 
-\item{plotType}{Options are: jitter (default) - jitter plot with box plot on top / 
+\item{plotType}{Options are: jitter - jitter plot with box plot on top / 
 boxPlot - box plot without individual points and outliers / 
-barPlot - bar height represents the median signal value for a given cell type.}
+barPlot (default) - bar height represents the median signal value for a given cell type.}
 
 \item{cellGroup}{- This option allows to selcet a group of cells to be plotted, if NA (default)
 all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
