@@ -123,7 +123,8 @@ genomeLabel = function(x) {
 #' @export
 #' @examples
 #' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' query = rtracklayer::import(queryFile)#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+#' query = rtracklayer::import(queryFile)
+#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
 #' plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", divisions=NULL, 
                            numbers=FALSE) {
@@ -183,7 +184,7 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
 		xlab(paste("Distance to", featureName)) +
-		ylab(ifelse(numbers,"Frequency","Scaled frequency (%)")) +
+		ylab(ifelse(numbers,"Counts","Frequency (%)")) +
 		# theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
 		theme(axis.text.x=element_text(angle = 0, hjust = c(0,1), vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
@@ -198,6 +199,7 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 # Internal helper function for \code{plotFeatureDist}
 cutDists = function(dists, divisions=NULL) {
 	if (is.null(divisions)) {
+		message("hi")
 		poscuts = seq(0,100000, by=2000)
 		divisions = sort(unique(c(-poscuts, poscuts)))
 	}

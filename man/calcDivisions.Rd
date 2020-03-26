@@ -10,4 +10,5 @@ calcDivisions(widths, bins = NULL, quantile = NULL)
 If the bins or quantiles for the hist. are specified by the user, those are used
 otherwise, calculates bins based on size of the dataset, and quantile based on bins
 Returns the divisions that will be used in plotting the histogram
+calcDivisions(runif(500)*1000)
 }

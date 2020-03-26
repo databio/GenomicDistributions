@@ -13,3 +13,9 @@ calcWidth(query)
 The length of a genomic region (the distance between the start and end) is called the width
 When given a query set of genomic regions, this function returns the width
 }
+\examples{
+queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+query = rtracklayer::import(queryFile)
+TSSdist = calcFeatureDistRefTSS(query, "hg19")
+plotFeatureDist(TSSdist, featureName="TSS")
+}
