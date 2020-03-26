@@ -23,6 +23,7 @@
 #'             scale_color_brewer theme element_blank unit element_text geom_density
 #' @importFrom data.table ":=" setDT data.table setkey fread setnames 
 #'             setcolorder rbindlist setattr setorder copy is.data.table
+#' @importFrom gridExtra grid.arrange
 #' @importFrom methods is
 
 NULL
