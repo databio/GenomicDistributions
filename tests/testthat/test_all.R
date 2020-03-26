@@ -61,18 +61,35 @@ test_that("featureDistribution",  {
     # Distance from the midpointof each region to the midpoint.
     nearestVec = DTNearest(coordDT1, coordDT2)
     nearestVec
-    DTNearest(coordDT2, coordDT1)
-    #expect_equal(nearestVec, )
+    expect_equal(nearestVec, c(150, -99, 75, -750))
+    nearestVec2 = DTNearest(coordDT2, coordDT1)
+    nearestVec2 # actual: c( 99, -901, -1276, 750, -1650)
+    coordDT1
+    coordDT2 #3 is matching to chr2 from coordDT1
+    expect_equal(nearestVec2, c( 99, -901, -75, 750, NA))
     
     featureDistance = calcFeatureDist(testGR1, testGR2)
-    calcFeatureDist(testGR2, testGR1)
     featureDistance
-    #expect_equal(featureDistance, )
+    expect_equal(featureDistance, c(150, -99, 75, -750))
+    featureDistance2 = calcFeatureDist(testGR2, testGR1)
+    featureDistance2
+    expect_equal(featureDistance2, c( 99, -901, -75, 750, NA))
     
     coordDT1$chr = "chr2"
     testGR1 = dtToGr(coordDT1)
     featureDistance = calcFeatureDist(testGR1, testGR2)
     featureDistance
+    featureDistance2 = calcFeatureDist(testGR2, testGR1)
+    featureDistance2
+    coordDT1 = rbind(coordDT1, data.frame(chr="chr1", 
+                                          start=1000000, 
+                                          end=1000006, 
+                                          mid=1000003))
+    testGR1 = dtToGr(coordDT1)
+    featureDistance = calcFeatureDist(testGR1, testGR2)
+    featureDistance
+    coordDT1
+    coordDT2
     #expect_equal(featureDistance, )
     
 })
