@@ -141,7 +141,7 @@ Do you want to see how your regions are distributed among other partitions, like
 
 ## Cell specific open chromatin signal plots
 ```{r a cell specific open chromatin plot}
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt.gz", package="GenomicDistributions")
+exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
 op = calcOpenSignal(query, cellMatrix)
 plotOpenSignal(op)
