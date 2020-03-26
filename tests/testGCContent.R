@@ -1,14 +1,17 @@
 # lib
-library(GenomicDistributions)
+library(testthat)
 
 # data
 featureFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
 feats = rtracklayer::import(featureFile)
+refs = c("hg38", "hg19")
 
 # tests
 context("general")
 test_that("calcGCContent works", {
-    expect_visible(calcGCContentRef(feats, "hg19"))
+    for(r in refs){
+        expect_visible(calcGCContentRef(feats, r))
+    }
 })
 
 context("result")
