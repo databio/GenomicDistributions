@@ -4,8 +4,7 @@
 \alias{binRegion}
 \title{Divide regions into roughly equal bins}
 \usage{
-binRegion(start, end, binSize = NULL, binCount = NULL,
-  indicator = NULL)
+binRegion(start, end, binSize = NULL, binCount = NULL, indicator = NULL)
 }
 \arguments{
 \item{start}{The starting coordinate}

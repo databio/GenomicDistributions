@@ -3,7 +3,6 @@
 \docType{package}
 \name{GenomicDistributions}
 \alias{GenomicDistributions}
-\alias{GenomicDistributions-package}
 \title{Produces summaries and plots of features distributed across genomes}
 \description{
 If you have a set of genomic ranges, the GenomicDistributions R package can
