@@ -24,10 +24,8 @@
 #' }
 calcOpenSignal = function(query,
                           cellMatrix){
-  
-  if (!is(query, "GRanges") && !is(query, "GRangesList")) {
-    stop("Query must be in either GRanges or GRangesList format.")
-  } else if (is(query, "GRangesList")) {
+  .validateInputs(list(query=c("GRanges","GRangesList")))
+  if (is(query, "GRangesList")) {
     # Recurse over each GRanges object
     x = lapply(query, calcOpenSignal, cellMatrix)
     nameList = names(query)

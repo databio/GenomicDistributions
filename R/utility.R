@@ -11,18 +11,18 @@
 #'     return(var1^2)
 #' }
 .validateInputs <- function(checkList) {
-    fail = FALSE
     nms = names(checkList)
     for(i in seq_along(checkList)){
+        fail = FALSE
         clss = checkList[[i]]
         x = get(nms[i], envir=parent.frame(1))
         for(cls in clss){
             if (is(x, cls)) fail = append(fail, TRUE)
         }
+        if(!any(fail)) 
+            stop(paste0(nms[i], " must be a ", paste(clss, collapse=" or "), 
+                        ".  Got: ", class(x)))
     }
-    if(!any(fail)) 
-        stop(paste0(nms[i], " must be a ", paste(clss, collapse=" or "), 
-                    ".  Got: ", class(x)))
 }
 
 # Checks to make sure a BSgenome object is installed,

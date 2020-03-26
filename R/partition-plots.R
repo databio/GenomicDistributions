@@ -17,12 +17,8 @@
 #' query = rtracklayer::import(f)
 #' calcPartitionsRef(query, "hg19")
 calcPartitionsRef = function(query, refAssembly) {
-  if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
-    stop("query must be a GRanges object or GRanges list.")
-  }
-  if (!(is(refAssembly, "character"))) {
-    stop("refAssembly must be a character specifying the reference genome.")
-  }
+    .validateInputs(list(query=c("GRanges", "GRangesList"), 
+                         refAssembly="character"))
 	geneModels = getGeneModels(refAssembly)
 	partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
 	return(calcPartitions(query, partitionList))
@@ -44,12 +40,8 @@ calcPartitionsRef = function(query, refAssembly) {
 #' geneModels = getGeneModels("hg38")
 #' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
 genomePartitionList = function(genesGR, exonsGR) {
-  if (!(is(genesGR, "GRanges"))) {
-    stop("genesGR must be GRanges objects. Check object class.")
-  }
-  if (!(is(exonsGR, "GRanges") || is(exonsGR, "GRangesList"))){
-    stop("exonsGR must be a GRanges object or GRanges list.")
-  }
+    .validateInputs(list(exonsGR=c("GRanges", "GRangesList"), 
+                         genesGR="GRanges"))
 	# Discard warnings (prompted from notifications to trim, which I do)
 	withCallingHandlers({
 		promCore = trim(promoters(genesGR, upstream=100, downstream=0))
@@ -93,25 +85,20 @@ genomePartitionList = function(genesGR, exonsGR) {
 #' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
 #' calcPartitionsRef(query, partitionList)
 calcPartitions = function(query, partitionList, remainder="intergenic") {
-	if (!(is(query, "GRanges") || is(query, "GRangesList"))) {
-	  stop("query must be a GRanges object or GRanges list.")
-	}
-  if (!(is(partitionList, "list"))) {
-    stop("partitionList must be a GRanges list. Check object class.")
-  }
-  if (methods::is(query, "GRangesList")) {
-		# Recurse over each GRanges object
-		x = lapply(query, calcPartitions, partitionList, remainder)
-		nameList = names(query)
-		if(is.null(nameList)) {
-			nameList = 1:length(query) # Fallback to sequential numbers
-		}
-		# Append names
-		xb = rbindlist(x)
-		xb$name = rep(nameList, sapply(x, nrow))
-		return(xb)
-	}
-
+    .validateInputs(list(query=c("GRanges", "GRangesList"), 
+                         partitionList="list"))
+    if (methods::is(query, "GRangesList")) {
+    	# Recurse over each GRanges object
+    	x = lapply(query, calcPartitions, partitionList, remainder)
+    	nameList = names(query)
+    	if(is.null(nameList)) {
+    		nameList = 1:length(query) # Fallback to sequential numbers
+    	}
+    	# Append names
+    	xb = rbindlist(x)
+    	xb$name = rep(nameList, sapply(x, nrow))
+    	return(xb)
+    }
 	#Overlap each of the partition list.
 	partitionNames = names(partitionList)
 	partition = rep(0, length(query));
@@ -123,7 +110,6 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 	}
 	partition[partition=="0"] = remainder
 	tpartition = table(partition)
-	
 	return(data.frame(tpartition))
 }
 
@@ -152,9 +138,7 @@ plotPartitions = function(assignedPartitions, labels=NULL) {
 	# resAll = t(sapply(assignedPartitions, table))
 	# resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
 	# df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
-  if (!(is(assignedPartitions, "data.frame"))) {
-    stop("assignedPartitions must be a data.frame. Check object class.")
-  }
+    .validateInputs(list(assignedPartitions="data.frame"))
 	if ("name" %in% names(assignedPartitions)){
 		# It has multiple regions
 		g = ggplot(assignedPartitions, 
@@ -217,6 +201,3 @@ plotPartitionPercents = function(percList, labels = NULL) {
 	legend('bottomright', labels, pch=15, col=colors)
 	}
 }
-
-
-
