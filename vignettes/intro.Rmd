@@ -168,3 +168,26 @@ gc2 = calcGCContentRef(queryList, "hg19")
 plotGCContent(gc2)
 ```
 
+## Quantile-Trimmed Histogram of Widths
+*QT histogram plots* will return a histogram of widths of the genomic ranges in the query. These plots are "Quantile-Trimmed" to preserve the distribution in the face of extreme outliars which sometimes occur in genomic ranges.
+
+```{r QT histogram plots, fig.cap="Quantile-trimmed Histogram plot. Frequency of widths in this query"}
+# Calculate the widths
+qt1 = calcWidth(query)
+
+# Plot the width distribution
+plotQTHist(qt1)
+```
+
+
+```{r multiple distributions in one}
+# You can also plot the frequency distribution for more than one query.
+qt2 = calcWidth(queryList)
+plotQTHist(qt2)
+```
+
+
+```{r changing the quantiles and bins}
+# Both the quantile and the bins can be manually adjusted. The quantile you indicate should be the proportion of the data that you want in each end bar of the histogram. 
+plotQTHist(qt1, bins=7, quantile = .015, EndBarColor = 'black', MiddleBarColor='darkblue')
+```
