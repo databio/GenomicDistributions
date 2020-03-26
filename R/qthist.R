@@ -7,7 +7,8 @@
 #' @export
 #' @examples
 #' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' query = rtracklayer::import(queryFile)#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+#' query = rtracklayer::import(queryFile)
+#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
 #' plotFeatureDist(TSSdist, featureName="TSS")
 calcWidth = function(query) { 
     if (is(query, "GRangesList")) {
@@ -85,8 +86,8 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
 #' 
 #' @export
 #' @examples
-#' plotQTHist(runif(500)*1000)
-# plotQTHist2(list(q1=runif(500)*1000, q2=runif(500)*1000))
+#' plotQTHist2(runif(500)*1000)
+#' plotQTHist2(list(q1=runif(500)*1000, q2=runif(500)*1000))
 plotQTHist2 = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
     quantile=NULL, bins=NULL) {
     output = calcDivisions(widths, quantile=quantile, bins=bins)

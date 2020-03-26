@@ -3,7 +3,9 @@
 \name{geneModels_hg19}
 \alias{geneModels_hg19}
 \title{Gene models}
-\format{A named vectors of lengths with one item per chromosome}
+\format{
+A named vectors of lengths with one item per chromosome
+}
 \source{
 BSGenome package
 }

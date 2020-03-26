@@ -34,6 +34,7 @@ distances surrounding the features of interest
 }
 \examples{
 queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-query = rtracklayer::import(queryFile)#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+query = rtracklayer::import(queryFile)
+TSSdist = calcFeatureDistRefTSS(query, "hg19")
 plotFeatureDist(TSSdist, featureName="TSS")
 }
