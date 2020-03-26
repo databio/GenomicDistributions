@@ -66,7 +66,8 @@ test_that("featureDistribution",  {
     nearestVec2 # actual: c( 99, -901, -1276, 750, -1650)
     coordDT1
     coordDT2 #3 is matching to chr2 from coordDT1
-    expect_equal(nearestVec2, c( 99, -901, -75, 750, NA))
+    # DTNearest ignores chromosome completely. By design.
+    expect_equal(nearestVec2, c( 99, -901, -75, 125, -449))
     
     featureDistance = calcFeatureDist(testGR1, testGR2)
     featureDistance
