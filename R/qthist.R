@@ -18,15 +18,12 @@ calcWidth = function(query) {
     width(query)
 }
 
-#' Plot quantile-trimmed histogram independently
+#' Plot quantile-trimmed histogram
 #' 
 #' Given the results from \code{calcWidth}, plots a histogram of widths
 #' 
 #' x-axis breaks for the frequency calculations are based on the "divisions" results from 
 #' helper function \code{calcDivisions}
-#' The difference between  plotQTHistIndep and plotQTHist is that the 'Indep'
-#' version will return a list of plots that have had their bins calculated
-#' independently; the normal version will plot them on the same x and y axis.
 #' 
 #' @param widths Results from \code{calcWidths}
 #' @param EndBarColor Color for the quantile bars on both ends of the graph (optional)
@@ -34,67 +31,27 @@ calcWidth = function(query) {
 #' @param quantile Quantile of data to be contained in each end bar (optional)
 #' Quantiles must be under .2, optimal size is under .1
 #' @param bins The number of bins for the histogram to allocate data to. (optional)
-#' 
-#' @export
-#' @examples
-#' plotQTHistIndep(runif(500)*1000)
-plotQTHistIndep = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
-    quantile=NULL, bins=NULL) {
-    if (is(widths, "list") | is(widths, "List")) {
-        x = lapply(widths, plotQTHist)
-        nameswidths = names(widths)
-        for (i in seq_along(x)){
-            x[[i]] = x[[i]] + ggtitle(nameswidths[i]) }
-        return(x) 
-        # you can use grid.arrange like this to plot these           
-        # do.call("grid.arrange", x)
-    }
-    
-    output = calcDivisions(widths, quantile=quantile, bins=bins)
-    bins = output[["bins"]]
-    quantile = output[["quantile"]]
-    div = output[["divisions"]]
-    
-    colors_vect = c( EndBarColor , rep(MiddleBarColor, (length(div)-3)), EndBarColor) # creates a vector for the colors
-    df = cutDists(widths, divisions= div) # calculating a frequency table with the specified divisions
-    g = ggplot(df, aes(x=cuts, y=Freq))
-    
-    g = g +
-        geom_bar(stat="identity", fill = colors_vect) + 
-        theme_classic() + 
-        theme(aspect.ratio=1) + 
-        theme_blank_facet_label() +
-        ylab("Frequency") +
-        xlab("") +
-        theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
-        theme(plot.title = element_text(hjust = 0.5)) + # Center title
-        ggtitle("Quantile Trimmed Histogram") +
-        theme(legend.position="bottom") +
-        geom_text(aes(label= paste((quantile*100),"%", sep='')), data=df[c(1,length(df$Freq)),], vjust=-1)
-    return(g)
-}
-
-
-#' Plot quantile-trimmed histogram
-#' 
-#' given the results from \code{calcWidth}, plots a histogram of widths
-#' 
-#' x-axis breaks for the frequency calculations are based on the "divisions" results from 
-#' helper function \code{calcDivisions}
-#' 
-#' @param widths Results from \code{calcWidths}
-#' @param EndBarColor Color for the quantile bars on both ends of the graph (optional)
-#' @param MiddleBarColor Color for the bars in the middle of the graph (optional)
-#' @param quantile Quantile of data to be contained in each end bar (optional)
-#' Quantiles must be under .2, optimal size is under .1
-#' @param bins The number of bins for the histogram to allocate data to. (optional)
-#' 
+#' @param indep logical value which returns a list of plots that have had their bins calculated
+#''    independently; the normal version will plot them on the same x and y axis.
+#'
+#' @return A ggplot2 plot object
 #' @export
 #' @examples
 #' plotQTHist(runif(500)*1000)
 #' plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
 plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
-    quantile=NULL, bins=NULL) {
+    quantile=NULL, bins=NULL, indep=FALSE) {
+    if (indep) {
+        if (is(widths, "list") | is(widths, "List")) {
+            x = lapply(widths, plotQTHist)
+            nameswidths = names(widths)
+        for (i in seq_along(x)){
+            x[[i]] = x[[i]] + ggtitle(nameswidths[i]) }
+        return(x) 
+        # you can use grid.arrange like this to plot these           
+        # do.call("grid.arrange", x)
+        }
+    }
     output = calcDivisions(widths, quantile=quantile, bins=bins)
     if(is(widths, "List")){
         widths = as.list(widths)
