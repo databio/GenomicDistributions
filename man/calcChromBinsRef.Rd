@@ -31,3 +31,9 @@ elements across bins of the reference genome. This is a helper function to
 create features for common genomes. It is a wrapper of
 \code{calcChromBins}, which is more general.
 }
+\examples{
+query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+GRquery = rtracklayer::import(query)
+ChromBins = calcChromBinsRef(GRquery, "hg19")
+
+}

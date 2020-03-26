@@ -3,9 +3,7 @@
 \name{chromSizes_mm9}
 \alias{chromSizes_mm9}
 \title{Chromosome sizes}
-\format{
-A named vectors of lengths with one item per chromosome
-}
+\format{A named vectors of lengths with one item per chromosome}
 \source{
 BSGenome package
 }

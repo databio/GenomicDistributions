@@ -19,3 +19,8 @@ Given a list of chromosomes with corresponding sizes, this script will
 produce (roughly) evenly-sized bins across the chromosomes. It does not
 account for assembly gaps or the like.
 }
+\examples{
+hg19chromSizes = system.file("data/chromSizes_hg19.RData")
+cBins = binChroms(1000, hg19chromSizes)
+
+}
