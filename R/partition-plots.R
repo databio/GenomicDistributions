@@ -8,8 +8,16 @@
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
+#'@return A data.frame indicating the number of query region overlaps in several  
+#' genomic partitions.
 #' @export
 calcPartitionsRef = function(query, refAssembly) {
+  if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
+    stop("query should be a GRanges object or GRanges list. Check object class.")
+  }
+  if (!(is(refAssembly, "character"))) {
+    stop("refAssembly should be a character vector specifying the reference genome.")
+  }
 	geneModels = getGeneModels(refAssembly)
 	partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
 	return(calcPartitions(query, partitionList))
@@ -24,8 +32,16 @@ calcPartitionsRef = function(query, refAssembly) {
 #' be used as a partionList for calcPartitions()
 #' @param genesGR a GRanges object of gene coordinates
 #' @param exonsGR a GRanges object of exons coordinates
+#' @return A list of GRanges objects, each corresponding to a partition of the 
+#' genome. Partitions include proximal and core promoters, exons and introns.
 #' @export
 genomePartitionList = function(genesGR, exonsGR) {
+  if (!(is(genesGR, "GRanges"))) {
+    stop("genesGR should be GRanges objects. Check object class.")
+  }
+  if (!(is(exonsGR, "GRanges") || is(exonsGR, "GRangesList"))){
+    stop("exonsGR should be a GRanges object or GRanges list. Check object class.")
+  }
 	# Discard warnings (prompted from notifications to trim, which I do)
 	withCallingHandlers({
 		promCore = trim(promoters(genesGR, upstream=100, downstream=0))
@@ -58,9 +74,17 @@ genomePartitionList = function(genesGR, exonsGR) {
 #'     to the first partition it overlaps
 #' @param remainder    A character vector to assign any query regions that do
 #'     not overlap with anything in the partitionList. Defaults to "intergenic"
+#' @return A data.frame assigning each element of a GRanges object to a
+#'  partition from a previously provided partitionList.
 #' @export
 calcPartitions = function(query, partitionList, remainder="intergenic") {
-	if (methods::is(query, "GRangesList")) {
+	if (!(is(query, "GRanges") || is(query, "GRangesList"))) {
+	  stop("query should be a GRanges object or GRanges list. Check object class.")
+	}
+  if (!(is(partitionList, "GRangesList"))) {
+    stop("partitionList should be a GRanges list. Check object class.")
+  }
+  if (methods::is(query, "GRangesList")) {
 		# Recurse over each GRanges object
 		x = lapply(query, calcPartitions, partitionList, remainder)
 		nameList = names(query)
@@ -100,13 +124,16 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #'     each of the partitions. Produced by \code{calcPartitions}
 #' @param labels Character vector with labels for the partitions (optional). By
 #'     default it will use the names from the first argument.
-#'
+#' @return A ggplot object using a barplot to show the distribution of the query 
+#'  regions across a given partition list.  
 #' @export
 plotPartitions = function(assignedPartitions, labels=NULL) {
 	# resAll = t(sapply(assignedPartitions, table))
 	# resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
 	# df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
-
+  if (!(is(assignedPartitions, "data.frame"))) {
+    stop("assignedPartitions should be a data.frame. Check object class.")
+  }
 	if ("name" %in% names(assignedPartitions)){
 		# It has multiple regions
 		g = ggplot(assignedPartitions, aes(x=partition, y=Freq, fill=factor(name)))
