@@ -14,15 +14,8 @@
 #'gcvec = calcGCContent(query, bsg)
 #' }
 calcGCContent = function(query, ref) {
-    # if (!requireNamespace(ref, quietly=TRUE)) {
-    #   message(ref, " package is not installed.")
-    # }
-    if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
-        stop("query should be a GRanges object or GRanges list. Check object class.")
-    }
-    if (!(is(ref, "BSgenome"))) {
-        stop("ref should be a BSgenome object.")
-    }
+    .validateInputs(list(query=c("GRanges","GRangesList"),
+                         ref="BSGenome"))
     if (is(query, "GRangesList")) {
         # Recurse over each GRanges object
         x = lapply(query, calcGCContent, ref)
@@ -52,15 +45,8 @@ calcGCContent = function(query, ref) {
 #' GCcontent = calcGCContentRef(query, refAssembly)
 #' } 
 calcGCContentRef = function(query, refAssembly) {
-    # if (!requireNamespace(ref, quietly=TRUE)) {
-    #     message(ref, " package is not installed.")
-    # }
-    if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
-        stop("query should be a GRanges object or GRanges list. Check object class.")
-    }  
-    if (!(is(refAssembly, "character"))) {
-        stop("refAssembly should be a character vector specifying the reference genome.")
-    }
+    .validateInputs(list(query=c("GRanges","GRangesList"),
+                         refAssembly="character"))
     ref = loadBSgenome(refAssembly)
     return(calcGCContent(query, ref))
 }
@@ -77,9 +63,7 @@ calcGCContentRef = function(query, refAssembly) {
 #' GCplot = plotGCContent(numVector)
 #' 
 plotGCContent = function(gcvectors) {
-    if (!(is(gcvectors, "list") || is(gcvectors, "numeric"))) {
-        stop("gcvectors should be a numeric vector or list of vectors. Check object class")
-    }
+    .validateInputs(list(gcvectors=c("numeric","list")))
     gcdf = as.data.frame(list(gc=gcvectors))
     gcdfReshaped = reshape2::melt(gcdf) 
     # plot multiple regionsets if gcvectors is a list
