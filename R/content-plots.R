@@ -9,9 +9,10 @@
 #' @return A numeric vector of list of vectors with the GC percentage of the query regions.
 #' @export
 #' @examples
+#' \dontrun{
 #'bsg = loadBSgenome('hg19')
 #'gcvec = calcGCContent(query, bsg)
-#' 
+#' }
 calcGCContent = function(query, ref) {
 	# if (!requireNamespace(ref, quietly=TRUE)) {
 	# 	message(ref, " package is not installed.")
@@ -45,6 +46,11 @@ calcGCContent = function(query, ref) {
 #'     \code{getTSSs}.
 #' @return A numeric vector or list of vectors with the GC percentage of the query regions.
 #' @export
+#' @examples
+#' \dontrun{
+#' refAssembly = 'hg19'
+#' GCcontent = calcGCContentRef(query, refAssembly)
+#' } 
 calcGCContentRef = function(query, refAssembly) {
 	# if (!requireNamespace(ref, quietly=TRUE)) {
 	# 	message(ref, " package is not installed.")
@@ -66,6 +72,10 @@ calcGCContentRef = function(query, refAssembly) {
 #' @param gcvector A numeric vector or list of GC contents.
 #' @return A ggplot object plotting distribution of GC content in query regions.
 #' @export
+#' @examples
+#' numVector = rnorm(400, mean=0.5, sd=0.1)
+#' GCplot = plotGCContent(numVector)
+#' 
 plotGCContent = function(gcvectors) {
   if (!(is(gcvectors, "list") || is(gcvectors, "numeric"))) {
     stop("gcvectors should be a numeric vector or list of vectors. Check object class")
