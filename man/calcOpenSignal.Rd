@@ -2,29 +2,39 @@
 % Please edit documentation in R/openRegionsCalcAndPlot.R
 \name{calcOpenSignal}
 \alias{calcOpenSignal}
-\title{The function calcOpenSignal takes the input BED file, overlaps it with all
-defined open chromatin regions across cell types and returns a matrix, 
-where each row is the input genomic region (if overlap was found), each 
-column is a cell type, and the value is a normalized ATAC-seq signal.}
+\title{The function calcOpenSignal takes the input BED file(s) in form of GRanges 
+or GRangesList object, overlaps it with all defined open chromatin regions 
+across cell types and returns a matrix, where each row is the input genomic
+ region (if overlap was found), each column is a cell type, and the value 
+ is a normalized ATAC-seq signal.}
 \usage{
 calcOpenSignal(query, cellMatrix)
 }
 \arguments{
-\item{query}{Genomic regions to be analyzed. Can be in GRanges or 
-GRangesList format.}
+\item{query}{Genomic regions to be analyzed. Can be GRanges or GRangesList 
+object.}
 
 \item{cellMatrix}{Matrix with open chromatin signal values, rows are genomic
 regions, columns are cell types. First column contains 
 information about the genomic region in following form: 
-chr_start_end. Can be either data.frame or data.table.}
+chr_start_end. Can be either data.frame or data.table object.}
 }
 \value{
 A data.table with cell specific open chromatin signal values for query 
 regions.
 }
 \description{
-The function calcOpenSignal takes the input BED file, overlaps it with all
-defined open chromatin regions across cell types and returns a matrix, 
-where each row is the input genomic region (if overlap was found), each 
-column is a cell type, and the value is a normalized ATAC-seq signal.
+The function calcOpenSignal takes the input BED file(s) in form of GRanges 
+or GRangesList object, overlaps it with all defined open chromatin regions 
+across cell types and returns a matrix, where each row is the input genomic
+ region (if overlap was found), each column is a cell type, and the value 
+ is a normalized ATAC-seq signal.
+}
+\examples{
+\dontrun{
+exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
+package="GenomicDistributions")
+cellMatrix = data.table::fread(exampleCellMatrixFile)
+signalMatrix = calcOpenSignal(query, cellMatrix)
+}
 }

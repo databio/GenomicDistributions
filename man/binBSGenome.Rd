@@ -19,3 +19,9 @@ Given a BSgenome object (to be loaded via \code{loadBSgenome}), and a number
 of bins, this will bin that genome. It is a simple wrapper of the
 \code{binChroms} function
 }
+\examples{
+\dontrun{
+binCount = 1000
+refGenomeBins = binBSGenome("hg19", binCount)
+}
+}

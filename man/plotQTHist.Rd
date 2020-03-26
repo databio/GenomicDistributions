@@ -33,4 +33,5 @@ helper function \code{calcDivisions}
 }
 \examples{
 plotQTHist(runif(500)*1000)
+plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
 }
