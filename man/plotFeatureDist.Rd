@@ -20,10 +20,20 @@ distribution of expected distances}
 
 \item{featureName}{Character vector for plot labels (optional).}
 
+\item{divisions}{A vector that defines the bin boundaries for the histogram}
+
 \item{numbers}{a logical indicating whether the raw numbers should be 
 displayed, rather than percentages (optional).}
+}
+\value{
+A ggplot2 plot object
 }
 \description{
 Given the results from \code{featureDistribution}, plots a histogram of
 distances surrounding the features of interest
+}
+\examples{
+queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+query = rtracklayer::import(queryFile)#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+plotFeatureDist(TSSdist, featureName="TSS")
 }
