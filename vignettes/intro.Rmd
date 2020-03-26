@@ -180,7 +180,7 @@ plotQTHist(qt1)
 ```
 
 
-```{r multiple distributions in one}
+```{r multiple qtHist plots in one}
 # You can also plot the frequency distribution for more than one query.
 qt2 = calcWidth(queryList)
 plotQTHist(qt2)
