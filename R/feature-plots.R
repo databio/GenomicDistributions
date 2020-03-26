@@ -150,7 +150,6 @@ cutDists = function(dists, divisions = c(-Inf, -1e6, -1e4, -1000, -100, 0, 100, 
 	return(df)
 }
 
-
 #' Calculate the Fraction of Regions in Features (FRiF)
 #'
 #' This function calculates the fraction of regions in a feature set and
@@ -178,28 +177,33 @@ calcFRiF = function(query, total) {
                                       start=start(query),
                                       end=end(query),
                                       counts=mcols(query)$count)
+    data.table::setkey(bedFile, chr, start, end)
     # Create a reduced region set to remove overlap
     reduceGR = reduce(query)
-    # Identify which regions overlap the reduced region set
-    hitsGR   = findOverlaps(query=reduceGR, subject=query)
-    hits     = data.table::data.table(xid=queryHits(hitsGR),
-                                      yid=subjectHits(hitsGR))
-    counts   = data.table::data.table(index=rep(1:nrow(bedFile)),
-                                      counts=bedFile$counts)
-    setkey(hits, yid)
-    setkey(counts, index)
-    out = hits[counts, nomatch=0]
-    # For reduced regions with multiple hits, sum the counts
-    out[, countsSum:= sum(counts), by=xid]
     # Build the reduced region set with combined counts
     reduceDT = data.table::data.table(chr=as.character(seqnames(reduceGR)),
                                       start=start(reduceGR),
                                       end=end(reduceGR))
+    data.table::setkey(reduceDT, chr, start, end)
+    # Identify which regions overlap the reduced region set
+    hitsGR   = findOverlaps(query=reduceGR, subject=query)
+    hits     = data.table::data.table(xid=queryHits(hitsGR),
+                                      yid=subjectHits(hitsGR))
+    # hits   = foverlaps(reduceDT, bedFile, by.x=c("chr", "start", "end"),
+    #                    type="any", which=TRUE, nomatch=0)
+    counts = data.table::data.table(index=rep(1:nrow(bedFile)),
+                                    counts=bedFile$counts)
+    data.table::setkey(hits, yid)
+    data.table::setkey(counts, index)
+    out = hits[counts, nomatch=0]
+    # For reduced regions with multiple hits, sum the counts
+    out[, countsSum:= sum(counts), by=xid]
+    
     # Need an index column to combine
     reduceDT$index = rep(1:nrow(reduceDT))
-    setkey(reduceDT, index)
+    data.table::setkey(reduceDT, index)
     counts = data.table::data.table(xid=out$xid, counts=out$countsSum)
-    setkey(counts, xid)
+    data.table::setkey(counts, xid)
     # Add the combined counts column
     reduceDT = reduceDT[counts, nomatch=0]
     # Remove copied rows
@@ -224,7 +228,7 @@ calcFRiF = function(query, total) {
     return(reduceDT)
 }
 
-#' Internal helper function for \code{plotFRiF}
+#' Internal helper function for \code{plotcFRiF} and \code{plotFRiF}
 #' @param query A GRanges object
 setLabels = function(query) {
     return(data.table::data.table(
@@ -253,16 +257,16 @@ getExpectedFeatures = function(query, genome_size) {
 #'
 #' This function plots the fraction of reads in a set of features
 #'
-#' @param sample_name A character vector representing the name of a sample
-#' @param num_reads Numeric value representing the number of aligned
+#' @param query A GenomicRanges or GenomicRangesList object with query regions.
+#'              The name of each GRanges object is the default feature name.
+#'              Each GRanges object must include a counts metadata column.
+#' @param num_reads Numeric value representing the total number of aligned
 #'                  reads/bases
 #' @param genome_size Numeric value representing the size of a genome in bp
-#' @param type A character vector representing the plot type to produce
-#' @param output_name A character vector of the desired output file name
-#' @param query A GenomicRangesList object with query regions.
-#'              The name of each GRanges object is assumed to the feature name.
-#'              Each GRanges object must include a counts metadata column.
-#' @keywords cFRiF FRiF
+#' @param feature_names An optional character vector of feature names, in the 
+#'                      same order as the GenomicRanges or GenomicRangesList 
+#'                      object.
+#' @keywords FRiF
 #' @export
 #' @examples
 #' data("promoter")
@@ -271,127 +275,73 @@ getExpectedFeatures = function(query, genome_size) {
 #' data("intron")
 #' data("utr3")
 #' data("utr5")
-#' plotFRiF(sample_name="example", num_reads=87520,
-#'          output_name="example_frif.pdf",
-#'          query = c("promoter", "promoter_flanking", "exon",
-#'                    "intron", "utr3", "utr5"))
+#' plotFRiF(query = c("promoter", "promoter_flanking", "exon",
+#'                     "intron", "utr3", "utr5"),
+#'          num_reads=87520, genome_size = 3099922541, 
+#'          feature_names = c("promoter", "promoter_flanking", "exon",
+#'                            "intron", "utr3", "utr5")
+#'          )
 #' @export
-plotFRiF = function(sample_name, num_reads, genome_size,
-                     type = c("cfrif", "frif", "both"),
-                     reads=TRUE, output_name, query) {
-
-    feature_dist  = data.table::data.table(feature=character(),
-                                            numfeats=numeric(),
-                                            numbases=numeric(),
-                                            expected=numeric(),
-                                            stringsAsFactors=FALSE)
+plotFRiF = function(query, num_reads, genome_size, feature_names = NA) {
     palette = colorRampPalette(c("#999999", "#FFC107", "#27C6AB", "#004D40",
                                   "#B97BC8", "#009E73", "#C92404", "#E3E550",
                                   "#372B4C", "#E3DAC7", "#27CAE6", "#B361BC",
                                   "#897779", "#6114F8", "#19C42B", "#56B4E9"))
-    plot_colors = palette(length(query))
-
     # Calculate the FRiF for each feature type
     if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
 		frif = lapply(query, calcFRiF, num_reads)
-        feature_dist = lapply(query, calcFRiF, num_reads)
+
+        # Generate plot labels and options
+        labels = lapply(frif, setLabels)
+        # Collapse to list
+        labels = data.table::rbindlist(labels, idcol=TRUE)
+        feature_lengths = data.table::data.table(num_feats=elementNROWS(frif))
+
+        # Identify expected values
+        feature_dist = lapply(frif, getExpectedFeatures, genome_size)
+        # Collapse to data.table with column for feature names
+        feature_dist = data.table::rbindlist(feature_dist, idcol=TRUE)     
 	} else {
-        frif = calcFRiF(query, num_reads)
+        frif   = calcFRiF(query, num_reads)
+        labels = setLabels(frif)
+        feature_dist    = getExpectedFeatures(frif, genome_size)
+        feature_lengths = data.table::data.table(num_feats=length(query))
+    }
+
+    plot_colors = palette(nrow(feature_lengths))
+
+    # If name vector provided, update names
+    if (all(!is.na(feature_names))) {
+        if (length(feature_names) == nrow(feature_lengths)) {
+            labels[,.id:=feature_names]
+            feature_dist[,.id:=feature_names]
+        } else {
+            if (!".id" %in% colnames(labels)) {
+                labels[,.id:=seq(1:nrow(feature_lengths))]
+                feature_dist[,.id:=seq(1:nrow(feature_lengths))]
+            }
+        }
+    } else {
+        if (!".id" %in% colnames(labels)) {
+            labels[,.id:=seq(1:nrow(feature_lengths))]
+            feature_dist[,.id:=seq(1:nrow(feature_lengths))]
+        }
     }
     
-    # Generate plot labels and options
-    labels = lapply(frif, setLabels)
-    # Collapse to list
-    labels = rbindlist(labels, idcol=TRUE)
     # Set colors
     labels[,color:=plot_colors]
-    
-    feature_dist = lapply(frif, getExpectedFeatures, genome_size)
-    # Collapse to list
-    feature_dist = rbindlist(feature_dist, idcol=TRUE)
-    
-    # Collapse frif list to data.table with column for feature names
-    frif = rbindlist(frif, idcol=TRUE)
 
     # Finalize feature_dist table
     feature_dist$observed = as.numeric(labels$val)
-    feature_dist$logOE = log10(feature_dist$observed/feature_dist$expected)
-    feature_dist$logOE = ifelse(feature_dist$logOE < 0, 0, feature_dist$logOE)
+    feature_dist$logOE    = log10(feature_dist$observed/feature_dist$expected)
+    feature_dist$logOE    = ifelse(feature_dist$logOE < 0,0,feature_dist$logOE)
     feature_dist = merge(feature_dist, labels, by=".id")
     feature_dist = feature_dist[order(feature_dist$logOE),]
-    feature_dist$.id = factor(feature_dist$.id, levels=feature_dist$.id)
+    feature_dist$.id   = factor(feature_dist$.id, levels=feature_dist$.id)
     feature_dist$color = factor(feature_dist$color, levels=feature_dist$color)
 
-    if (tolower(type) == "both") {
-        # Produce plot with bed files
-        p = ggplot(frif, aes(x=log10(cumsize), y=frip,
-                    group=.id, color=.id)) +
-            geom_line(size=2, alpha=0.5) +
-            guides(linetype = FALSE) +
-            labs(x=expression(log[10]("number of bases")),
-                 y="FRiF") +
-            theme_PEPATAC()
-
-        # Recolor and reposition legend
-        p = p + scale_color_manual(labels=paste0(labels$.id, ": ",
-                                                  labels$val),
-                                    values=labels$color) +
-            labs(color="FRiF") +
-            theme(legend.position="right",
-                  legend.justification=c(0.1,0.9),
-                  legend.background=element_blank(),
-                  legend.text = element_text(size = rel(0.65)),
-                  legend.key = element_blank(),
-                  axis.text.x = element_text(angle = 0, hjust = 1,
-                                             vjust=0.5))
-
-        p2 = ggplot(feature_dist, aes(x = .id, y = logOE)) +
-            geom_bar(stat="identity", fill=labels$color, alpha=0.5) + 
-            geom_hline(aes(yintercept=0), linetype="dotted") +
-            xlab('') +
-            ylab(expression(log[10](over(Obs, Exp)))) +
-            coord_flip() +
-            scale_x_discrete(position="top") +
-            theme_PEPATAC() +
-            theme(plot.background = element_rect(fill = "transparent",
-                                                 color = NA,),
-                  panel.background = element_rect(fill = "transparent"),
-                  rect = element_rect(fill = "transparent"),
-                  plot.margin = unit(c(0,0,-6.5,-6.5),"mm"))
-
-        g   = ggplotGrob(p2)
-        min_x = min(layer_scales(p)$x$range$range)
-        max_x = max(layer_scales(p)$x$range$range)
-        min_y = min(layer_scales(p)$y$range$range)
-        max_y = max(layer_scales(p)$y$range$range)
-
-        p = p + annotation_custom(grob = g, xmin = 1.05*min_x,
-                                   xmax=min_x*2.05, ymin=max_y/2,
-                                   ymax=max_y)
-    } else if (tolower(type) == "cfrif") {
-        p = ggplot(frif, aes(x=log10(cumsize), y=frip,
-                    group=.id, color=.id)) +
-            geom_line(size=2, alpha=0.5) +
-            guides(linetype = FALSE) +
-            labs(x=expression(log[10]("number of bases")), y="FRiF") +
-            theme_PEPATAC()
-
-        # Recolor and reposition legend
-        p = p + scale_color_manual(labels=paste0(labels$.id, ": ",
-                                                  labels$val),
-                                    values=labels$color) +
-            labs(color="FRiF") +
-            theme(legend.position=c(0.075,0.975),
-                  legend.justification=c(0.1,0.9),
-                  legend.title = element_blank(),
-                  legend.text = element_text(size = rel(0.65)), 
-                  legend.background=element_blank(),
-                  legend.key = element_blank(),
-                  axis.text.x = element_text(angle = 0, hjust = 1,
-                                             vjust=0.5))
-    } else if (tolower(type) == "frif") {
-        p = ggplot(feature_dist, aes(x = .id, y = logOE)) +
+    p = ggplot(feature_dist, aes(x = .id, y = logOE)) +
             geom_bar(stat="identity",
                      fill = feature_dist$color,
                      alpha = 0.5) + 
@@ -399,55 +349,139 @@ plotFRiF = function(sample_name, num_reads, genome_size,
             xlab('') +
             ylab(expression(log[10](over(Obs, Exp)))) +
             coord_flip() +
-            theme_PEPATAC()
-    } else {
-        # default to both
-        # Produce plot with bed files
-        p = ggplot(frif,
-                    aes(x=log10(cumsize), y=frip,
-                        group=.id, color=.id)) +
-            geom_line(aes(linetype=.id), size=2, alpha=0.5) +
-            guides(linetype = FALSE) +
-            labs(x=expression(log[10]("number of bases")),
-                 y="FRiF") +
-            theme_PEPATAC()
-
-        # Recolor and reposition legend
-        p = p + scale_color_manual(labels=paste0(labels$.id, ": ",
-                                                  labels$val),
-                                    values=labels$color) +
-            labs(color="FRiF") +
-            theme(legend.position="right",
-                  legend.justification=c(0.1,0.9),
-                  legend.background=element_blank(),
-                  legend.key = element_blank(),
-                  axis.text.x = element_text(angle = 0, hjust = 1,
-                                             vjust=0.5))
-
-        p2 = ggplot(feature_dist, aes(x = .id, y = logOE)) +
-            geom_bar(stat="identity", fill=labels$color, alpha=0.5) + 
-            geom_hline(aes(yintercept=0), linetype="dotted") +
-            xlab('') +
-            ylab(expression(log[10](over(Obs, Exp)))) +
-            coord_flip() +
-            scale_x_discrete(position="top") +
-            theme_PEPATAC() +
-            theme(plot.background = element_rect(fill = "transparent",
-                                                 color = NA,),
+            theme(axis.line = element_line(size = 0.5),
+                  axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
+                  panel.grid.major = element_blank(),
+                  panel.grid.minor = element_blank(),
                   panel.background = element_rect(fill = "transparent"),
-                  rect = element_rect(fill = "transparent"),
-                  plot.margin = unit(c(0,0,-6.5,-6.5),"mm"))
+                  plot.background = element_rect(fill = "transparent",
+                                                 color = NA),
+                  legend.background = element_rect(fill = "transparent",
+                                                   color = NA),
+                  legend.box.background = element_rect(fill = "transparent",
+                                                       color = NA),
+                  aspect.ratio = 1,
+                  legend.position = "none",
+                  plot.title = element_text(hjust = 0.5),
+                  panel.border = element_rect(colour = "black", fill=NA,
+                                              size=0.5)
+            )
 
-        g   = ggplotGrob(p2)
-        min_x = min(layer_scales(p)$x$range$range)
-        max_x = max(layer_scales(p)$x$range$range)
-        min_y = min(layer_scales(p)$y$range$range)
-        max_y = max(layer_scales(p)$y$range$range)
-
-        p = p + annotation_custom(grob = g, xmin = 1.05*min_x,
-                                   xmax=min_x*2.05, ymin=max_y/2,
-                                   ymax=max_y)
+    if (!exists("p")) {
+        p = ggplot()
     }
+
+    return(p)
+}
+
+#' Plot cumulative Fraction of Reads in Features (cFRiF)
+#'
+#' This function plots the cumulative fraction of reads in a set of features
+#'
+#' @param query A GenomicRanges or GenomicRangesList object with query regions.
+#'              The name of each GRanges object is the default feature name.
+#'              Each GRanges object must include a counts metadata column.
+#' @param num_reads Numeric value representing the total number of aligned
+#'                  reads/bases
+#' @param feature_names An optional character vector of feature names, in the 
+#'                      same order as the GenomicRanges or GenomicRangesList 
+#'                      object.
+#' @keywords cFRiF
+#' @export
+#' @examples
+#' data("promoter")
+#' data("promoter_flanking")
+#' data("exon")
+#' data("intron")
+#' data("utr3")
+#' data("utr5")
+#' plotcFRiF(query = c("promoter", "promoter_flanking", "exon",
+#'                    "intron", "utr3", "utr5"),
+#'           num_reads=87520,
+#'           names = c("promoter", "promoter_flanking", "exon",
+#'                    "intron", "utr3", "utr5")
+#'          )
+#' @export
+plotcFRiF = function(query, num_reads, feature_names = NA) {
+    palette = colorRampPalette(c("#999999", "#FFC107", "#27C6AB", "#004D40",
+                                  "#B97BC8", "#009E73", "#C92404", "#E3E550",
+                                  "#372B4C", "#E3DAC7", "#27CAE6", "#B361BC",
+                                  "#897779", "#6114F8", "#19C42B", "#56B4E9"))
+    # Calculate the FRiF for each feature type
+    if (is(query, "GRangesList")) {
+		# Recurse over each GRanges object
+		frif = lapply(query, calcFRiF, num_reads)
+        # Generate plot labels and options
+        labels = lapply(frif, setLabels)
+        # Collapse to list
+        labels = data.table::rbindlist(labels, idcol=TRUE)
+        feature_lengths = data.table::data.table(num_feats=elementNROWS(frif))
+        # Collapse frif list to data.table with column for feature names
+        frif = data.table::rbindlist(frif, idcol=TRUE)
+	} else {
+        frif = calcFRiF(query, num_reads)
+        labels = setLabels(frif)
+        feature_lengths = data.table::data.table(num_feats=length(query))
+    }
+
+    plot_colors = palette(nrow(feature_lengths))
+
+    # If name vector provided, update names
+    if (all(!is.na(feature_names))) {
+        if (length(feature_names) == nrow(feature_lengths)) {
+            labels[,.id:=feature_names]
+            frif[,.id:=rep(feature_names, each=feature_lengths$num_feats)]
+        } else {
+            if (!".id" %in% colnames(frif)) {
+                labels[,.id:=seq(1:nrow(feature_lengths))]
+                frif[,.id:=rep(seq(1:nrow(feature_lengths)),
+                     feature_lengths$num_feats)]
+            }
+        }
+    } else {
+        if (!".id" %in% colnames(frif)) {
+            labels[,.id:=seq(1:nrow(feature_lengths))]
+            frif[,.id:=rep(seq(1:nrow(feature_lengths)),
+                 feature_lengths$num_feats)]
+        }
+    }
+
+    # Set colors
+    labels[,color:=plot_colors]
+
+    p = ggplot(frif, aes(x=log10(cumsize), y=frip, group=.id, color=.id)) +
+        geom_line(size=2, alpha=0.5) +
+        guides(linetype = FALSE) +
+        labs(x=expression(log[10]("number of bases")), y="cFRiF") +
+        theme(axis.line = element_line(size = 0.5),
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.background = element_rect(fill = "transparent"),
+              plot.background = element_rect(fill = "transparent",
+                                             color = NA),
+              legend.background = element_rect(fill = "transparent",
+                                               color = NA),
+              legend.box.background = element_rect(fill = "transparent",
+                                                   color = NA),
+              aspect.ratio = 1,
+              legend.position = "none",
+              plot.title = element_text(hjust = 0.5),
+              panel.border = element_rect(colour = "black", fill=NA, size=0.5)
+        )
+
+    # Recolor and reposition legend
+    p = p + scale_color_manual(labels=paste0(labels$.id, ": ", labels$val),
+                               values=labels$color) +
+        labs(color="cFRiF") +
+        theme(legend.position=c(0.075,0.975),
+              legend.justification=c(0.1,0.9),
+              legend.title = element_blank(),
+              legend.text = element_text(size = rel(0.65)), 
+              legend.background=element_blank(),
+              legend.key = element_blank(),
+              axis.text.x = element_text(angle = 0, hjust = 1, vjust=0.5)
+        )
 
     if (!exists("p")) {
         p = ggplot()
