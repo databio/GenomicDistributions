@@ -14,20 +14,26 @@
 #' @author Nathan C. Sheffield
 #'
 #' @references \url{http://github.com/databio/GenomicDistributions}
+#' @import ggplot2
 #' @importFrom GenomicRanges GRanges GRangesList elementMetadata strand
 #'             seqnames granges
-#' @importFrom ggplot2 ggplot aes facet_grid geom_jitter geom_line
-#'             geom_bar theme_classic xlab ylab geom_hline ylim scale_color_discrete
-#'             scale_x_discrete scale_y_discrete scale_fill_brewer scale_color_manual
-#'             scale_x_continuous ggtitle geom_vline scale_fill_discrete xlim
-#'             scale_color_brewer theme element_blank unit element_text geom_density
-#'             geom_point guides
 #' @importFrom data.table ":=" setDT data.table setkey fread setnames 
 #'             setcolorder rbindlist setattr setorder copy is.data.table
+#'             tstrsplit as.data.table foverlaps melt
 #' @importFrom gridExtra grid.arrange
 #' @importFrom methods is
 
 NULL
+
+# You can either use 'import X' or 'importFrom X abcdefg'. importFrom is better practice,
+# but for ggplot2 we were simply importing so many functions that it makes sense to just 
+# import the whole package
+# @importFrom ggplot2 ggplot aes facet_grid geom_jitter geom_line
+#             geom_bar theme_classic xlab ylab geom_hline ylim scale_color_discrete
+#             scale_x_discrete scale_y_discrete scale_fill_brewer scale_color_manual
+#             scale_x_continuous ggtitle geom_vline scale_fill_discrete xlim
+#             scale_color_brewer theme element_blank unit element_text geom_density
+#             geom_point guides geom_col theme_bw scale_fill_manual
 
 
 # Because of some issues with NOTEs on R CMD CHeck and CRAN submission,

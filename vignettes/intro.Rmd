@@ -19,19 +19,22 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 #devtools::test("code/GenomicDistributions")
 ```
 
-If you have a set of genomic ranges, the GenomicDistributions R package can help you with visualize some interesting properties of your regions. Currently, it can produce three kinds of plots:
+If you have a set of genomic ranges, the GenomicDistributions R package can help you visualize properties of your region set. GenomicDistributions produces these five types of plot:
 
-- The *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes
-- The *feature distance distribution plot*, which visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
-- The *partition distribution plot*, which visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
+- *chromosome distribution plot* - visualizes how your regions are distributed over chromosomes
+- *width distribution plot* - visualizes the distribution of range widths
+- *feature distance distribution plot* - visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
+- *partition distribution plot* - visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
 
-GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes, locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible with GenomicDistributions, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
+GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes and locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
 
 In this vignette, we'll go through examples of each of the plots using my common built-in features and partitions. If you want more control, there's another advanced vignette that will introduce you how to define your own features, partitions, and chromosome sizes for custom analysis.
 
 ## Modular plotting functions in the package
 
-Before we start, I want to explain my philosophy for designing the functions in this package. Many R plotting packages combine calculations and plotting into one giant function, but the problem with this is that if you want to take the underlying summarized data and plot it in a different way or combine it with something else, you can't. You only have access to the final plot. GenomicDistributions divides these tasks so you can use the intermediate data to design your own custom plot style if you want. Thus, each plot type has two different functions that work together to produce the plots: a *calculate* function and a *plot* function. The *calculate* functions take your GRanges object and return a table that summarizes your regions for the given analysis type. You can use these summary statistics how you like -- aggregate them across multiple region sets, insert them into other plots you have, and so forth; or, you can simply plug that result directly into the corresponding *plot* function, which returns a *ggplot2* object. Separating the calculation and plotting functions like this gives you more control over your results.
+Before we start, I want to explain the design philosophy for functions in this package. Many R plotting packages combine calculations and plotting into one function. This may seem convenient, but if you want to plot the calculation results in a different way or combine them with something else, you can't because you only have access to the final plot. GenomicDistributions divides these tasks so you can use the intermediate data to design your own custom plot, or use the calculated results directly for other analysis.
+
+In GenomicDistributions, each plot type has two functions: a *calculate* function and a *plot* function. The *calculate* functions take your GRanges object and return a table of summary results. You can use these summary statistics how you like -- aggregate them across multiple region sets, insert them into other plots you have, and so forth; or, you can simply plug that result directly into the corresponding *plot* function, which returns a *ggplot2* object. Separating the calculation and plotting functions like this gives you more control over your results.
 
 ## Install
 
