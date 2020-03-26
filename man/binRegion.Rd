@@ -40,3 +40,7 @@ in bins across many regions of the same type.
 In theory, this just runs on 3 values, but you can run it inside a 
 data.table j expression to divide a bunch of regions in the same way.
 }
+\examples{
+Rbins = binRegion(1, 3000, 100, 1000)
+
+}

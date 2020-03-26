@@ -27,7 +27,7 @@
 #' 		binID: repeating ID (this is the value to aggregate across)
 #' 		ubinID: unique bin IDs
 #' @export
-#' @example
+#' @examples
 #' Rbins = binRegion(1, 3000, 100, 1000)
 #' 
 binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
