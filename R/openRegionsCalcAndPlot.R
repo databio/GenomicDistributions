@@ -193,7 +193,6 @@ plotOpenSignal = function(signalMatrix,
       scale_x_discrete(labels = myLabels$spaceLabel) +
       scale_fill_manual(values=colorScheme) + 
       scale_color_manual(values=colorScheme)
-    print(jitterPlot)
     return(jitterPlot)
   } else if (plotType == "boxPlot") {
     
@@ -210,7 +209,6 @@ plotOpenSignal = function(signalMatrix,
       scale_fill_manual(values=colorScheme) + 
       scale_color_manual(values=colorScheme) +
       ylim(minBoxLimit, maxBoxLimit)
-    suppressWarnings(print(boxPlot))
     return(boxPlot)
   } else if (plotType == "barPlot") {
     barPlot = ggplot(barPlotStats, aes(x = mixedVar, y = medianBar, fill = tissue))
@@ -227,7 +225,6 @@ plotOpenSignal = function(signalMatrix,
       ylab("med (normalized signal)") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
       scale_fill_manual(values=colorScheme)
-    print(barPlot)
     return(barPlot)
   } else {
     stop("Plot type does not match any of the available options. Available options: jitter, boxPlot, barPlot. ")
