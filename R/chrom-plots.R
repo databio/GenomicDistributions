@@ -28,7 +28,11 @@
 #' 		ubinID: unique bin IDs
 #' @export
 binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
-	if (is.null(binSize) & is.null(binCount)) {
+	if (!(is(start, "numeric") & is(end, "numeric"))) {
+	  stop("start and end must be numeric objects indicating starting
+	       and ending coordinates.")
+	}
+  if (is.null(binSize) & is.null(binCount)) {
 		stop("You must provide either binSize or binCount")
 	}
 
@@ -65,8 +69,15 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 #' 
 #' @param genome A UCSC-style string denoting reference assembly (e.g. 'hg38')
 #' @param binCount number of bins per chromosome
+#' @return A data.table object showing the region and bin IDs of the reference genome.
 #' @export
 binBSGenome = function(genome, binCount) {
+  if (!(is(genome, "character"))) {
+    stop("genome should be a character vector specifying the reference genome.")
+  }
+  if (!(is(binCount, "numeric"))) {
+    stop("binCount should be a numeric object. Check object class.")
+  }
 	BSG = loadBSgenome(genome)
 	chromSizes = seqlengths(BSG)
 	return(binChroms(binCount, chromSizes))
@@ -79,10 +90,18 @@ binBSGenome = function(genome, binCount) {
 #' account for assembly gaps or the like.
 #' 
 #' @param binCount number of bins (total; *not* per chromosome)
-#' @param chromSizes a named list of size (length) for each chromosome
+#' @param chromSizes a named list of size (length) for each chromosome.
+#' @return A data.table object assigning a bin ID to each chromosome region.
 #' @export
 binChroms = function(binCount, chromSizes) {
-	seqnamesColName="chr"
+	if (!(is(binCount, "numeric"))) {
+	  stop("binCount should be a numeric object. Check object class.")
+	}
+  if (!is(chromSizes, "integer")) {
+    stop("chromSizes should be an integer object in the form of a 
+         named list indicating the length of each chromosome.")
+  }
+  seqnamesColName="chr"
 	rangeDT = data.table(chr=names(chromSizes), start=1, end=chromSizes)
 	binnedDT = rangeDT[, binRegion(start, end, binCount=binCount,
 							indicator=get(seqnamesColName))]
@@ -99,9 +118,16 @@ binChroms = function(binCount, chromSizes) {
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param bins Pre-computed bins (as a GRangesList object) to aggregate
 #'     over; for example, these could be genome bins
+#' @return A data.table showing where on which chromosomes ranges are distributed.
 #' @export
 calcChromBins = function(query, bins) {
-	if (methods::is(query, "GRangesList")) {
+	if (!(is(query, "GRanges") || is(query, "GRangesList"))) {
+	  stop("query should be a GRanges object or GRanges list. Check object class.")
+	}
+  if (!(is(bins, "GRangesList"))) {
+    stop("bins should be a GRanges list. Check object class")
+  }
+  if (is(query, "GRangesList"))  {
 		# Recurse over each GRanges object
 		x = lapply(query, calcChromBins, bins)
 
@@ -142,9 +168,17 @@ calcChromBins = function(query, bins) {
 #' @param refAssembly A character vector that will be used to grab chromosome
 #'     sizes with \code{getChromSizes}
 #' @param binCount Number of bins to divide the chromosomes into
+#' @return A data.table showing the distribution of regions across bins of the
+#' reference genome.
 #' @export
 calcChromBinsRef = function(query, refAssembly, binCount=10000) {
-	# Bin the genome
+  if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
+    stop("query should be a GRanges object or GRanges list. Check object class.")
+  }
+  if (!(is(refAssembly, "character"))) {
+    stop("refAssembly should be a character vector specifying the reference genome")
+  }
+  # Bin the genome
 	chromSizes = getChromSizes(refAssembly)
 	binnedDT = binChroms(binCount, chromSizes)
 	splitBinnedDT = splitDataTable(binnedDT, "id")
@@ -161,9 +195,14 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 #' @param binCount Number of bins (should match the call to
 #'     \code{genomicDistribution})
 #' @param plotTitle Title for plot.
+#' @return A ggplot object showing the distribution of the query regions over bins of
+#' the reference genome.
 #' @export
 plotChromBins = function(genomeAggregate, binCount=10000, plotTitle="Distribution over chromosomes") {
-	if ("name" %in% names(genomeAggregate)){
+	if (!(is(genomeAggregate, "data.table") || is(genomeAggregate, "data.frame"))) {
+	  stop("genomeAggregate should be a data.table or data.frame. Check object class.")
+	}
+  if ("name" %in% names(genomeAggregate)){
 		# It has multiple regions
 		g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N, fill=name, color=name))
 	} else {
