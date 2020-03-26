@@ -113,12 +113,18 @@ genomeLabel = function(x) {
 #' distances surrounding the features of interest
 #' 
 #' @param dists Results from \code{featureDistribution}
-#' @param featureName Character vector for plot labels (optional).
 #' @param bgdists Background distances. If provided, will plot a background
 #'     distribution of expected distances 
+#' @param featureName Character vector for plot labels (optional).
+#' @param divisions A vector that defines the bin boundaries for the histogram
 #' @param numbers a logical indicating whether the raw numbers should be 
 #'     displayed, rather than percentages (optional).
+#' @return A ggplot2 plot object
 #' @export
+#' @examples
+#' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' query = rtracklayer::import(queryFile)#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+#' plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", divisions=NULL, 
                            numbers=FALSE) {
 	if (is.null(divisions)) {
