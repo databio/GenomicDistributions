@@ -143,6 +143,12 @@ op = calcOpenSignal(query, cellMatrix)
 plotOpenSignal(op)
 ```
 
+To plot multiple datasets at a time:
+```{r a cell specific open chromatin plot}
+op2 = calcOpenSignal(queryList, cellMatrix)
+plotOpenSignal(op2)
+```
+
 ## GC content plots 
 *GC content plots* will return a probability density function of GC content percentage over the genomic ranges in the query. 
 
