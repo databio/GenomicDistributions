@@ -1,4 +1,29 @@
-
+#' Checks class of the list of variables. To be used in functions
+#'
+#' @param checkList list of object to check, e.g. 
+#' list(varname=c("data.frame", "numeric")). 
+#' Multiuple strings in the vector are treated as OR.
+#' 
+#' @examples
+#' x <- function(var1) {
+#'     cl = list(var1=c("numeric","character"))
+#'     .validateInputs(cl)
+#'     return(var1^2)
+#' }
+.validateInputs <- function(checkList) {
+    fail = FALSE
+    nms = names(checkList)
+    for(i in seq_along(checkList)){
+        clss = checkList[[i]]
+        x = get(nms[i], envir=parent.frame(1))
+        for(cls in clss){
+            if (is(x, cls)) fail = append(fail, TRUE)
+        }
+    }
+    if(!any(fail)) 
+        stop(paste0(nms[i], " must be a ", paste(clss, collapse=" or "), 
+                    ".  Got: ", class(x)))
+}
 
 # Checks to make sure a BSgenome object is installed,
 # and if so, returns it. If the genome is not installed, it issues a warning
