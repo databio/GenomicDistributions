@@ -124,13 +124,18 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 	df = cutDists(dists, divisions)
 	# We could scale
 	# df$Freq = scale(df$Freq, center=FALSE)
+	if(is.list(dists)){
+		nplots = length(dists)
+	} else {
+		nplots = 1
+	}
 
 	if (!is.null(bgdists)) {
 		bgDistsDF = cutDists(bgDists, divisions)
 		# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
 		bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
-		df$bgFreq = rep(bgDistsDF$Freq, length(dists))
-		df$bgX = rep(seq_len(length(divisions)-1), length(dists))
+		df$bgFreq = rep(bgDistsDF$Freq, nplots)
+		df$bgX = rep(seq_len(length(divisions)-1), nplots)
 	}
 
 	if ("name" %in% names(df)){
