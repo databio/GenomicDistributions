@@ -29,3 +29,11 @@ etc; this function will yield the number of each for a query GRanges object
 There will be a priority order to these, to account for regions that may
 overlap multiple genomic partitions.
 }
+\examples{
+f = system.file("extdata", "vistaEnhancers.bed.gz",
+    package="GenomicDistributions")
+query = rtracklayer::import(f)
+geneModels = getGeneModels("hg38")
+partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+calcPartitionsRef(query, partitionList)
+}
