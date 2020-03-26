@@ -1,6 +1,3 @@
-
-library(gridExtra)
-
 #' Calculate the widths of regions
 #' 
 #' The length of a genomic region (the distance between the start and end) is called the width
@@ -27,7 +24,7 @@ calcWidth = function(query) {
 #' @param EndBarColor Color for the quantile bars on both ends of the graph (optional)
 #' @param MiddleBarColor Color for the bars in the middle of the graph (optional)
 #' @param quantile Quantile of data to be contained in each end bar (optional)
-#' Must be between 1 and 20 percent, optimal size is under 10.
+#' Quantiles must be under .2, optimal size is under .1
 #' @param bins The number of bins for the histogram to allocate data to. (optional)
 #' 
 #' @export
@@ -61,7 +58,7 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
         theme(plot.title = element_text(hjust = 0.5)) + # Center title
         ggtitle("Quantile Trimmed Histogram") +
         theme(legend.position="bottom") +
-        geom_text(aes(label= paste(quantile,"%", sep='')), data=df[c(1,length(df$Freq)),], vjust=-1)
+        geom_text(aes(label= paste((quantile*100),"%", sep='')), data=df[c(1,length(df$Freq)),], vjust=-1)
     return(g)
 }
 
@@ -84,15 +81,15 @@ calcDivisions = function(widths, bins=NULL, quantile = NULL){
     }
     # calculating quantiles
     if(!is.null(quantile)){
-        if(quantile >= 20){
-            stop("Quantile must be less than 20. Optimal size is under 10.") }
+        if(quantile >= .2){
+            stop("Quantile must be less than .2, Optimal size is under .1") }
         q = quantile
     }
     else{
-        q = round(25/(b)) # finding the quantile on each side based on number of bins
-        q = max(1,q) # minimum on each side is 1%
+        q = round(25/(b))/100 # finding the quantile on each side based on number of bins
+        q = max(.01,q) # minimum on each side is 1%
     }
-    quant = unname(quantile(widths, probs = c((q/100), (1-(q/100)))))
+    quant = unname(quantile(widths, probs = c((q), (1-(q)))))
     seq_10 = seq(quant[1], quant[2], length = b+1)
     div = c(-Inf, round(seq_10), Inf)
     listOutput <- list("bins"= b,"quantile"= q, "divisions" = div)
