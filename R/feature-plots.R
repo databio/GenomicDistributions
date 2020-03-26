@@ -1,5 +1,6 @@
 # Old, slow version based on GRanges methods
 calcFeatureDistBioc = function(query, features) {
+    .validateInputs(list(query=x("GRangesList","GRanges")))
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
 		x = lapply(query, calcFeatureDist, features)
@@ -40,6 +41,7 @@ calcFeatureDistBioc = function(query, features) {
 #' 
 #' @export
 calcFeatureDist = function(query, features) {
+    .validateInputs(list(query=c("GRangesList","GRanges")))
 	if (is(query, "GRangesList")) {
 		# Recurse over each GRanges object
 		x = lapply(query, calcFeatureDist, features)
@@ -95,6 +97,7 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 #' @param x base count
 #' @return A label with 'kb' or 'mb' appended if appropriate
 genomeLabel = function(x) {
+    .validateInputs(list(x="numeric"))
 	lab = x
 	if (abs(x) > 1e6){
 
@@ -241,6 +244,7 @@ cutDists = function(dists, divisions=NULL) {
 #' @examples
 #' calcFRiF()
 calcFRiF = function(query, total) {
+    .validateInputs(list(query="GRanges"))
     # Total must be some number greater than 0
     if (total <= 0) {
         warning("The total number (total:", total, ") of aligned reads or ",
@@ -321,6 +325,7 @@ setLabels = function(query) {
 #' @param genome_size Numeric value representing the size of the genome in
 #'                    bases.
 getExpectedFeatures = function(query, genome_size) {
+    .validateInputs(list(query="GRanges"))
     return(data.table::data.table(
             numfeats=max(query$numfeats),
             numbases=max(query$cumsize),
@@ -359,6 +364,7 @@ getExpectedFeatures = function(query, genome_size) {
 #'          )
 #' @export
 plotFRiF = function(query, num_reads, genome_size, feature_names = NA) {
+    .validateInputs(list(query=c("GRanges","GRangesList")))
     palette = colorRampPalette(c("#999999", "#FFC107", "#27C6AB", "#004D40",
                                   "#B97BC8", "#009E73", "#C92404", "#E3E550",
                                   "#372B4C", "#E3DAC7", "#27CAE6", "#B361BC",
@@ -479,6 +485,8 @@ plotFRiF = function(query, num_reads, genome_size, feature_names = NA) {
 #'          )
 #' @export
 plotcFRiF = function(query, num_reads, feature_names = NA) {
+    .validateInputs(list(query=c("GRanges","GRangesList"),
+                         num_reads="numeric"))
     palette = colorRampPalette(c("#999999", "#FFC107", "#27C6AB", "#004D40",
                                   "#B97BC8", "#009E73", "#C92404", "#E3E550",
                                   "#372B4C", "#E3DAC7", "#27CAE6", "#B361BC",

@@ -194,9 +194,3 @@ labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-",
 # 	}
 # 	return(labels)
 # }
-
-
-x <- function(x,y) {
-    .validateInputs(list(x=c("numeric", "data.frame"), y="numeric"))
-    return(x+y)
-}
