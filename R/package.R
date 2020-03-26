@@ -21,6 +21,7 @@
 #'             scale_x_discrete scale_y_discrete scale_fill_brewer scale_color_manual
 #'             scale_x_continuous ggtitle geom_vline scale_fill_discrete xlim
 #'             scale_color_brewer theme element_blank unit element_text geom_density
+#'             geom_point
 #' @importFrom data.table ":=" setDT data.table setkey fread setnames 
 #'             setcolorder rbindlist setattr setorder copy is.data.table
 #' @importFrom gridExtra grid.arrange
