@@ -27,6 +27,9 @@
 #' 		binID: repeating ID (this is the value to aggregate across)
 #' 		ubinID: unique bin IDs
 #' @export
+#' @example
+#' Rbins = binRegion(1, 3000, 100, 1000)
+#' 
 binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 	if (!(is(start, "numeric") & is(end, "numeric"))) {
 	  stop("start and end must be numeric objects indicating starting
@@ -71,6 +74,11 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 #' @param binCount number of bins per chromosome
 #' @return A data.table object showing the region and bin IDs of the reference genome.
 #' @export
+#' @examples
+#' \dontrun{
+#' binCount = 1000
+#' refGenomeBins = binBSGenome("hg19", binCount)
+#' }
 binBSGenome = function(genome, binCount) {
   if (!(is(genome, "character"))) {
     stop("genome should be a character vector specifying the reference genome.")
@@ -93,11 +101,15 @@ binBSGenome = function(genome, binCount) {
 #' @param chromSizes a named list of size (length) for each chromosome.
 #' @return A data.table object assigning a bin ID to each chromosome region.
 #' @export
+#' @examples 
+#' hg19chromSizes = system.file("data/chromSizes_hg19.RData")
+#' cBins = binChroms(1000, hg19chromSizes)
+#' 
 binChroms = function(binCount, chromSizes) {
 	if (!(is(binCount, "numeric"))) {
 	  stop("binCount should be a numeric object. Check object class.")
 	}
-  if (!is(chromSizes, "integer")) {
+  if (!is(chromSizes, "numeric")) {
     stop("chromSizes should be an integer object in the form of a 
          named list indicating the length of each chromosome.")
   }
@@ -124,8 +136,8 @@ calcChromBins = function(query, bins) {
 	if (!(is(query, "GRanges") || is(query, "GRangesList"))) {
 	  stop("query should be a GRanges object or GRanges list. Check object class.")
 	}
-  if (!(is(bins, "GRangesList"))) {
-    stop("bins should be a GRanges list. Check object class")
+  if (!(is(bins, "GRanges") || is(bins, "GRangesList"))) {
+    stop("bins should be a GRanges object or GRanges list. Check object class")
   }
   if (is(query, "GRangesList"))  {
 		# Recurse over each GRanges object
@@ -171,6 +183,11 @@ calcChromBins = function(query, bins) {
 #' @return A data.table showing the distribution of regions across bins of the
 #' reference genome.
 #' @export
+#' @examples 
+#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' GRquery = rtracklayer::import(query)
+#' ChromBins = calcChromBinsRef(GRquery, "hg19")
+#' 
 calcChromBinsRef = function(query, refAssembly, binCount=10000) {
   if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
     stop("query should be a GRanges object or GRanges list. Check object class.")
@@ -198,6 +215,10 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 #' @return A ggplot object showing the distribution of the query regions over bins of
 #' the reference genome.
 #' @export
+#' @examples
+#' agg = data.frame("regionID"=1:5, "chr"=rep(c("chr1"), 5), "withinGroupID"=1:5, "N"=c(1,3,5,7,9))  
+#' ChromBins = plotChromBins(agg)
+#' 
 plotChromBins = function(genomeAggregate, binCount=10000, plotTitle="Distribution over chromosomes") {
 	if (!(is(genomeAggregate, "data.table") || is(genomeAggregate, "data.frame"))) {
 	  stop("genomeAggregate should be a data.table or data.frame. Check object class.")
