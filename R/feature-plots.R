@@ -122,8 +122,8 @@ genomeLabel = function(x) {
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", divisions=NULL, 
                            numbers=FALSE) {
 	if (is.null(divisions)) {
-		poscuts = seq(1,1e6, by=1000)
-		divisions = c(-poscuts, 0, poscuts)
+		poscuts = seq(0,100000, by=2000)
+		divisions = sort(unique(c(-poscuts, poscuts)))
 	}
 	df = cutDists(dists, divisions)
 	# We could scale
@@ -192,8 +192,8 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 # Internal helper function for \code{plotFeatureDist}
 cutDists = function(dists, divisions=NULL) {
 	if (is.null(divisions)) {
-		poscuts = seq(1,1e6, by=1000)
-		divisions = c(-poscuts, 0, poscuts)
+		poscuts = seq(0,100000, by=2000)
+		divisions = sort(unique(c(-poscuts, poscuts)))
 	}
 	if (is.list(dists)) {
 		x = lapply(dists, cutDists, divisions)
