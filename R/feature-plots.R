@@ -90,6 +90,23 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 	return(calcFeatureDist(query, features))
 }
 
+
+#' Converts a nucleotide count into a label with abbreviation
+#' @param x base count
+#' @return A label with 'kb' or 'mb' appended if appropriate
+genomeLabel = function(x) {
+	lab = x
+	if (abs(x) > 1e6){
+
+		lab = paste0(round(x/1e6), " mb")
+	}
+	else if (abs(x) > 1e3){
+		lab = paste0(round(x/1e3), " kb")
+	}
+	return(lab)
+}
+
+
 #' Plots a histogram of distances to genomic features
 #' 
 #' Given the results from \code{featureDistribution}, plots a histogram of
@@ -97,38 +114,58 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 #' 
 #' @param dists Results from \code{featureDistribution}
 #' @param featureName Character vector for plot labels (optional).
+#' @param bgdists Background distances. If provided, will plot a background
+#'     distribution of expected distances 
 #' @param numbers a logical indicating whether the raw numbers should be 
 #'     displayed, rather than percentages (optional).
 #' @export
-plotFeatureDist = function(dists, featureName="features", divisions=NULL, 
+plotFeatureDist = function(dists, bgdists=NULL, featureName="features", divisions=NULL, 
                            numbers=FALSE) {
 	df = cutDists(dists, divisions)
+	# We could scale
+	# df$Freq = scale(df$Freq, center=FALSE)
 	if ("name" %in% names(df)){
 	    if (!numbers)
-	        df$Freq = df[, .(Freq.Per = (Freq / max(Freq)) * 100), 
+	        df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
 	                     by = name][, "Freq.Per"]
 		# It has multiple regions
 		g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
 			facet_grid(. ~name)
 	} else {
 	    if (!numbers)
-	        df$Freq = (df$Freq / max(df$Freq)) * 100
+	        df$Freq = (df$Freq / sum(df$Freq)) * 100
 		g = ggplot(df, aes(x=cuts, y=Freq))
 	}
 
+	# if (!is.null(bgdists)) {
+	# 	bgDistsDF = cutDists(bgDists, divisions)
+	# 	# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
+	# 	bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
+	# 	# bgtrack = scale(smooth(bgDistsDF$Freq), center=FALSE)
+	# 	g = g + 
+	# 		geom_line(stat="identity", data=bgDistsDF, aes(x=seq_len(100),y=Freq), color="gray", alpha=1, size=1.5) + 
+	# 		geom_bar(stat="identity", data=bgDistsDF, aes(x=cuts,y=Freq), fill="gray", alpha=0.8)
+	# }
+
+	# find midpoint
+	midx = length(divisions)/2
+	barcount = length(divisions)
+	minlabel = genomeLabel(min(divisions))
+	maxlabel = genomeLabel(min(divisions))
+	edgeLabels = c(minlabel, rep("", barcount-2), maxlabel)
 	g = g +
-		geom_bar(stat="identity") + 
-		geom_vline(xintercept = (length(unique(df$cuts))+1)/2, 
-		           color="darkgreen") +
+		geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
+		geom_point(aes(x=midx, y=0), color="tan2", size=2, shape=17, alpha=0.8) +
 		theme_classic() + 
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
 		xlab(paste("Distance to", featureName)) +
-		ylab(paste0(ifelse(numbers, "Number", "Percentage"), " of regions")) +
-		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+		ylab("Scaled frequency (%)") +
+		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
 		ggtitle(paste("Distribution relative to", featureName)) +
-		theme(legend.position="bottom")
+		theme(legend.position="bottom") + 
+		scale_x_discrete(labels=edgeLabels)
 
 	return(g)
 }
@@ -141,7 +178,7 @@ cutDists = function(dists, divisions=NULL) {
 		divisions = c(-poscuts, 0, poscuts)
 	}
 	if (is.list(dists)) {
-		x = lapply(dists, cutDists)
+		x = lapply(dists, cutDists, divisions)
 
 		# To accommodate multiple lists, we'll need to introduce a new 'name'
 		# column to distinguish them.
