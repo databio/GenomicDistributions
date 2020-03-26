@@ -52,7 +52,7 @@ calcFeatureDist = function(query, features) {
 	as.vector(unlist(mapply(queryDTs, featureDTs[names(queryDTs)], FUN=DTNearest)))
 }
 
-# Function uses dat.table rolling join to identify the nearest features
+# Function uses data.table rolling join to identify the nearest features
 # really quickly.
 DTNearest = function(DT1, DT2) {
 	#data.table::set(DT1, j=mid, value=start + round((end-start)/2))
@@ -97,27 +97,35 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 #' 
 #' @param dists Results from \code{featureDistribution}
 #' @param featureName Character vector for plot labels (optional).
+#' @param numbers a logical indicating whether the raw numbers should be 
+#'     displayed, rather than percentages (optional).
 #' @export
-plotFeatureDist = function(dists, featureName="features") {
-
-	df = cutDists(dists)
+plotFeatureDist = function(dists, featureName="features", divisions=NULL, 
+                           numbers=FALSE) {
+	df = cutDists(dists, divisions)
 	if ("name" %in% names(df)){
+	    if (!numbers)
+	        df$Freq = df[, .(Freq.Per = (Freq / max(Freq)) * 100), 
+	                     by = name][, "Freq.Per"]
 		# It has multiple regions
 		g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
 			facet_grid(. ~name)
 	} else {
+	    if (!numbers)
+	        df$Freq = (df$Freq / max(df$Freq)) * 100
 		g = ggplot(df, aes(x=cuts, y=Freq))
 	}
 
 	g = g +
 		geom_bar(stat="identity") + 
-		geom_vline(xintercept = (length(unique(df$cuts))+1)/2, color="darkgreen") +
+		geom_vline(xintercept = (length(unique(df$cuts))+1)/2, 
+		           color="darkgreen") +
 		theme_classic() + 
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
 		xlab(paste("Distance to", featureName)) +
-		ylab("Number of regions") +
-		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
+		ylab(paste0(ifelse(numbers, "Number", "Percentage"), " of regions")) +
+		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + 
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
 		ggtitle(paste("Distribution relative to", featureName)) +
 		theme(legend.position="bottom")
@@ -125,8 +133,13 @@ plotFeatureDist = function(dists, featureName="features") {
 	return(g)
 }
 
+
 # Internal helper function for \code{plotFeatureDist}
-cutDists = function(dists, divisions = c(-Inf, -1e6, -1e4, -1000, -100, 0, 100, 1000, 10000, 1e6, Inf)) {
+cutDists = function(dists, divisions=NULL) {
+	if (is.null(divisions)) {
+		poscuts = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 1e5, 1e6, Inf)
+		divisions = c(-poscuts, 0, poscuts)
+	}
 	if (is.list(dists)) {
 		x = lapply(dists, cutDists)
 
@@ -144,7 +157,7 @@ cutDists = function(dists, divisions = c(-Inf, -1e6, -1e4, -1000, -100, 0, 100, 
 		return(xb)
 	}
 
-	labels = labelCuts(divisions, collapse=" to ", infBins=TRUE)
+	labels = labelCuts(sort(divisions), collapse=" to ", infBins=TRUE)
 	cuts = cut(dists, divisions, labels)
 	df = as.data.frame(table(cuts))
 	return(df)

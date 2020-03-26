@@ -109,7 +109,7 @@ If you want to check distances to other features, that's no problem; `calcFeatur
 featureExample = GenomicRanges::shift(query, round(rnorm(length(query), 0,1000)))
 ```
 
-Now, with these features, we just use the `calcFeatureDist` function to calculate the distances. This function using the fast rolling joins from `data.table` under the hood, so it complete very quickly. The result of this gets piped right into the plotting function as before:
+Now, with these features, we just use the `calcFeatureDist` function to calculate the distances. This function uses the fast rolling joins from `data.table` under the hood, so it completes very quickly. The result of this gets piped right into the plotting function as before:
 
 ```{r Calculate distances and plot, fig.cap="Feature plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
 fdd = calcFeatureDist(query, featureExample)
@@ -137,10 +137,27 @@ plotPartitions(gp2)
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
 ## Cell specific open chromatin signal plots
-
 ```{r a cell specific open chromatin plot}
 cellMatrix = fread("meanCoverageMatrix_hg19_quantileNormalized_round4.txt.gz")
 op = calcOpenSignal(query, cellMatrix)
 plotOpenSignal(op)
+```
+
+## GC content plots 
+*GC content plots* will return a probability density function of GC content percentage over the genomic ranges in the query. 
+
+```{r GC content plots, fig.cap="GC content plot. Probability density function of GC percentage"}
+# Calculate the GC content
+gc1 = calcGCContentRef(query, "hg19")
+
+# Plot the GC distribution
+plotGCContent(gc1)
+```
+
+
+```{r multiple distributions in one}
+# You can also plot the probability distribution for more than one query.
+gc2 = calcGCContentRef(queryList, "hg19")
+plotGCContent(gc2)
 ```
 
