@@ -136,5 +136,11 @@ plotPartitions(gp2)
 
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
+## Cell specific open chromatin signal plots
 
+```{r a cell specific open chromatin plot}
+cellMatrix = fread("meanCoverageMatrix_hg19_quantileNormalized_round4.txt.gz")
+op = calcOpenSignal(query, cellMatrix)
+plotOpenSignal(op)
+```
 
