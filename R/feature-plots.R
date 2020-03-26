@@ -183,7 +183,7 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
 		xlab(paste("Distance to", featureName)) +
-		ylab("Scaled frequency (%)") +
+		ylab(ifelse(numbers,"Frequency","Scaled frequency (%)")) +
 		# theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
 		theme(axis.text.x=element_text(angle = 0, hjust = c(0,1), vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
