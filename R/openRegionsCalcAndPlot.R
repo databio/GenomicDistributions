@@ -82,9 +82,9 @@ calcOpenSignal = function(query,
 #' The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.
 #'
 #' @param signalMatrix Output data.table from \code{calcOpenSignal} function.
-#' @param  plotType Options are: jitter (default) - jitter plot with box plot on top / 
+#' @param  plotType Options are: jitter - jitter plot with box plot on top / 
 #'           boxPlot - box plot without individual points and outliers / 
-#'           barPlot - bar height represents the median signal value for a given cell type.
+#'           barPlot (default) - bar height represents the median signal value for a given cell type.
 #' @param cellGroup - This option allows to selcet a group of cells to be plotted, if NA (default)
 #'           all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
 #'           "embryonic", "eye", "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
@@ -105,7 +105,7 @@ calcOpenSignal = function(query,
 #' plotOpenSignal(signalMatrix, plotType = "barPlot", cellGroup = "blood")
 #' }
 plotOpenSignal = function(signalMatrix, 
-                          plotType = "jitter", 
+                          plotType = "barPlot", 
                           cellGroup = NA,
                           cellTypeMetadata = NA, 
                           colorScheme = c("#E31A1C","#666666","#B3DE69",
@@ -123,7 +123,13 @@ plotOpenSignal = function(signalMatrix,
   # reshape the signal matrix into ggplot usable form 
   # attach the metadata for coloring
   # sort table alphabetically by tissue-cellType
-  plotSignalMatrix = melt(signalMatrix, id.vars = "queryPeak", variable.name = "cellType", value.name = "signal")
+  if ("name" %in% names(signalMatrix)){
+    plotSignalMatrix = melt(signalMatrix, id.vars = c("queryPeak", "name"), 
+                            variable.name = "cellType", value.name = "signal")
+  } else {
+    plotSignalMatrix = melt(signalMatrix, id.vars = "queryPeak", 
+                            variable.name = "cellType", value.name = "signal")
+  }
   setkey(plotSignalMatrix, cellType)
   setkey(cellTypeMetadata, cellType)
   plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = F)
@@ -156,7 +162,11 @@ plotOpenSignal = function(signalMatrix,
   maxBoxLimit = max(unlist(boxStats$boxStats))
   
   # get mediand of signal values to make a bar plot
-  barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), by = mixedVar]
+  if ("name" %in% names(plotSignalMatrix)){
+    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), by = c("mixedVar", "name")]
+  } else {
+    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), by = mixedVar]
+  }
   tableToMerge = unique(plotSignalMatrix[, .(mixedVar, cellType, tissue, group)])
   setkey(barPlotStats, mixedVar)
   setkey(tableToMerge, mixedVar)
@@ -167,7 +177,13 @@ plotOpenSignal = function(signalMatrix,
              aes(x = mixedVar, y = signal))
   
   if (plotType == "jitter"){
-    jitterPlot = p + geom_jitter(alpha = 0.5, height = 0, width = 0.35, aes(color = tissue)) + 
+    
+    if ("name" %in% names(plotSignalMatrix)){
+      p = p + facet_grid(name ~ .)
+    }
+    
+    jitterPlot = p + 
+      geom_jitter(alpha = 0.5, height = 0, width = 0.35, aes(color = tissue)) +
       geom_boxplot(outlier.colour = NA, fill = NA) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
@@ -179,6 +195,10 @@ plotOpenSignal = function(signalMatrix,
       scale_color_manual(values=colorScheme)
     print(jitterPlot)
   } else if (plotType == "boxPlot") {
+    
+    if ("name" %in% names(plotSignalMatrix)){
+      p = p + facet_grid(name ~ .)
+    }
     boxPlot = p + geom_boxplot(outlier.colour = NA, aes(fill = tissue), alpha = 0.9) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
@@ -191,7 +211,12 @@ plotOpenSignal = function(signalMatrix,
       ylim(minBoxLimit, maxBoxLimit)
     suppressWarnings(print(boxPlot))
   } else if (plotType == "barPlot") {
-    barPlot = ggplot(barPlotStats, aes(x = mixedVar, y = medianBar, fill = tissue)) +
+    barPlot = ggplot(barPlotStats, aes(x = mixedVar, y = medianBar, fill = tissue))
+    
+    if ("name" %in% names(barPlotStats)){
+      barPlot = barPlot + facet_grid(name ~ .)
+    }
+    barPlot = barPlot +
       geom_col(alpha = 0.9)+
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
