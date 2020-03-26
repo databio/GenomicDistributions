@@ -158,17 +158,19 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 	midx = length(divisions)/2
 	barcount = length(divisions)
 	minlabel = genomeLabel(min(divisions))
-	maxlabel = genomeLabel(min(divisions))
-	edgeLabels = c(minlabel, rep("", barcount-2), maxlabel)
+	maxlabel = genomeLabel(max(divisions))
+	edgeLabels = c(minlabel, rep("", barcount-3), maxlabel)
 	g = g +
 		geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
 		geom_point(aes(x=midx, y=0), color="tan2", size=2, shape=17, alpha=0.8) +
+		guides(fill=FALSE) + # remove legend for geom_point
 		theme_classic() + 
 		theme(aspect.ratio=1) + 
 		theme_blank_facet_label() + 
 		xlab(paste("Distance to", featureName)) +
 		ylab("Scaled frequency (%)") +
-		theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
+		# theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
+		theme(axis.text.x=element_text(angle = 0, hjust = c(0,1), vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
 		ggtitle(paste("Distribution relative to", featureName)) +
 		theme(legend.position="bottom") + 
