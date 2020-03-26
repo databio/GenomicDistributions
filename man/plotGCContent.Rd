@@ -9,7 +9,10 @@ density plot}
 plotGCContent(gcvectors)
 }
 \arguments{
-\item{gcvector}{A vector of GC contents}
+\item{gcvector}{A numeric vector or list of GC contents.}
+}
+\value{
+A ggplot object plotting distribution of GC content in query regions.
 }
 \description{
 Plots a density distribution of GC vectors

@@ -18,6 +18,10 @@ plotChromBins(
 
 \item{plotTitle}{Title for plot.}
 }
+\value{
+A ggplot object showing the distribution of the query regions over bins of
+the reference genome.
+}
 \description{
 Plots result from \code{genomicDistribution} calculation
 }

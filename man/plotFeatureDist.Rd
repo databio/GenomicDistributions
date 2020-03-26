@@ -4,12 +4,24 @@
 \alias{plotFeatureDist}
 \title{Plots a histogram of distances to genomic features}
 \usage{
-plotFeatureDist(dists, featureName = "features")
+plotFeatureDist(
+  dists,
+  bgdists = NULL,
+  featureName = "features",
+  divisions = NULL,
+  numbers = FALSE
+)
 }
 \arguments{
 \item{dists}{Results from \code{featureDistribution}}
 
+\item{bgdists}{Background distances. If provided, will plot a background
+distribution of expected distances}
+
 \item{featureName}{Character vector for plot labels (optional).}
+
+\item{numbers}{a logical indicating whether the raw numbers should be 
+displayed, rather than percentages (optional).}
 }
 \description{
 Given the results from \code{featureDistribution}, plots a histogram of

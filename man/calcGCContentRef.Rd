@@ -13,6 +13,9 @@ calcGCContentRef(query, refAssembly)
 assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 \code{getTSSs}.}
 }
+\value{
+A numeric vector or list of vectors with the GC percentage of the query regions.
+}
 \description{
 Given a reference genome as a BSgenome object and some ranges on that
 reference, this function will return a vector of the same length as the

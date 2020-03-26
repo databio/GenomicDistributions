@@ -14,6 +14,10 @@ each of the partitions. Produced by \code{calcPartitions}}
 \item{labels}{Character vector with labels for the partitions (optional). By
 default it will use the names from the first argument.}
 }
+\value{
+A ggplot object using a barplot to show the distribution of the query 
+ regions across a given partition list.
+}
 \description{
 This function can be used to test a GRanges object against any arbitrary list
 of genome partitions. The partition list is a priority-ordered list of
