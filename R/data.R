@@ -107,3 +107,13 @@ NULL
 #' @source BSGenome package
 #' @name geneModels_mm9
 NULL
+
+
+#' Cell type metadata
+#'
+#' A dataset containing metadat for coloring cell specific open chromatin 
+#' signal plot
+#'
+#' @format A data table with tissue and group assigned to cell type
+#' @name cellTypeMetadata
+NULL
