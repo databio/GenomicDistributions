@@ -81,7 +81,7 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 	if (!(is(query, "GRanges") || is(query, "GRangesList"))) {
 	  stop("query should be a GRanges object or GRanges list. Check object class.")
 	}
-  if (!(is(partitionList, "GRangesList"))) {
+  if (!(is(partitionList, "list"))) {
     stop("partitionList should be a GRanges list. Check object class.")
   }
   if (methods::is(query, "GRangesList")) {
