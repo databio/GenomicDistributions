@@ -124,6 +124,15 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 	df = cutDists(dists, divisions)
 	# We could scale
 	# df$Freq = scale(df$Freq, center=FALSE)
+
+	if (!is.null(bgdists)) {
+		bgDistsDF = cutDists(bgDists, divisions)
+		# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
+		bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
+		df$bgFreq = rep(bgDistsDF$Freq, length(dists))
+		df$bgX = rep(seq_len(length(divisions)-1), length(dists))
+	}
+
 	if ("name" %in% names(df)){
 	    if (!numbers)
 	        df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
@@ -137,15 +146,13 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 		g = ggplot(df, aes(x=cuts, y=Freq))
 	}
 
-	# if (!is.null(bgdists)) {
-	# 	bgDistsDF = cutDists(bgDists, divisions)
-	# 	# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
-	# 	bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
-	# 	# bgtrack = scale(smooth(bgDistsDF$Freq), center=FALSE)
-	# 	g = g + 
-	# 		geom_line(stat="identity", data=bgDistsDF, aes(x=seq_len(100),y=Freq), color="gray", alpha=1, size=1.5) + 
-	# 		geom_bar(stat="identity", data=bgDistsDF, aes(x=cuts,y=Freq), fill="gray", alpha=0.8)
-	# }
+	if (!is.null(bgdists)) {
+
+		# bgtrack = scale(smooth(bgDistsDF$Freq), center=FALSE)
+		g = g + 
+			geom_line(stat="identity", aes(x=bgX,y=bgFreq), color="gray", alpha=1, size=1.5) + 
+			geom_bar(stat="identity", aes(x=cuts,y=bgFreq), fill="gray", alpha=0.8)
+	}
 
 	# find midpoint
 	midx = length(divisions)/2
