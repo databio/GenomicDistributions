@@ -156,7 +156,7 @@ plotOpenSignal(op2)
 ## GC content plots 
 *GC content plots* will return a probability density function of GC content percentage over the genomic ranges in the query. 
 
-```{r GC content plots, fig.cap="GC content plot. Probability density function of GC percentage"}
+```{r gc-content-plots, fig.cap="GC content plot. Probability density function of GC percentage", eval=FALSE}
 # Calculate the GC content
 gc1 = calcGCContentRef(query, "hg19")
 
@@ -165,7 +165,7 @@ plotGCContent(gc1)
 ```
 
 
-```{r multiple distributions in one}
+```{r gc-content-plots-multi, eval=FALSE}
 # You can also plot the probability distribution for more than one query.
 gc2 = calcGCContentRef(queryList, "hg19")
 plotGCContent(gc2)
