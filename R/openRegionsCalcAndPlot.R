@@ -117,7 +117,7 @@ plotOpenSignal = function(signalMatrix,
   
   if(is.na(cellTypeMetadata)){
     # upload metadata for coloring
-    cellTypeMetadata = data("cellTypeMetadata")
+    cellTypeMetadata = getReferenceData("","cellTypeMetadata")
   } 
   
   # reshape the signal matrix into ggplot usable form 
