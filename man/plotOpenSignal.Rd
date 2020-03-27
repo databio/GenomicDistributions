@@ -2,7 +2,8 @@
 % Please edit documentation in R/openRegionsCalcAndPlot.R
 \name{plotOpenSignal}
 \alias{plotOpenSignal}
-\title{The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.}
+\title{The function plotOpenSignal visualizes the signalMatrix obtained from
+calcOpenSignal.}
 \usage{
 plotOpenSignal(
   signalMatrix,
@@ -19,30 +20,41 @@ plotOpenSignal(
 
 \item{plotType}{Options are: jitter - jitter plot with box plot on top / 
 boxPlot - box plot without individual points and outliers / 
-barPlot (default) - bar height represents the median signal value for a given cell type.}
+barPlot (default) - bar height represents the median signal value
+for a given cell type.}
 
-\item{cellGroup}{- This option allows to selcet a group of cells to be plotted, if NA (default)
-all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
-"embryonic", "eye", "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
-"mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle", "skin", 
- "urinarySystem", "vasculature"}, can be passed as a singe character string or vector
- of strings.}
+\item{cellGroup}{- This option allows to selcet a group of cells to be 
+plotted, if NA (default) all available cell groups are ploted, 
+available options: {"blood", "bone", "CNS", "embryonic", "eye", 
+"foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
+"mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
+ "skin", "urinarySystem", "vasculature"}, can be passed as a 
+ character string or vector of strings.}
 
-\item{cellTypeMetadata}{Metadata for cell type - tissue association. This option is for users, 
-who provide their own open region signal matrix. The cellTypeMetadata matrix mast contain
-two columns called cellType and tissue. cellType column containes the cell type names 
-in provided signalMatrix column names. The tissue columns provides an information, which 
-tissue the cell type comes from.}
+\item{cellTypeMetadata}{Metadata for cell type - tissue association. This
+option is for users, who provide their own open region signal 
+matrix. The cellTypeMetadata matrix must contain two columns called
+cellType and tissue. cellType column containes the cell type names 
+in the provided signalMatrix column names. The tissue columns 
+provides an information, which tissue the cell type comes from.}
 
-\item{colorScheme}{Provide color values for each tissue if you want to change the default colors.}
+\item{colorScheme}{Provide color values for each tissue if you want to 
+change the default colors.}
+}
+\value{
+A ggplot object.
 }
 \description{
-The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.
+The function plotOpenSignal visualizes the signalMatrix obtained from
+calcOpenSignal.
 }
 \examples{
 \dontrun{
+exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
+package="GenomicDistributions")
+cellMatrix = data.table::fread(exampleCellMatrixFile)
 signalMatrix = calcOpenSignal(query, cellMatrix)
-plotOpenSignal(signalMatrix)
-plotOpenSignal(signalMatrix, plotType = "barPlot", cellGroup = "blood")
+plotSignal = plotOpenSignal(signalMatrix)
+plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
 }
 }

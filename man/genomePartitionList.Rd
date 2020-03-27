@@ -21,3 +21,7 @@ corresponding to various breakdown of the genome, based on the given
 annotations; it gives you proximal and core promoters, exons, and introns. To
 be used as a partionList for calcPartitions()
 }
+\examples{
+geneModels = getGeneModels("hg38")
+partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+}

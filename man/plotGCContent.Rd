@@ -19,3 +19,8 @@ Plots a density distribution of GC vectors
 Give results from the \code{calcGCContent} function, this will produce a
 density plot
 }
+\examples{
+numVector = rnorm(400, mean=0.5, sd=0.1)
+GCplot = plotGCContent(numVector)
+
+}

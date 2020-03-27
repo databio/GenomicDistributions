@@ -140,15 +140,15 @@ plotPartitions(gp2)
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
 ## Cell specific open chromatin signal plots
-```{r a cell specific open chromatin plot}
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt.gz", package="GenomicDistributions")
+```{r a-cell-specific-open-chromatin-plot, fig.height = 6, fig.cap="Cell specific enrichment for open chromatin."}
+exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
 op = calcOpenSignal(query, cellMatrix)
 plotOpenSignal(op)
 ```
 
 To plot multiple datasets at a time:
-```{r multiple cell specific open chromatin plot}
+```{r multiple-cell-specific-open-chromatin-plot, fig.height = 7, fig.cap="Cell specific enrichment for open chromatin."}
 op2 = calcOpenSignal(queryList, cellMatrix)
 plotOpenSignal(op2)
 ```
@@ -156,7 +156,7 @@ plotOpenSignal(op2)
 ## GC content plots 
 *GC content plots* will return a probability density function of GC content percentage over the genomic ranges in the query. 
 
-```{r GC content plots, fig.cap="GC content plot. Probability density function of GC percentage"}
+```{r gc-content-plots, fig.cap="GC content plot. Probability density function of GC percentage", eval=FALSE}
 # Calculate the GC content
 gc1 = calcGCContentRef(query, "hg19")
 
@@ -165,7 +165,7 @@ plotGCContent(gc1)
 ```
 
 
-```{r multiple distributions in one}
+```{r gc-content-plots-multi, eval=FALSE}
 # You can also plot the probability distribution for more than one query.
 gc2 = calcGCContentRef(queryList, "hg19")
 plotGCContent(gc2)

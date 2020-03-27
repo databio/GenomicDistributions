@@ -1,34 +1,40 @@
-#' The function calcOpenSignal takes the input BED file, overlaps it with all
-#' defined open chromatin regions across cell types and returns a matrix, 
-#' where each row is the input genomic region (if overlap was found), each 
-#' column is a cell type, and the value is a normalized ATAC-seq signal.
+#' The function calcOpenSignal takes the input BED file(s) in form of GRanges 
+#' or GRangesList object, overlaps it with all defined open chromatin regions 
+#' across cell types and returns a matrix, where each row is the input genomic
+#'  region (if overlap was found), each column is a cell type, and the value 
+#'  is a normalized ATAC-seq signal.
 #
-#' @param  query Genomic regions to be analyzed. Can be in GRanges or 
-#'             GRangesList format.
+#' @param  query Genomic regions to be analyzed. Can be GRanges or GRangesList 
+#'               object.
 #' @param cellMatrix Matrix with open chromatin signal values, rows are genomic
 #'            regions, columns are cell types. First column contains 
 #'            information about the genomic region in following form: 
-#'            chr_start_end. Can be either data.frame or data.table.
+#'            chr_start_end. Can be either data.frame or data.table object.
 #' @return 
 #' A data.table with cell specific open chromatin signal values for query 
 #' regions.
 #' 
 #' @export
+#' @examples
+#' \dontrun{
+#' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
+#' package="GenomicDistributions")
+#' cellMatrix = data.table::fread(exampleCellMatrixFile)
+#' signalMatrix = calcOpenSignal(query, cellMatrix)
+#' }
 calcOpenSignal = function(query,
                           cellMatrix){
-  
-  if (!is(query, "GRanges") && !is(query, "GRangesList")) {
-    stop("Query must be in either GRanges or GRangesList format.")
-  } else if (is(query, "GRangesList")) {
+  .validateInputs(list(query=c("GRanges","GRangesList")))
+  if (is(query, "GRangesList")) {
     # Recurse over each GRanges object
     x = lapply(query, calcOpenSignal, cellMatrix)
     nameList = names(query)
     if(is.null(nameList)) {
-      nameList = 1:length(query) # Fallback to sequential numbers
+      nameList = seq_along(query) # Fallback to sequential numbers
     }
     # Append names
     xb = rbindlist(x)
-    xb$name = rep(nameList, sapply(x, nrow))
+    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
     return(xb)
   }
   
@@ -66,7 +72,7 @@ calcOpenSignal = function(query,
   # find which regions of the genomic regions of interest overlap with the open
   # chromatin signal matrix regions
   setkey(query, chr, start, end)
-  overlaps = foverlaps(openRegions,query, which = T)
+  overlaps = foverlaps(openRegions,query, which = TRUE)
   overlaps = na.omit(overlaps)
   
   # extract the regions which overlap with query, assign the query peaks to 
@@ -79,30 +85,41 @@ calcOpenSignal = function(query,
   return(signalMatrix)
 }
 
-#' The function plotOpenSignal visualizes the signalMatrix obtained from calcOpenSignal.
+#' The function plotOpenSignal visualizes the signalMatrix obtained from
+#' calcOpenSignal.
 #'
 #' @param signalMatrix Output data.table from \code{calcOpenSignal} function.
 #' @param  plotType Options are: jitter - jitter plot with box plot on top / 
 #'           boxPlot - box plot without individual points and outliers / 
-#'           barPlot (default) - bar height represents the median signal value for a given cell type.
-#' @param cellGroup - This option allows to selcet a group of cells to be plotted, if NA (default)
-#'           all available cell groups are ploted, available options: {"blood", "bone", "CNS", 
-#'           "embryonic", "eye", "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
-#'           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle", "skin", 
-#'            "urinarySystem", "vasculature"}, can be passed as a singe character string or vector
-#'            of strings.
-#' @param cellTypeMetadata Metadata for cell type - tissue association. This option is for users, 
-#'          who provide their own open region signal matrix. The cellTypeMetadata matrix mast contain
-#'          two columns called cellType and tissue. cellType column containes the cell type names 
-#'          in provided signalMatrix column names. The tissue columns provides an information, which 
-#'          tissue the cell type comes from.
-#' @param colorScheme Provide color values for each tissue if you want to change the default colors.
+#'           barPlot (default) - bar height represents the median signal value
+#'           for a given cell type.
+#' @param cellGroup - This option allows to selcet a group of cells to be 
+#'           plotted, if NA (default) all available cell groups are ploted, 
+#'           available options: {"blood", "bone", "CNS", "embryonic", "eye", 
+#'           "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
+#'           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
+#'            "skin", "urinarySystem", "vasculature"}, can be passed as a 
+#'            character string or vector of strings.
+#' @param cellTypeMetadata Metadata for cell type - tissue association. This
+#'          option is for users, who provide their own open region signal 
+#'          matrix. The cellTypeMetadata matrix must contain two columns called
+#'          cellType and tissue. cellType column containes the cell type names 
+#'          in the provided signalMatrix column names. The tissue columns 
+#'          provides an information, which tissue the cell type comes from.
+#' @param colorScheme Provide color values for each tissue if you want to 
+#'         change the default colors.
+#' @return 
+#' A ggplot object.
+#' 
 #' @export
 #' @examples
 #' \dontrun{
+#' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
+#' package="GenomicDistributions")
+#' cellMatrix = data.table::fread(exampleCellMatrixFile)
 #' signalMatrix = calcOpenSignal(query, cellMatrix)
-#' plotOpenSignal(signalMatrix)
-#' plotOpenSignal(signalMatrix, plotType = "barPlot", cellGroup = "blood")
+#' plotSignal = plotOpenSignal(signalMatrix)
+#' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
 #' }
 plotOpenSignal = function(signalMatrix, 
                           plotType = "barPlot", 
@@ -132,10 +149,12 @@ plotOpenSignal = function(signalMatrix,
   }
   setkey(plotSignalMatrix, cellType)
   setkey(cellTypeMetadata, cellType)
-  plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = F)
+  plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
   plotSignalMatrix[, lowerCaseTissue := tolower(tissue)]
   setorder(plotSignalMatrix, lowerCaseTissue, cellType)
-  plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissue], plotSignalMatrix[,cellType], sep = "_")]
+  plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissue], 
+                                       plotSignalMatrix[,cellType], sep = "_")]
+  
   
   # if user defines cell group, filter the data
   if (length(cellGroup) == 1){
@@ -149,28 +168,34 @@ plotOpenSignal = function(signalMatrix,
   } else if (all(cellGroup %in% levels(factor(cellTypeMetadata$tissue)))) {
     plotSignalMatrix = plotSignalMatrix[tissue %in% cellGroup]
   } else {
-    stop("At least one of the input cell groups is not in predefined list of options.")
+    stop("At least one of the input cell groups is not in predefined list of 
+         options.")
   }
   
   # arrange labels in a way, that corresponding groups are plotted together
   myLabels = unique(plotSignalMatrix[, .(mixedVar, cellType)])
   myLabels[, spaceLabel := gsub("_", " ", myLabels[, cellType])]
   
-  # get box plot staistics to set plot limits - outliers throw off the limits a lot
-  boxStats = plotSignalMatrix[, .(boxStats = list(boxplot.stats(signal)$stats)), by = mixedVar]
+  # get box plot staistics to set plot limits
+  boxStats = plotSignalMatrix[, .(boxStats = 
+                                    list(boxplot.stats(signal)$stats)),
+                              by = mixedVar]
   minBoxLimit = min(unlist(boxStats$boxStats))
   maxBoxLimit = max(unlist(boxStats$boxStats))
   
   # get mediand of signal values to make a bar plot
   if ("name" %in% names(plotSignalMatrix)){
-    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), by = c("mixedVar", "name")]
+    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), 
+                                    by = c("mixedVar", "name")]
   } else {
-    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), by = mixedVar]
+    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), 
+                                    by = mixedVar]
   }
-  tableToMerge = unique(plotSignalMatrix[, .(mixedVar, cellType, tissue, group)])
+  tableToMerge = unique(plotSignalMatrix[, .(mixedVar, cellType, 
+                                             tissue, group)])
   setkey(barPlotStats, mixedVar)
   setkey(tableToMerge, mixedVar)
-  barPlotStats = merge(barPlotStats, tableToMerge, all = F)
+  barPlotStats = merge(barPlotStats, tableToMerge, all = FALSE)
   
   # do the plotting
   p = ggplot(plotSignalMatrix,
@@ -193,7 +218,6 @@ plotOpenSignal = function(signalMatrix,
       scale_x_discrete(labels = myLabels$spaceLabel) +
       scale_fill_manual(values=colorScheme) + 
       scale_color_manual(values=colorScheme)
-    print(jitterPlot)
     return(jitterPlot)
   } else if (plotType == "boxPlot") {
     
@@ -210,7 +234,6 @@ plotOpenSignal = function(signalMatrix,
       scale_fill_manual(values=colorScheme) + 
       scale_color_manual(values=colorScheme) +
       ylim(minBoxLimit, maxBoxLimit)
-    suppressWarnings(print(boxPlot))
     return(boxPlot)
   } else if (plotType == "barPlot") {
     barPlot = ggplot(barPlotStats, aes(x = mixedVar, y = medianBar, fill = tissue))
@@ -227,9 +250,9 @@ plotOpenSignal = function(signalMatrix,
       ylab("med (normalized signal)") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
       scale_fill_manual(values=colorScheme)
-    print(barPlot)
     return(barPlot)
   } else {
-    stop("Plot type does not match any of the available options. Available options: jitter, boxPlot, barPlot. ")
+    stop("Plot type does not match any of the available options. 
+         Available options: jitter, boxPlot, barPlot. ")
   }
 }
