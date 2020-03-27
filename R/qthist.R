@@ -37,6 +37,7 @@ calcWidth = function(query) {
 #' 
 #' @export
 #' @examples
+
 #' plotQTHistIndep(runif(500)*1000)
 plotQTHistIndep = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
     quantile=NULL, bins=NULL) {
@@ -45,9 +46,11 @@ plotQTHistIndep = function(widths, EndBarColor = "gray57", MiddleBarColor = "gra
         nameswidths = names(widths)
         for (i in seq_along(x)){
             x[[i]] = x[[i]] + ggtitle(nameswidths[i]) }
+
         return(x) 
         # you can use grid.arrange like this to plot these           
         # do.call("grid.arrange", x)
+
     }
     
     output = calcDivisions(widths, quantile=quantile, bins=bins)
@@ -91,6 +94,7 @@ plotQTHistIndep = function(widths, EndBarColor = "gray57", MiddleBarColor = "gra
 #' 
 #' @export
 #' @examples
+
 #' plotQTHist(runif(500)*1000)
 #' plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
 plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
