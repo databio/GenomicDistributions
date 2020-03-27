@@ -37,6 +37,7 @@ calcWidth = function(query) {
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
+
 #' plotQTHist(runif(500)*1000)
 #' plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
 plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
@@ -45,12 +46,12 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
         if (is(widths, "list") | is(widths, "List")) {
             x = lapply(widths, plotQTHist)
             nameswidths = names(widths)
-        for (i in seq_along(x)){
-            x[[i]] = x[[i]] + ggtitle(nameswidths[i]) }
+            for (i in seq_along(x)){
+                x[[i]] = x[[i]] + ggtitle(nameswidths[i])\
+            }
         return(x) 
         # you can use grid.arrange like this to plot these           
         # do.call("grid.arrange", x)
-        }
     }
     output = calcDivisions(widths, quantile=quantile, bins=bins)
     if(is(widths, "List")){

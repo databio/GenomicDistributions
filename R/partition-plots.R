@@ -94,12 +94,12 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     	if(is.null(nameList)) {
     		nameList = 1:length(query) # Fallback to sequential numbers
     	}
-    	# Append names
-    	xb = rbindlist(x)
-    	xb$name = rep(nameList, sapply(x, nrow))
-    	return(xb)
-    }
-	#Overlap each of the partition list.
+		# Append names
+		xb = rbindlist(x)
+		xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+		return(xb)
+	}
+  #Overlap each of the partition list.
 	partitionNames = names(partitionList)
 	partition = rep(0, length(query));
 	for (pi in 1:length(partitionList)) {

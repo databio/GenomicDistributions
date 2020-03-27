@@ -218,7 +218,7 @@ cutDists = function(dists, divisions=NULL) {
 
 		# Append names
 		xb = rbindlist(x)
-		xb$name = rep(nameList, sapply(x, nrow))
+		xb$name = rep(nameList, vapply(x, nrow, integer(1)))
 
 		return(xb)
 	}
