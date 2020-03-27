@@ -139,7 +139,7 @@ plotPartitions(gp2)
 
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
-## Cell specific open chromatin signal plots
+## Cell-type-specific open chromatin signal plots
 ```{r a-cell-specific-open-chromatin-plot, fig.height = 6, fig.cap="Cell specific enrichment for open chromatin."}
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
@@ -154,7 +154,7 @@ plotOpenSignal(op2)
 ```
 
 ## GC content plots 
-*GC content plots* will return a probability density function of GC content percentage over the genomic ranges in the query. 
+*GC content plots* will return a probability density function of GC content percentage over the genomic ranges in the query. These plots will not be shown in the vignette because they require large BSgenome packages, which contain the full reference sequence.
 
 ```{r gc-content-plots, fig.cap="GC content plot. Probability density function of GC percentage", eval=FALSE}
 # Calculate the GC content
