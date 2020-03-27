@@ -3,9 +3,7 @@
 \name{geneModels_mm10}
 \alias{geneModels_mm10}
 \title{Gene models}
-\format{
-A named vectors of lengths with one item per chromosome
-}
+\format{A named vectors of lengths with one item per chromosome}
 \source{
 BSGenome package
 }
