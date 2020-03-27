@@ -14,23 +14,16 @@
 #'gcvec = calcGCContent(query, bsg)
 #' }
 calcGCContent = function(query, ref) {
-	# if (!requireNamespace(ref, quietly=TRUE)) {
-	# 	message(ref, " package is not installed.")
-	# }
-	if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
-	  stop("query should be a GRanges object or GRanges list. Check object class.")
-	}
-  if (!(is(ref, "BSgenome"))) {
-    stop("ref should be a BSgenome object.")
-  }
-  if (is(query, "GRangesList")) {
-	  # Recurse over each GRanges object
-    x = lapply(query, calcGCContent, ref)
-    return(x)
-  }
-	v = IRanges::Views(ref, query)
-	gcvec = apply(Biostrings::alphabetFrequency(v)[,c("C","G")],1, sum)/width(v)
-	return(gcvec)
+    .validateInputs(list(query=c("GRanges","GRangesList"),
+                         ref="BSGenome"))
+    if (is(query, "GRangesList")) {
+        # Recurse over each GRanges object
+        x = lapply(query, calcGCContent, ref)
+        return(x)
+    }
+    v = IRanges::Views(ref, query)
+    gcvec = apply(Biostrings::alphabetFrequency(v)[,c("C","G")],1, sum)/width(v)
+    return(gcvec)
 }
 
 
@@ -52,17 +45,10 @@ calcGCContent = function(query, ref) {
 #' GCcontent = calcGCContentRef(query, refAssembly)
 #' } 
 calcGCContentRef = function(query, refAssembly) {
-	# if (!requireNamespace(ref, quietly=TRUE)) {
-	# 	message(ref, " package is not installed.")
-	# }
-  if (!(is(query, "GRanges") || is(query, "GRangesList" ))) {
-    stop("query should be a GRanges object or GRanges list. Check object class.")
-  }  
-  if (!(is(refAssembly, "character"))) {
-    stop("refAssembly should be a character vector specifying the reference genome.")
-  }
-	ref = loadBSgenome(refAssembly)
-	return(calcGCContent(query, ref))
+    .validateInputs(list(query=c("GRanges","GRangesList"),
+                         refAssembly="character"))
+    ref = loadBSgenome(refAssembly)
+    return(calcGCContent(query, ref))
 }
 
 #' Plots a density distribution of GC vectors
@@ -77,30 +63,27 @@ calcGCContentRef = function(query, refAssembly) {
 #' GCplot = plotGCContent(numVector)
 #' 
 plotGCContent = function(gcvectors) {
-  if (!(is(gcvectors, "list") || is(gcvectors, "numeric"))) {
-    stop("gcvectors should be a numeric vector or list of vectors. Check object class")
-  }
-	gcdf = as.data.frame(list(gc=gcvectors))
-	gcdfReshaped = reshape2::melt(gcdf) 
-	# plot multiple regionsets if gcvectors is a list
-	if (is(gcvectors, "list")) {
-	  meansdf = aggregate(gcdfReshaped$value, list(gcdfReshaped$variable), mean)
-	  g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=variable)) +
-	    geom_density() +
-	    geom_vline(data=meansdf, aes(xintercept=x, colour=Group.1),
-	               linetype="solid", size=0.5) +
-	    theme_classic() +
-	    theme(legend.position = "bottom")
-	} else {
-	  # plot a single regionset
-	  g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
-	    geom_density() + 
-	    geom_vline(aes(xintercept=mean(value)),
-	               color="red", linetype="solid", size=0.5) + 
-	    theme_classic()
-	}    
-	g = g +   
-	 xlim(0,1) 
-
-	return(g)
+    .validateInputs(list(gcvectors=c("numeric","list")))
+    gcdf = as.data.frame(list(gc=gcvectors))
+    gcdfReshaped = reshape2::melt(gcdf) 
+    # plot multiple regionsets if gcvectors is a list
+    if (is(gcvectors, "list")) {
+        meansdf = aggregate(gcdfReshaped$value, list(gcdfReshaped$variable), mean)
+        g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=variable)) +
+        geom_density() +
+        geom_vline(data=meansdf, aes(xintercept=x, colour=Group.1),
+                   linetype="solid", size=0.5) +
+        theme_classic() +
+        theme(legend.position = "bottom")
+    } else {
+        # plot a single regionset
+        g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
+        geom_density() + 
+        geom_vline(aes(xintercept=mean(value)),
+                   color="red", linetype="solid", size=0.5) + 
+        theme_classic()
+    }    
+    g = g +
+        xlim(0,1)
+    return(g)
 }

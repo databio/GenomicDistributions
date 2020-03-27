@@ -19,8 +19,7 @@ Depends:
 Imports:
     data.table,
     ggplot2,
-    methods,
-    gridExtra
+    methods
 Suggests:
     AnnotationFilter,
     rtracklayer,

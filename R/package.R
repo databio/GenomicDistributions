@@ -20,7 +20,6 @@
 #' @importFrom data.table ":=" setDT data.table setkey fread setnames 
 #'             setcolorder rbindlist setattr setorder copy is.data.table
 #'             tstrsplit as.data.table foverlaps melt
-#' @importFrom gridExtra grid.arrange
 #' @importFrom methods is
 
 NULL
