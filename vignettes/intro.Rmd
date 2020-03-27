@@ -173,7 +173,7 @@ plotcFRiF(cfrif)
 
 ```{r a FRiF plot}
 dists = calcExpectedDistribution(cfrif, 3099922541)
-frifPlot = plotFRiF(dists)
+plotFRiF(dists)
 ```
 
 ## Cell specific open chromatin signal plots
