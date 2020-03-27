@@ -9,7 +9,8 @@ plotQTHist(
   EndBarColor = "gray57",
   MiddleBarColor = "gray27",
   quantile = NULL,
-  bins = NULL
+  bins = NULL,
+  indep = FALSE
 )
 }
 \arguments{
@@ -23,9 +24,15 @@ plotQTHist(
 Quantiles must be under .2, optimal size is under .1}
 
 \item{bins}{The number of bins for the histogram to allocate data to. (optional)}
+
+\item{indep}{logical value which returns a list of plots that have had their bins calculated
+'    independently; the normal version will plot them on the same x and y axis.}
+}
+\value{
+A ggplot2 plot object
 }
 \description{
-given the results from \code{calcWidth}, plots a histogram of widths
+Given the results from \code{calcWidth}, plots a histogram of widths
 }
 \details{
 x-axis breaks for the frequency calculations are based on the "divisions" results from 
