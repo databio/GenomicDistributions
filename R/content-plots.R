@@ -15,7 +15,7 @@
 #' }
 calcGCContent = function(query, ref) {
     .validateInputs(list(query=c("GRanges","GRangesList"),
-                         ref="BSGenome"))
+                         ref="BSgenome"))
     if (is(query, "GRangesList")) {
         # Recurse over each GRanges object
         x = lapply(query, calcGCContent, ref)
