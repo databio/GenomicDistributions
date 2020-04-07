@@ -3,9 +3,7 @@
 \name{chromSizes_hg19}
 \alias{chromSizes_hg19}
 \title{Chromosome sizes}
-\format{
-A named vectors of lengths with one item per chromosome
-}
+\format{A named vectors of lengths with one item per chromosome}
 \source{
 BSGenome package
 }
