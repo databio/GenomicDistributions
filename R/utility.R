@@ -47,14 +47,15 @@
 # DT = data.table::data.table(letters, grp = rep(c("group1", "group2"), 13))
 # splitDataTable(DT, "grp")
 # splitDataTable(DT, 2)
-splitDataTable = function(DT, splitFactor) {
-	if (is.numeric(splitFactor)) {
-		splitFactor = colnames(DT)[splitFactor]
-		message("Integer splitFactor, changed to: ", splitFactor)
+splitDataTable = function(DT, split_factor) {
+    factor_order = unique(DT[, get(split_factor)])
+	if (is.numeric(split_factor)) {
+		split_factor = colnames(DT)[split_factor]
+		message("Integer split_factor, changed to: ", split_factor)
 	}
-	lapply( split(1:nrow(DT), DT[, get(splitFactor)]), function(x) DT[x])
+	l = lapply( split(1:nrow(DT), DT[, get(split_factor)]), function(x) DT[x])
+    return(l[factor_order])
 }
-
 
 
 #Two utility functions for converting data.tables into GRanges objects
