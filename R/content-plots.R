@@ -64,15 +64,16 @@ calcGCContentRef = function(query, refAssembly) {
 #' 
 plotGCContent = function(gcvectors) {
     .validateInputs(list(gcvectors=c("numeric","list")))
-    gcdf = as.data.frame(list(gc=gcvectors))
-    gcdfReshaped = reshape2::melt(gcdf) 
+    gcdf = lapply(gcvectors, as.data.frame)
+    gcdfReshaped = reshape2::melt(gcdf)
+    colnames(gcdfReshaped)[colnames(gcdfReshaped) == "L1"] = "regionSet"
     # plot multiple regionsets if gcvectors is a list
     if (is(gcvectors, "list")) {
-        meansdf = aggregate(gcdfReshaped$value, list(gcdfReshaped$variable), mean)
-        g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=variable)) +
+        meansdf = aggregate(gcdfReshaped$value, list(gcdfReshaped$regionSet), mean)
+        g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=regionSet)) +
         geom_density() +
         geom_vline(data=meansdf, aes(xintercept=x, colour=Group.1),
-                   linetype="solid", size=0.5) +
+                   linetype="dashed", size=0.5) +
         theme_classic() +
         theme(legend.position = "bottom")
     } else {
@@ -80,10 +81,9 @@ plotGCContent = function(gcvectors) {
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
         geom_density() + 
         geom_vline(aes(xintercept=mean(value)),
-                   color="red", linetype="solid", size=0.5) + 
+                   color="red", linetype="dashed", size=0.5) + 
         theme_classic()
     }    
-    g = g +
-        xlim(0,1)
+    g = g + xlim(0,1) + xlab("gc %")
     return(g)
 }
