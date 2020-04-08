@@ -197,21 +197,24 @@ calcExpectedPartitions = function(query, partitionList) {
                          partitionList="list"))
     if (methods::is(query, c("GRangesList"))) {
     	# Recurse over each GRanges object
-    	x = lapply(query, calcPartitions, partitionList, remainder)
+    	x = lapply(query, calcExpectedPartitions, partitionList)
     	nameList = names(query)
     	if(is.null(nameList)) {
     		nameList = 1:length(query) # Fallback to sequential numbers
     	}
 		# Append names
-		xb = rbindlist(x)
+		xb = data.table::rbindlist(x)
 		xb$name = rep(nameList, vapply(x, nrow, integer(1)))
 		return(xb)
 	}
     #Overlap each of the partition list.
 	partitionNames = names(partitionList)
+    #expected scaled by number of regions in query
+    query_total = length(query)
     partitionCounts = data.table::data.table(
-        data.frame(N=elementNROWS(partitionList)), keep.rownames="name")
-    partitionCounts = partitionCounts[order(partitionCounts$name)]
+        data.frame(N=elementNROWS(partitionList)/query_total),
+                   keep.rownames="partition")
+    partitionCounts = partitionCounts[order(partitionCounts$partition)]
 	partition = rep(0, length(query))
 	for (pi in 1:length(partitionList)) {
 		cat(partitionNames[pi],":")
@@ -223,12 +226,13 @@ calcExpectedPartitions = function(query, partitionList) {
     # Remove remainder
 	partition = partition[!partition=="0"]
     tpartition = table(partition)
-	expectedPartitions = data.table::data.table(name=factor(names(tpartition)),
-                                                observed=as.vector(tpartition))
+	expectedPartitions = data.table::data.table(
+        partition=factor(names(tpartition)), observed=as.vector(tpartition))
     expectedPartitions[,expected:=partitionCounts$N]
     expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
-	return(expectedPartitions[match(partitionNames, expectedPartitions$name),])
+	return(expectedPartitions[match(partitionNames,
+           expectedPartitions$partition),])
 }
 
 
@@ -260,13 +264,13 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
                          partitionList="list"))
     if (methods::is(query, c("GRangesList"))) {
     	# Recurse over each GRanges object
-    	x = lapply(query, calcPartitions, partitionList, remainder)
+    	x = lapply(query, calcCumulativePartitions, partitionList, remainder)
     	nameList = names(query)
     	if(is.null(nameList)) {
     		nameList = 1:length(query) # Fallback to sequential numbers
     	}
 		# Append names
-		xb = rbindlist(x)
+		xb = data.table::rbindlist(x)
 		xb$name = rep(nameList, vapply(x, nrow, integer(1)))
 		return(xb)
 	}
@@ -275,7 +279,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
 	partitionNames = names(partitionList)
     # Need total number of bases (not regions)
     query_total = sum(width(query))
-    frif = data.table::data.table(name=as.character(),
+    frif = data.table::data.table(partition=as.character(),
                                   size=as.numeric(),
                                   count=as.numeric(),
                                   cumsum=as.numeric(),
@@ -303,7 +307,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         # Isolate hits
         hits = unique(hits, by="yid")
         # Link to positional data for feature of interest
-        x = data.table::data.table(name=partitionNames[pi],
+        x = data.table::data.table(partition=partitionNames[pi],
                                    size=hits$size,
                                    count=hits$count)
         x = x[order(x$count, x$size),]
@@ -314,7 +318,8 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
 	}
     # Create remainder...
     cat(remainder,":")
-    x = data.table::data.table(name=remainder, size=as.numeric(width(query)))
+    x = data.table::data.table(partition=remainder,
+                               size=as.numeric(width(query)))
     message("\tfound ", length(query))
     x = x[order(x$size),]
     x$count   = x$size
@@ -329,18 +334,27 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
 #'
 #' @param assignedPartitions Results from \code{calcCumulativePartitions}
 setLabels = function(assignedPartitions) {
-    if (is(assignedPartitions, "list")) {
+    if (methods::is(assignedPartitions, c("list"))){
 		# It has multiple regions
-		x = lapply(assignedPartitions, setLabels)
-        x = data.table::rbindlist(x, idcol=TRUE)
-		return(x)
+        x = lapply(assignedPartitions, setLabels)
+    	nameList = names(assignedPartitions)
+    	if(is.null(nameList)) {
+    		nameList = 1:length(assignedPartitions) # Fallback to sequential numbers
+    	}
+		# Append names
+		xb = data.table::rbindlist(x)
+		xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+		return(xb)
 	}
-    return(data.table::data.table(
-            xPos=0.95*max(log10(assignedPartitions$cumsize)),
-            yPos=max(assignedPartitions$frif)+0.001,
-            val=sprintf(max(assignedPartitions$frif),fmt="%#.2f"),
-            color=NA,
-            stringsAsFactors=FALSE))
+    partition = assignedPartitions[, partition, by=partition]
+    xPos = assignedPartitions[, 0.95*max(log10(cumsize)), by=partition]
+    yPos = assignedPartitions[, max(frif)+0.001, by=partition]
+    val  = assignedPartitions[, sprintf(max(frif),fmt="%#.2f"), by=partition]
+    return(data.table::data.table(partition=partition$partition,
+                                  xPos=xPos$V1,
+                                  yPos=yPos$V1,
+                                  val=val$V1,
+                                  stringsAsFactors=FALSE))
 }
 
 
@@ -361,54 +375,39 @@ setLabels = function(assignedPartitions) {
 #' cumuPlot = plotCumulativePartitions(p)
 plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
     .validateInputs(list(assignedPartitions="data.frame"))
-    if ("name" %in% names(assignedPartitions)){
-        # It has multiple regions
-        assignedPartitions = splitDataTable(assignedPartitions, "name")
-    }
     plot_labels = setLabels(assignedPartitions)
     palette = colorRampPalette(c("#A6CEE3", "#025EBA", "#B2DF8A", "#05A602",
                                  "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00",
                                  "#CAB2D6", "#57069E", "#F0FC03", "#B15928"))
-
-    plot_colors = palette(length(assignedPartitions))
+    partition_sizes = assignedPartitions[, .N, by=partition]
+    plot_colors     = palette(nrow(plot_labels))
    
     # Set colors
     plot_labels[,color:=plot_colors]
-    
-    if (is(assignedPartitions, "list")) {
-        feature_lengths = data.table::data.table(num_feats=elementNROWS(assignedPartitions))
-    } else {
-        feature_lengths = data.table::data.table(num_feats=length(assignedPartitions))
-    }
-    
-    if (is(assignedPartitions, "list")) {
-        assignedPartitions = data.table::rbindlist(assignedPartitions,
-                                                   idcol=TRUE)
-    }
 
     # If name vector provided, update names
     if (all(!is.null(feature_names))) {
-        if (length(feature_names) == nrow(feature_lengths)) {
-            plot_labels[,.id:=feature_names]
-            assignedPartitions[,.id:=rep(feature_names,
-                               each=feature_lengths$num_feats)]
+        if (length(feature_names) == nrow(partition_sizes)) {
+            plot_labels[,partition:=feature_names]
+            assignedPartitions[,partition:=rep(feature_names,
+                               each=partition_sizes$num_feats)]
         } else {
-            if (!".id" %in% colnames(plot_labels)) {
-                plot_labels[,.id:=seq(1:nrow(feature_lengths))]
-                assignedPartitions[,.id:=rep(seq(1:nrow(feature_lengths)),
-                                   feature_lengths$num_feats)]
+            if (!"partition" %in% colnames(plot_labels)) {
+                plot_labels[,partition:=seq(1:nrow(partition_sizes))]
+                assignedPartitions[,partition:=rep(seq(1:nrow(partition_sizes)),
+                                   partition_sizes$num_feats)]
             }
         }
     } else {
-        if (!".id" %in% colnames(plot_labels)) {
-            plot_labels[,.id:=seq(1:nrow(feature_lengths))]
-            assignedPartitions[,.id:=rep(seq(1:nrow(feature_lengths)),
-                               feature_lengths$num_feats)]
+        if (!"partition" %in% colnames(plot_labels)) {
+            plot_labels[,partition:=seq(1:nrow(partition_sizes))]
+            assignedPartitions[,partition:=rep(seq(1:nrow(partition_sizes)),
+                               partition_sizes$num_feats)]
         }
     }
 
     p = ggplot(assignedPartitions,
-               aes(x=log10(cumsize), y=frif, group=.id, color=.id))
+               aes(x=log10(cumsize), y=frif, group=partition, color=partition))
     p = p + 
         geom_line(size=2, alpha=0.5) +
         guides(linetype = FALSE) +
@@ -435,7 +434,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 
     # Recolor and reposition legend
     p = p + scale_color_manual(
-            labels=paste0(plot_labels$.id, ": ", plot_labels$val),
+            labels=paste0(plot_labels$partition, ": ", plot_labels$val),
             values=plot_labels$color) +
         labs(color="Cumulative distribution across genomic partitions") +
         theme(legend.position=c(0.075,0.975),
@@ -475,37 +474,35 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #' expectedPlot = plotExpectedPartitions(p)
 plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
     .validateInputs(list(expectedPartitions="data.frame"))
-    palette = colorRampPalette(c("#A6CEE3", "#025EBA", "#B2DF8A", "#05A602",
-                                 "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00",
-                                 "#CAB2D6", "#57069E", "#F0FC03", "#B15928"))
-    # Add 1 for the remainder
-    plot_colors = palette(nrow(expectedPartitions)+1)
-    
-    # Set colors (drop the remainder)
-    expectedPartitions[,color:=plot_colors[1:nrow(expectedPartitions)]]
+    if ("name" %in% names(expectedPartitions)){
+		# It has multiple regions
+		p = ggplot(expectedPartitions, 
+		           aes(x=partition, y=log10OE, fill=factor(name)))
+	} else {
+		p = ggplot(expectedPartitions, aes(x=partition, y=log10OE))
+	}
 
-    # If name vector provided, update names
+    # If feature name vector provided, update partition names
     if (all(!is.null(feature_names))) {
         if (length(feature_names) == nrow(expectedPartitions)) {
-            expectedPartitions[,name:=feature_names]
+            expectedPartitions[,partition:=feature_names]
         } else {
-            if (!"name" %in% colnames(plot_labels)) {
-                expectedPartitions[,name:=seq(1:nrow(expectedPartitions))]
+            if (!"partition" %in% colnames(plot_labels)) {
+                expectedPartitions[,partition:=seq(1:nrow(expectedPartitions))]
             }
         }
     }
-    
-    expectedPartitions = expectedPartitions[order(expectedPartitions$log10OE),]
-    expectedPartitions$name  = factor(expectedPartitions$name,
-                                      levels=expectedPartitions$name)
-    expectedPartitions$color = factor(expectedPartitions$color,
-                                      levels=expectedPartitions$color)
 
-    p = ggplot(expectedPartitions, aes(x = name, y = log10OE))
+    if ("name" %in% names(expectedPartitions)){
+        expectedPartitions = expectedPartitions[
+            order(expectedPartitions$name, expectedPartitions$log10OE),]
+    } else {
+        expectedPartitions = expectedPartitions[
+            order(expectedPartitions$log10OE),]
+    }
+
     p = p + 
-        geom_bar(stat="identity",
-                 fill = expectedPartitions$color,
-                 alpha = 0.5) + 
+        geom_bar(stat="identity", position="dodge") + 
         geom_hline(aes(yintercept=0), linetype="dotted") +
         xlab('') +
         ylab(expression(log[10](over(Obs, Exp)))) +
