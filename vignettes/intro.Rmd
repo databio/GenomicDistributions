@@ -122,59 +122,40 @@ plotFeatureDist(fdd)
 
 ## Partition distribution plots
 
-Genomic partition distribution plots show you how your regions are distributed among promoters, exons, introns, or intergenic regions. You can produce one or two-set plots like so:
+Genomic partition distribution plots show you how your regions are distributed by raw numbers, relative to the expected distribution, and the cumulative distribution among promoters, exons, introns, or intergenic regions. For the raw partition distribution and the expected partition distribution you can produce one or two-set plots like so:
 
-
-```{r a partition plot}
+```{r a raw partition plot}
 gp = calcPartitionsRef(query, "hg19")
 plotPartitions(gp)
 ```
 
 Can you do 2 at a time? Yep:
 
-```{r multiple partition plots in one}
+```{r multiple raw partition plots in one}
 gp2 = calcPartitionsRef(queryList, "hg19")
 plotPartitions(gp2)
 ```
 
+```{r an observed/expected partition plot}
+ep = calcExpectedPartitionsRef(query, "hg19")
+plotExpectedPartitions(ep)
+```
+
+And can you do 2 at a time? Indeed:
+```{r multiple observed/expected partition plots in one}
+ep2 = calcExpectedPartitionsRef(queryList, "hg19")
+plotExpectedPartitions(ep2)
+```
+
+For the cumulative distribution plot, it doesn't make sense to plot multiple samples on the same plot
+# TODO: look at the feature dist plots, they plot using facets...
+
+```{r a cumulative partition plot}
+cp = calcCumulativePartitionsRef(query, "hg19")
+plotCumulativePartitions(cp)
+```
+
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
-
-## Feature distribution plots
-
-Feature distribution plots allow you to interpret how your reads are distributed among regions of interest. It includes two primary means of display, a *cumulative fraction of reads in features* (cFRiF) and a non-cumulative *fraction of reads in features* (FRiF) plot.
-
-The cFRiF plot provides an information-dense look into the genomic distribution of reads relative to genomic features. It illustrates how reads are distributed among different features and, it uses a cumulative distribution to visualize how quickly the final read count is accumulated in features of a given type. To calculate the FRiF, you must provide a Granges or GRangesList objects that includes the overlap counts for each region of a particular genomic annotation. Using the built-in `calcFRiF()` function, the individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of reads found in that feature divided by the total number of aligned reads. We plot the read fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of features that are enriched for reads with fewer total features and total genomic space.
-
-The FRiF plot takes into account the expected fraction of each feature type and plots the $log_{10}$ of the observed/expected fractions of each genomic feature.
-
-To visualize, let's load some example data:
-```{r, echo=TRUE, results="hide", message=FALSE, warning=FALSE}
-file_list = c("UTR3.bedGraph.gz", "UTR5.bedGraph.gz",
-              "Enhancer.bedGraph.gz", "Exon.bedGraph.gz",
-              "Intron.bedGraph.gz", "Promoter.bedGraph.gz",
-              "Promoter_Flanking.bedGraph.gz")
-loadFunction = function(file) {
-    queryFile = system.file("extdata", file, package="GenomicDistributions")
-    query = rtracklayer::import.bedGraph(queryFile)
-    names(elementMetadata(query)) <- "count"
-    return(query)
-}
-query = lapply(file_list, loadFunction)
-names(query) = c("UTR3","UTR5","Enhancer","Exon","Intron","Promoter","Promoter_Flanking")
-query = GRangesList(query)
-```
-
-You can then produce each plot as follows:
-```{r a cFRiF plot}
-cfrif = calcFRiF(query, 93805)
-plotcFRiF(cfrif)
-```
-
-```{r a FRiF plot}
-dists = calcExpectedDistribution(cfrif, 3099922541)
-plotFRiF(dists)
-```
-
 
 ## Cell-type-specific open chromatin signal plots
 ```{r a-cell-specific-open-chromatin-plot, fig.height = 6, fig.cap="Cell specific enrichment for open chromatin."}
