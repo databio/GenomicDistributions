@@ -21,6 +21,8 @@
 #'             setcolorder rbindlist setattr setorder copy is.data.table
 #'             tstrsplit as.data.table foverlaps
 #' @importFrom reshape2 melt
+#' @importFrom IRanges Views
+#' @importFrom Biostrings alphabetFrequency
 #' @importFrom methods is
 
 NULL

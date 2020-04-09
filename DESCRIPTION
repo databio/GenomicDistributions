@@ -19,6 +19,9 @@ Depends:
 Imports:
     data.table,
     ggplot2,
+    reshape2,
+    Biostrings,
+    IRanges,
     methods
 Suggests:
     AnnotationFilter,
