@@ -92,8 +92,8 @@ binBSGenome = function(genome, binCount) {
 #' @return A data.table object assigning a bin ID to each chromosome region.
 #' @export
 #' @examples 
-#' hg19chromSizes = system.file("data/chromSizes_hg19.RData")
-#' cBins = binChroms(1000, hg19chromSizes)
+#' chromSizes = getChromSizes(refAssembly)
+#' cBins = binChroms(1000, chromSizes)
 #' 
 binChroms = function(binCount, chromSizes) {
     .validateInputs(list(chromSizes="numeric", binCount="numeric"))
