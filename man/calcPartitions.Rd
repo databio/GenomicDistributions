@@ -35,5 +35,5 @@ f = system.file("extdata", "vistaEnhancers.bed.gz",
 query = rtracklayer::import(f)
 geneModels = getGeneModels("hg38")
 partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-calcPartitionsRef(query, partitionList)
+calcPartitions(query, partitionList)
 }

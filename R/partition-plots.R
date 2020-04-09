@@ -137,7 +137,7 @@ genomePartitionList = function(genesGR, exonsGR) {
 #' query = rtracklayer::import(f)
 #' geneModels = getGeneModels("hg38")
 #' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' calcPartitionsRef(query, partitionList)
+#' calcPartitions(query, partitionList)
 calcPartitions = function(query, partitionList, remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))

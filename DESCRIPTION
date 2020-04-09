@@ -15,14 +15,14 @@ Authors@R: c(
 	email = "nathan@code.databio.org", role=c("aut", "cre")))
 Depends:
     R (>= 3.0),
+    IRanges,
     GenomicRanges
 Imports:
     data.table,
     ggplot2,
     reshape2,
+    methods,
     Biostrings,
-    IRanges,
-    methods
 Suggests:
     AnnotationFilter,
     rtracklayer,

@@ -21,7 +21,6 @@
 #'             setcolorder rbindlist setattr setorder copy is.data.table
 #'             tstrsplit as.data.table foverlaps
 #' @importFrom reshape2 melt
-#' @importFrom IRanges Views
 #' @importFrom Biostrings alphabetFrequency
 #' @importFrom methods is
 
@@ -38,12 +37,25 @@ NULL
 #             geom_point guides geom_col theme_bw scale_fill_manual
 
 
-# Because of some issues with NOTEs on R CMD CHeck and CRAN submission,
+# Because of some issues with NOTEs on R CMD check and CRAN submission,
 # (see here: http://stackoverflow.com/questions/9439256/)
 # I have to register stuff used in data.table as non-standard evaluation,
 # in order to pass some R CMD check NOTES.
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c(
-    "cuts", "mid", "J", "chr", "N",
-    "regionID", "x", "name", "BSFilter"))
+    "cuts", "mid", "J", "chr", "N", "regionID", "x", "name", "BSFilter", 
+	"start", "end", "findOverlaps", "queryHits", "subjectHits", "buildJ",
+	"seqlengths", "IRanges", "seqlengths", "reduce", "seqlevels", "follow",
+	"trim", "error", "nlist", "aggregate", "median",  "bgDists", "Freq", "bgX",
+	"bgFreq", "value", "regionSet", "Group.1", "cellType", "spaceLabel", "signal",
+	"group", "medianBar", "partition", "Freq", "Freq", "cumsize", "frif", 
+	"aggregate", "withinGroupID", "lowerCaseTissue", "boxplot.stats", "median",
+	"barplot", "legend", "promoters", "seqlevels", "width", "precede",
+	"elementMetadata", ".N", ".SD", "colorRampPalette", "count", "countOverlaps",
+	"distance", "elementMetadata<-", "elementNROWS", "expected", "log10OE",
+	"pintersect", "plot_labels", "query", "regionGroupID", "seqlevels<-", "size",
+	"tableCount", "V1", "queryPeak", "xid", "yid", "na.omit", "peakName",
+	"mixedVar", "tissue", "."))
 }
+
+

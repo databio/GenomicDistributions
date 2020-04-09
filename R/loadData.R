@@ -192,6 +192,15 @@ getTSSs = function(refAssembly) {
 	getReferenceData(refAssembly, tagline="TSS_")
 }
 
+
+#' Returns built-in gene models for a given reference assembly
+#'
+#' Some functions require gene models, which can obtained from any source.
+#' This function allows you to retreive a few common built-in ones.
+#' @param refAssembly A string identifier for the reference assembly
+#' @export
+#' @examples
+#' getGeneModels("hg38")
 getGeneModels = function(refAssembly) { 
 	getReferenceData(refAssembly, tagline="geneModels_")
 }
