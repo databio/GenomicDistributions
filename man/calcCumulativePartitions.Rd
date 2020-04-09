@@ -13,6 +13,9 @@ calcCumulativePartitions(query, partitionList, remainder = "intergenic")
 \item{partitionList}{An ORDERED and NAMED list of genomic partitions
 GRanges. This list must be in priority order; the input will be assigned
 to the first partition it overlaps.}
+
+\item{remainder}{Which partition do you want to account for 'everything 
+else'?}
 }
 \value{
 A data.frame assigning each element of a GRanges object to a

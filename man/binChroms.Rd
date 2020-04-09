@@ -20,7 +20,7 @@ produce (roughly) evenly-sized bins across the chromosomes. It does not
 account for assembly gaps or the like.
 }
 \examples{
-chromSizes = getChromSizes(refAssembly)
+chromSizes = c(chr1=249250621, chr2=243199373, chr3=198022430)
 cBins = binChroms(1000, chromSizes)
 
 }

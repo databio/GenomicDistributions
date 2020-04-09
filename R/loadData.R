@@ -7,6 +7,7 @@
 #' BSgenome.Hsapiens.UCSC.hg38.masked)
 #' 
 #' @param genomeBuild	One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
+#' @param masked	Should we used the masked version? Default:TRUE
 #' @export
 #' @examples
 #' \dontrun{

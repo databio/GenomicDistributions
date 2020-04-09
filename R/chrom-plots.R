@@ -92,7 +92,7 @@ binBSGenome = function(genome, binCount) {
 #' @return A data.table object assigning a bin ID to each chromosome region.
 #' @export
 #' @examples 
-#' chromSizes = getChromSizes(refAssembly)
+#' chromSizes = c(chr1=249250621, chr2=243199373, chr3=198022430)
 #' cBins = binChroms(1000, chromSizes)
 #' 
 binChroms = function(binCount, chromSizes) {

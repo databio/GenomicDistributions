@@ -250,6 +250,8 @@ calcExpectedPartitions = function(query, partitionList) {
 #' @param partitionList  An ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps.
+#' @param remainder  Which partition do you want to account for 'everything 
+#'     else'?
 #' @return A data.frame assigning each element of a GRanges object to a
 #'     partition from a previously provided partitionList.
 #' @export

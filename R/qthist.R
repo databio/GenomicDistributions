@@ -95,12 +95,12 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
 }
 
 
-#' Internal helper function for \code{plotQTHist}
-#' 
-#' If the bins or quantiles for the hist. are specified by the user, those are used
-#' otherwise, calculates bins based on size of the dataset, and quantile based on bins
-#' Returns the divisions that will be used in plotting the histogram
-#' calcDivisions(runif(500)*1000)
+# Internal helper function for \code{plotQTHist}
+# 
+# If the bins or quantiles for the hist. are specified by the user, those are used
+# otherwise, calculates bins based on size of the dataset, and quantile based on bins
+# Returns the divisions that will be used in plotting the histogram
+# calcDivisions(runif(500)*1000)
 calcDivisions = function(widths, bins=NULL, quantile = NULL){
     if(is.list(widths))
         widths=unlist(widths)

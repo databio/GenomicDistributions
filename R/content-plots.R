@@ -55,7 +55,7 @@ calcGCContentRef = function(query, refAssembly) {
 
 #' Give results from the \code{calcGCContent} function, this will produce a
 #' density plot
-#' @param gcvector A numeric vector or list of GC contents.
+#' @param gcvectors A numeric vector or list of numeric vectors of GC contents.
 #' @return A ggplot object plotting distribution of GC content in query regions.
 #' @export
 #' @examples
