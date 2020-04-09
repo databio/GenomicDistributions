@@ -32,7 +32,7 @@ GenomicDistributions can work with any reference genome, as long as you have som
 
 In this vignette, we'll go through examples of each of the plots using my common built-in features and partitions. If you want more control, there's another advanced vignette that will introduce you how to define your own features, partitions, and chromosome sizes for custom analysis.
 
-## Philosophy of modular *calc* and *plot* functions in the package
+## Philosophy of modular *calc* and *plot* functions
 
 Before we start, I want to explain the design philosophy for functions in this package. Many R plotting packages combine calculations and plotting into one function. This may seem convenient, but if you want to plot the calculation results in a different way or combine them with something else, you can't because you only have access to the final plot. GenomicDistributions divides these tasks so you can use the intermediate data to design your own custom plot, or use the calculated results directly for other analysis.
 
@@ -64,7 +64,7 @@ query = rtracklayer::import(queryFile)
 
 For the common reference assemblies that I use (hg19, hg38, mm9, and mm10), I've included the metadata in the package. If you're working with one of these genomes, making a plot of the distribution across chromosomes takes just a couple of lines of code:
 
-```{r chromosome-distribution}
+```{r chrom-plots-single}
 # First, calculate the distribution:
 x = calcChromBinsRef(query, "hg19")
 
@@ -74,7 +74,7 @@ plotChromBins(x)
 
 What if we want to do the same thing but on 2 query sets at the same time? No problem:
 
-```{r Chromosome distribution plots with multiple region sets}
+```{r chrom-plots-multi}
 # Let's fudge a second region set by shifting the first one over 
 query2 = GenomicRanges::shift(query, 1e6)
 queryList = GRangesList(vistaEnhancers=query, shifted=query2)
@@ -103,7 +103,7 @@ plotFeatureDist(TSSdist, featureName="TSS")
 
 This plot uses log-scale increasing bins to show how your regions are distributed. Now, let's make a similar plot with multiple region sets input:
 
-```{r tss-distribution-multi, TSS plots with multiple region sets}
+```{r tss-distribution-multi, fig.cap="TSS plots with multiple region sets"}
 
 TSSdist2 = calcFeatureDistRefTSS(queryList, "hg19")
 plotFeatureDist(TSSdist2)
@@ -189,7 +189,7 @@ One feature we are often interested in is the tissue specificity of a set of gen
 
 We have produced example reference data matrixes based on ENCODE accessibility information, which can be downloaded from [big.databio.org](http://big.databio.org/open_chromatin_matrix/). Here, we'll demonstrate how this works with some tiny built-in example reference data.
 
-```{r a-cell-specific-open-chromatin-plot, fig.height = 6, fig.cap="Cell specific enrichment for open chromatin."}
+```{r specificity-plot-single, fig.height = 6, fig.cap="Specificty of chromatin accessibility across cell types."}
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
 op = calcOpenSignal(query, cellMatrix)
@@ -197,7 +197,7 @@ plotOpenSignal(op)
 ```
 
 To plot multiple datasets at a time:
-```{r multiple-cell-specific-open-chromatin-plot, fig.height = 7, fig.cap="Cell specific enrichment for open chromatin."}
+```{r specificity-plot-multi, fig.height = 7, fig.cap="Specificty of chromatin accessibility across cell types."}
 op2 = calcOpenSignal(queryList, cellMatrix)
 plotOpenSignal(op2)
 ```
@@ -225,7 +225,7 @@ plotGCContent(gc2)
 
 *Width distribution plots* display a quantile-trimmed histogram (qthist) of widths of the genomic ranges in the query. These plots are quantile-trimmed to preserve the visual shape of the distribution in the face of extreme outliers which sometimes occur in genomic ranges.
 
-```{r QT histogram plots, fig.cap="Width distribution plot. Frequency of widths in this query"}
+```{r width-distribution-single, fig.cap="Width distribution plot. Frequency of widths in this query"}
 # Calculate the widths
 qt1 = calcWidth(query)
 
@@ -235,7 +235,7 @@ plotQTHist(qt1)
 
 You can also plot the frequency distribution for more than one query.
 
-```{r multiple qtHist plots in one}
+```{r width-distribution-multi}
 qt2 = calcWidth(queryList)
 plotQTHist(qt2)
 ```
@@ -247,3 +247,7 @@ Both the quantile and the bins can be manually adjusted. The quantile you indica
 plotQTHist(qt1, bins=7, quantile = .015, EndBarColor = 'black',
 	MiddleBarColor='darkblue')
 ```
+
+# Conclusion
+
+GenomicDistributions provides a variety of ways to visualize your data. 3 key features make it very useful: First, it uses a modular, systematic way to name *calc* and *plot* functions, and the function names and interfaces are all consistent. Second, it is optimized for speed. You will find these functions to be much faster than other commonly accepted alternatives due to way we've written the functions under the hood. And finally, it provides a single, convenient package for many types of plots, so you don't have to look around in multiple places.
