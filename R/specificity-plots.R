@@ -141,12 +141,13 @@ plotOpenSignal = function(signalMatrix,
   # attach the metadata for coloring
   # sort table alphabetically by tissue-cellType
   if ("name" %in% names(signalMatrix)){
-    plotSignalMatrix = melt(signalMatrix, id.vars = c("queryPeak", "name"), 
+    plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = c("queryPeak", "name"), 
                             variable.name = "cellType", value.name = "signal")
   } else {
-    plotSignalMatrix = melt(signalMatrix, id.vars = "queryPeak", 
+    plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = "queryPeak", 
                             variable.name = "cellType", value.name = "signal")
   }
+  data.table::setDT(plotSignalMatrix)
   setkey(plotSignalMatrix, cellType)
   setkey(cellTypeMetadata, cellType)
   plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
