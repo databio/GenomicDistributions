@@ -61,11 +61,14 @@ calcGCContentRef = function(query, refAssembly) {
 #' @examples
 #' numVector = rnorm(400, mean=0.5, sd=0.1)
 #' GCplot = plotGCContent(numVector)
+#' vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), example2 = rnorm(600, mean=0.5, sd=0.1))
+#' GCplot = plotGCContent(numVector)
 #' 
 plotGCContent = function(gcvectors) {
     .validateInputs(list(gcvectors=c("numeric","list")))
     gcdf = lapply(gcvectors, as.data.frame)
-    gcdfReshaped = reshape2::melt(gcdf)
+    # reshape2 is deprecated, but there's no other way to do this easily...
+    gcdfReshaped2 = reshape2::melt(gcdf)
     colnames(gcdfReshaped)[colnames(gcdfReshaped) == "L1"] = "regionSet"
     # plot multiple regionsets if gcvectors is a list
     if (is(gcvectors, "list")) {

@@ -19,7 +19,7 @@
 #'             seqnames granges
 #' @importFrom data.table ":=" setDT data.table setkey fread setnames 
 #'             setcolorder rbindlist setattr setorder copy is.data.table
-#'             tstrsplit as.data.table foverlaps melt
+#'             tstrsplit as.data.table foverlaps
 #' @importFrom reshape2 melt
 #' @importFrom methods is
 
