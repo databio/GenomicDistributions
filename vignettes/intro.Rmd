@@ -122,7 +122,7 @@ plotFeatureDist(fdd)
 
 ## Partition distribution plots
 
-Genomic partition distribution plots show you how your regions are distributed by raw numbers, relative to the expected distribution, and the cumulative distribution among promoters, exons, introns, or intergenic regions. For the raw partition distribution and the expected partition distribution you can produce one or two-set plots like so:
+Genomic partition distribution plots show you how your regions are distributed by raw numbers, relative to the expected distribution, and the cumulative distribution among promoters, exons, introns, or intergenic regions. For the raw partition distribution you can produce one or two-set plots like so:
 
 ```{r a raw partition plot}
 gp = calcPartitionsRef(query, "hg19")
@@ -136,6 +136,8 @@ gp2 = calcPartitionsRef(queryList, "hg19")
 plotPartitions(gp2)
 ```
 
+Here we produce one or two-set plots showing the log~10~($\frac{observed}{expected}$) of the distribution of your regions across genomic partitions:
+
 ```{r an observed/expected partition plot}
 ep = calcExpectedPartitionsRef(query, "hg19")
 plotExpectedPartitions(ep)
@@ -147,12 +149,16 @@ ep2 = calcExpectedPartitionsRef(queryList, "hg19")
 plotExpectedPartitions(ep2)
 ```
 
-For the cumulative distribution plot, it doesn't make sense to plot multiple samples on the same plot
-# TODO: look at the feature dist plots, they plot using facets...
-
+Now, we'll plot single and multiple cumulative distributions of regions in genomic partitions:
 ```{r a cumulative partition plot}
 cp = calcCumulativePartitionsRef(query, "hg19")
 plotCumulativePartitions(cp)
+```
+
+Can you plot 2 of these? You can:
+```{r multiple cumulative partition plots in one}
+cp2 = calcCumulativePartitionsRef(queryList, "hg19")
+plotCumulativePartitions(cp2)
 ```
 
 Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
