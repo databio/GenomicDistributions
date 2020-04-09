@@ -375,15 +375,29 @@ setLabels = function(assignedPartitions) {
 #' cumuPlot = plotCumulativePartitions(p)
 plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
     .validateInputs(list(assignedPartitions="data.frame"))
-    plot_labels = setLabels(assignedPartitions)
     palette = colorRampPalette(c("#A6CEE3", "#025EBA", "#B2DF8A", "#05A602",
                                  "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00",
                                  "#CAB2D6", "#57069E", "#F0FC03", "#B15928"))
-    partition_sizes = assignedPartitions[, .N, by=partition]
-    plot_colors     = palette(nrow(plot_labels))
-   
-    # Set colors
-    plot_labels[,color:=plot_colors]
+    if ("name" %in% names(assignedPartitions)){
+		# It has multiple regions
+		p = ggplot(assignedPartitions, aes(x=log10(cumsize), y=frif,
+                   group=partition, color=partition)) +
+			facet_grid(. ~name)
+        plot_labels = setLabels(splitDataTable(assignedPartitions, "name"))
+        partition_sizes = assignedPartitions[, .N, by=.(partition, name)]
+        plot_labels[, label:=sprintf(" %s:%s", plot_labels$partition,
+                                     plot_labels$val)]
+        label = plot_labels[, list(label = paste(label, collapse="\n"))
+                            , by = name]
+	} else {
+	    p = ggplot(assignedPartitions,
+               aes(x=log10(cumsize), y=frif, group=partition, color=partition))
+        plot_labels = setLabels(assignedPartitions)
+        partition_sizes = assignedPartitions[, .N, by=partition]
+        plot_labels[, label:=sprintf(" %s:%s", plot_labels$partition,
+                                     plot_labels$val)]
+        label = plot_labels[, list(label = paste(label, collapse="\n"))]
+	}
 
     # If name vector provided, update names
     if (all(!is.null(feature_names))) {
@@ -394,7 +408,8 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
         } else {
             if (!"partition" %in% colnames(plot_labels)) {
                 plot_labels[,partition:=seq(1:nrow(partition_sizes))]
-                assignedPartitions[,partition:=rep(seq(1:nrow(partition_sizes)),
+                assignedPartitions[,
+                    partition:=rep(seq(1:nrow(partition_sizes)),
                                    partition_sizes$num_feats)]
             }
         }
@@ -406,11 +421,8 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
         }
     }
 
-    p = ggplot(assignedPartitions,
-               aes(x=log10(cumsize), y=frif, group=partition, color=partition))
     p = p + 
         geom_line(size=2, alpha=0.5) +
-        guides(linetype = FALSE) +
         labs(x=expression(log[10]("number of bases")),
              y="Cumulative distribution across genomic partitions") +
         theme_classic() +
@@ -427,24 +439,15 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
               legend.box.background = element_rect(fill = "transparent",
                                                    color = NA),
               aspect.ratio = 1,
-              legend.position = "none",
+              legend.position = "bottom",
               plot.title = element_text(hjust = 0.5),              
               panel.border = element_rect(colour = "black", fill=NA, size=0.5)
         )
 
-    # Recolor and reposition legend
-    p = p + scale_color_manual(
-            labels=paste0(plot_labels$partition, ": ", plot_labels$val),
-            values=plot_labels$color) +
-        labs(color="Cumulative distribution across genomic partitions") +
-        theme(legend.position=c(0.075,0.975),
-              legend.justification=c(0.1,0.9),
-              legend.title = element_blank(),
-              legend.text = element_text(size = rel(0.65)), 
-              legend.background=element_blank(),
-              legend.key = element_blank(),
-              axis.text.x = element_text(angle = 0, hjust = 1, vjust=0.5)
-        )
+    # Add label text
+    p = p +
+        geom_text(data=label, mapping=aes(x=-Inf, y=Inf, label=label),
+        hjust="inward", vjust=1.05, inherit.aes=FALSE)
 
     if (!exists("p")) {
         p = ggplot()
