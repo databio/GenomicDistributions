@@ -3,7 +3,9 @@
 \name{TSS_hg19}
 \alias{TSS_hg19}
 \title{TSS locations}
-\format{A named vectors of lengths with one item per chromosome}
+\format{
+A named vectors of lengths with one item per chromosome
+}
 \source{
 BSGenome package
 }

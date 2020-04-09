@@ -3,7 +3,9 @@
 \name{cellTypeMetadata}
 \alias{cellTypeMetadata}
 \title{Cell type metadata}
-\format{A data table with tissue and group assigned to cell type}
+\format{
+A data table with tissue and group assigned to cell type
+}
 \description{
 A dataset containing metadat for coloring cell specific open chromatin 
 signal plot
