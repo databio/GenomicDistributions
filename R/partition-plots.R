@@ -212,8 +212,9 @@ calcExpectedPartitions = function(query, partitionList) {
     #expected scaled by number of regions in query
     query_total = length(query)
     partitionCounts = data.table::data.table(
-        data.frame(N=elementNROWS(partitionList)/query_total),
-                   keep.rownames="partition")
+        data.frame(N=(elementNROWS(partitionList)/
+                      sum(elementNROWS(partitionList))*query_total)),
+        keep.rownames="partition")
     partitionCounts = partitionCounts[order(partitionCounts$partition)]
     partition = rep(0, length(query))
     for (pi in 1:length(partitionList)) {
