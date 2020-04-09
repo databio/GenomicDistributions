@@ -41,23 +41,22 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 	binCountByChrom = round((end-start)/binSize)
 	binCountByChrom[binCountByChrom==0]=1
 	binSizeByChrom = (end-start)/(binCountByChrom)
-	breaks = round(unlist(vapply(binCountByChrom, function(x) seq(from=0, to=x), 
-	             integer(binCountByChrom+1)) * rep(binSizeByChrom, (binCountByChrom+1))))
+	breaks = round(unlist(lapply(binCountByChrom, function(x) seq(from=0, to=x))) * rep(binSizeByChrom, (binCountByChrom+1)))
 	endpoints = cumsum(binCountByChrom + 1) 
 	startpoints = c(1, endpoints[-length(endpoints)]+1)
 
-	dt = data.table(start=breaks[-endpoints]+1, 
+	dataTable = data.table(start=breaks[-endpoints]+1, 
 					end=breaks[-startpoints],
 					id=rep((1:length(start)), binCountByChrom),
-					binID=unlist(vapply(binCountByChrom, function(x) seq(from=1, to=x), integer(binCountByChrom))),
+					binID=unlist(lapply(binCountByChrom, function(x) seq(from=1, to=x))),
 					ubinID=1:length(breaks[-startpoints]),
 					key="id")
 
 	if (!is.null(indicator)){
 		idCol = rep(indicator, binCountByChrom)
-		dt = data.table(idCol, dt)
+		dataTable = data.table(idCol, dataTable)
 	}
-	return(dt)
+	return(dataTable)
 }
 
 #' Bins a BSgenome object.
