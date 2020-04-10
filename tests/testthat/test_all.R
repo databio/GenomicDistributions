@@ -25,6 +25,9 @@ coordDT2 = copy(origCoordDT2)
 
 testGR1 = dtToGr(coordDT1)
 testGR2 = dtToGr(coordDT2)
+testGR3 = GenomicRanges::shift(testGR2, 1000)
+testGR4 = GenomicRanges::shift(testGR2, 2500)
+testGR5 = GenomicRanges::shift(testGR2, 4000)
 ###############################################################################
 
 
@@ -62,13 +65,19 @@ test_that("featureDistribution",  {
     nearestVec = DTNearest(coordDT1, coordDT2)
     nearestVec
     expect_equal(nearestVec, c(150, -99, 75, -750))
-    nearestVec2 = DTNearest(coordDT2, coordDT1)
-    nearestVec2 # actual: c( 99, -901, -1276, 750, -1650)
-    coordDT1
-    coordDT2 #3 is matching to chr2 from coordDT1
+    
+    # nearestVec2 = DTNearest(coordDT2, coordDT1)
+    # nearestVec2 # actual from nearestDT: c( 99, -901, -1276, 750, -1650)
+    # calculated by hand c(99, -901, -75, 750, -449)
+  
+
     # DTNearest ignores chromosome completely. By design.
-    # the function output seems wrong although I'm not sure what the problem is
-    expect_equal(nearestVec2, c( 99, -901, -75, 124, -449))
+    # DTNearest shouldn't be used with data from different chromosomes.
+    # Suggested to split by chromosome when such case presents (e.g chrom1).
+    DT1chrom1 = coordDT1[coordDT1$chr == "chr1"]
+    DT2chrom1 = coordDT2[coordDT2$chr == "chr1"]
+    nearestVec2C1 = DTNearest(DT2chrom1, DT1chrom1)
+    expect_equal(nearestVec2C1, c(99, -901, -75))
     
     featureDistance = calcFeatureDist(testGR1, testGR2)
     featureDistance
@@ -111,15 +120,23 @@ test_that("Genome aggregate", {
 test_that("Partitions", {
     
     ################### old
-    queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-    query = rtracklayer::import(queryFile)
-    gp = genomicPartitions(query, "hg38")
-    gp = genomicPartitions(query, "hg19")
-    gp = genomicPartitions(query, "mm10")
-    gp = genomicPartitions(query, "mm9")
-    plotPartitions(gp)
+    #queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+    #query = rtracklayer::import(queryFile)
+    #gp = genomicPartitions(query, "hg38")
+    #gp = genomicPartitions(query, "hg19")
+    #gp = genomicPartitions(query, "mm10")
+    #gp = genomicPartitions(query, "mm9")
+    #plotPartitions(gp)
     ################### old
     
     # test calcPartitions()
-    calcPartitions()
+    # GenomePartitionList
+    partList = list(promoterCore=trim(promoters(testGR2, upstream=100, downstream=0)),
+                    promoterProx=trim(promoters(testGR2, upstream=2000, downstream=0)), 
+                    exon=testGR3, 
+                    intron=testGR2)
+  
+    gp = genomePartitionList(testGR2, testGR3)
+    expect_equal(gp, partList)
+    
 })
