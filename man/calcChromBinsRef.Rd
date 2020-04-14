@@ -19,6 +19,10 @@ sizes with \code{getChromSizes}}
 
 \item{binCount}{Number of bins to divide the chromosomes into}
 }
+\value{
+A data.table showing the distribution of regions across bins of the
+reference genome.
+}
 \description{
 Returns the distribution of query over a reference assembly
 Given a query set of elements (a GRanges object) and a reference assembly
@@ -26,4 +30,10 @@ Given a query set of elements (a GRanges object) and a reference assembly
 elements across bins of the reference genome. This is a helper function to
 create features for common genomes. It is a wrapper of
 \code{calcChromBins}, which is more general.
+}
+\examples{
+query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+GRquery = rtracklayer::import(query)
+ChromBins = calcChromBinsRef(GRquery, "hg19")
+
 }

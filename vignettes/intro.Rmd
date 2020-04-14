@@ -19,21 +19,26 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 #devtools::test("code/GenomicDistributions")
 ```
 
-If you have a set of genomic ranges, the GenomicDistributions R package can help you with visualize some interesting properties of your regions. Currently, it can produce three kinds of plots:
+# Introduction to GenomicDistributions
 
-- The *chromosome distribution plot*, which visualizes how your regions are distributed over chromosomes
-- The *feature distance distribution plot*, which visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
-- The *partition distribution plot*, which visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
+If you have a set of genomic ranges, the GenomicDistributions R package can help you visualize properties of your region set. GenomicDistributions produces these five types of plot:
 
-GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes, locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible with GenomicDistributions, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
+- *chromosome distribution plot* - visualizes how your regions are distributed over chromosomes
+- *width distribution plot* - visualizes the distribution of range widths
+- *feature distance distribution plot* - visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
+- *partition distribution plot* - visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
+
+GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes and locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
 
 In this vignette, we'll go through examples of each of the plots using my common built-in features and partitions. If you want more control, there's another advanced vignette that will introduce you how to define your own features, partitions, and chromosome sizes for custom analysis.
 
-## Modular plotting functions in the package
+## Philosophy of modular *calc* and *plot* functions
 
-Before we start, I want to explain my philosophy for designing the functions in this package. Many R plotting packages combine calculations and plotting into one giant function, but the problem with this is that if you want to take the underlying summarized data and plot it in a different way or combine it with something else, you can't. You only have access to the final plot. GenomicDistributions divides these tasks so you can use the intermediate data to design your own custom plot style if you want. Thus, each plot type has two different functions that work together to produce the plots: a *calculate* function and a *plot* function. The *calculate* functions take your GRanges object and return a table that summarizes your regions for the given analysis type. You can use these summary statistics how you like -- aggregate them across multiple region sets, insert them into other plots you have, and so forth; or, you can simply plug that result directly into the corresponding *plot* function, which returns a *ggplot2* object. Separating the calculation and plotting functions like this gives you more control over your results.
+Before we start, I want to explain the design philosophy for functions in this package. Many R plotting packages combine calculations and plotting into one function. This may seem convenient, but if you want to plot the calculation results in a different way or combine them with something else, you can't because you only have access to the final plot. GenomicDistributions divides these tasks so you can use the intermediate data to design your own custom plot, or use the calculated results directly for other analysis.
 
-## Install
+In GenomicDistributions, each plot type has two functions: a *calculate* function and a *plot* function. The *calculate* functions take your GRanges object and return a table of summary results. You can use these summary statistics how you like -- aggregate them across multiple region sets, insert them into other plots you have, and so forth; or, you can simply plug that result directly into the corresponding *plot* function, which returns a *ggplot2* object. Separating the calculation and plotting functions like this gives you more control over your results.
+
+## Installing GenomicDistributions
 
 Install `GenomicDistributions` like this:
 
@@ -41,7 +46,7 @@ Install `GenomicDistributions` like this:
 devtools::install_github("databio/GenomicDistributions")
 ```
 
-## Initialization
+## Loading genomic range data
 
 Start by loading up the package and getting your query set of regions as a GenomicRanges object. I've included an example bed file to demonstrate how these plots look. You can load it up like this:
 
@@ -51,13 +56,15 @@ queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDist
 query = rtracklayer::import(queryFile)
 ```
 
+# GenomicDistributions plot types
+
 ## Chromosome distribution plots
 
 *Chromosome distribution plots* help you visualize how your regions are distributed across chromosomes. To produce these, you'll need to specify the chromosome lengths for your reference assembly. There are a few ways to do this.
 
 For the common reference assemblies that I use (hg19, hg38, mm9, and mm10), I've included the metadata in the package. If you're working with one of these genomes, making a plot of the distribution across chromosomes takes just a couple of lines of code:
 
-```{r chromosome-distribution}
+```{r chrom-plots-single}
 # First, calculate the distribution:
 x = calcChromBinsRef(query, "hg19")
 
@@ -67,7 +74,7 @@ plotChromBins(x)
 
 What if we want to do the same thing but on 2 query sets at the same time? No problem:
 
-```{r Chromosome distribution plots with multiple region sets}
+```{r chrom-plots-multi}
 # Let's fudge a second region set by shifting the first one over 
 query2 = GenomicRanges::shift(query, 1e6)
 queryList = GRangesList(vistaEnhancers=query, shifted=query2)
@@ -96,7 +103,7 @@ plotFeatureDist(TSSdist, featureName="TSS")
 
 This plot uses log-scale increasing bins to show how your regions are distributed. Now, let's make a similar plot with multiple region sets input:
 
-```{r TSS plots with multiple region sets}
+```{r tss-distribution-multi, fig.cap="TSS plots with multiple region sets"}
 
 TSSdist2 = calcFeatureDistRefTSS(queryList, "hg19")
 plotFeatureDist(TSSdist2)
@@ -109,7 +116,7 @@ If you want to check distances to other features, that's no problem; `calcFeatur
 featureExample = GenomicRanges::shift(query, round(rnorm(length(query), 0,1000)))
 ```
 
-Now, with these features, we just use the `calcFeatureDist` function to calculate the distances. This function using the fast rolling joins from `data.table` under the hood, so it complete very quickly. The result of this gets piped right into the plotting function as before:
+Now, with these features, we just use the `calcFeatureDist` function to calculate the distances. This function uses the fast rolling joins from `data.table` under the hood, so it completes very quickly. The result of this gets piped right into the plotting function as before:
 
 ```{r Calculate distances and plot, fig.cap="Feature plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
 fdd = calcFeatureDist(query, featureExample)
@@ -119,22 +126,128 @@ plotFeatureDist(fdd)
 
 ## Partition distribution plots
 
-Genomic partition distribution plots show you how your regions are distributed among promoters, exons, introns, or intergenic regions. You can produce one or two-set plots like so:
+Genomic partition distribution plots show you how your regions are distributed across genome annotation classes. This is most commonly used to show the distribution over element types, such as promoters, exons, introns, or intergenic regions. GenomicDistributions provides 3 types of partition distribution plots: *raw*, *expected*, and *cumulative*.
 
+### Raw partition distribution plots
 
-```{r a partition plot}
+The most basic partition plot just provies a barplot of raw region counts. You can produce one or two-set plots like so:
+
+```{r a raw partition plot}
 gp = calcPartitionsRef(query, "hg19")
 plotPartitions(gp)
 ```
 
 Can you do 2 at a time? Yep:
 
-```{r multiple partition plots in one}
+```{r multiple raw partition plots in one}
 gp2 = calcPartitionsRef(queryList, "hg19")
 plotPartitions(gp2)
 ```
 
-Do you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else? No problem: GenomicDistributions also has functions to produce priority lists from any GRanges objects.
+### Expected partition distribution plots
+ 
+A more useful variation of this plot corrects the values for the expected genome distribution. This accounts for the fact that the distribution of intergenic vs promoter space in the genome is not uniform. Here, we produce one or two-set plots showing the log~10~($\frac{observed}{expected}$) of the distribution of your regions across genomic partitions:
+
+```{r an observed/expected partition plot}
+ep = calcExpectedPartitionsRef(query, "hg19")
+plotExpectedPartitions(ep)
+```
+
+And can you do 2 at a time? Indeed:
+```{r multiple observed/expected partition plots in one}
+ep2 = calcExpectedPartitionsRef(queryList, "hg19")
+plotExpectedPartitions(ep2)
+```
+
+These plots would show all values aligning at 0 if your given regions perfectly match the expected genomic distribution. In this case, we see an 1.5-fold enrichment of introns over the background genome distribution, along with a concomitant decrease in other partitions.
+
+### Cumulative partition distribution plots
+
+The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of reads relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
+
+Now, we'll plot single and multiple cumulative distributions of regions in genomic partitions:
+```{r a cumulative partition plot}
+cp = calcCumulativePartitionsRef(query, "hg19")
+plotCumulativePartitions(cp)
+```
+
+Can you plot 2 of these? You can:
+```{r multiple cumulative partition plots in one}
+cp2 = calcCumulativePartitionsRef(queryList, "hg19")
+plotCumulativePartitions(cp2)
+```
+
+If you're not familiar with these plots, interpreting them can take a minute to familiarize yourself. Each curve represents a partition type. Then terminal (rightmost) endpoint of each curve is the percentage of query regions that overlap this partition type in total. The shape of the curve, and when it arises on the x-axis, demonstrates the size in terms of raw nucleotide coverage that must be accumulated in order to achieve the corresponding percent coverage.
+
+In this plot, we see that intergenic regions reach a higher total point than intronic regions -- which is also reflected in the raw partition plot above. What we see additionally in this plot is that the intergenic spaces also cover a much larger portion of the genome, as indicated by their more more left shifted in the plot.
+
+If you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else, GenomicDistributions also has functions to produce priority lists from any GRanges objects.
+
+## Specificity of accessibility plots
+
+One feature we are often interested in is the tissue specificity of a set of genomic ranges. To visualize this, GenomicDistributions provides functions to calculate and plot the tissue specificity. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix. This matrix should contain a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest. 
+
+We have produced example reference data matrixes based on ENCODE accessibility information, which can be downloaded from [big.databio.org](http://big.databio.org/open_chromatin_matrix/). Here, we'll demonstrate how this works with some tiny built-in example reference data.
+
+```{r specificity-plot-single, fig.height = 6, fig.cap="Specificty of chromatin accessibility across cell types."}
+exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
+cellMatrix = data.table::fread(exampleCellMatrixFile)
+op = calcOpenSignal(query, cellMatrix)
+plotOpenSignal(op)
+```
+
+To plot multiple datasets at a time:
+```{r specificity-plot-multi, fig.height = 7, fig.cap="Specificty of chromatin accessibility across cell types."}
+op2 = calcOpenSignal(queryList, cellMatrix)
+plotOpenSignal(op2)
+```
+
+## GC content plots 
+*GC content plots* display a probability density function of GC content percentage over the genomic ranges in the query. These plots will not be shown in the vignette because they require large BSgenome packages, which contain the full reference sequence.
+
+```{r gc-content-plots, fig.cap="GC content plot. Probability density function of GC percentage", eval=FALSE}
+# Calculate the GC content
+gc1 = calcGCContentRef(query, "hg19")
+
+# Plot the GC distribution
+plotGCContent(gc1)
+```
 
 
+You can also plot the probability distribution for more than one query:
 
+```{r gc-content-plots-multi, eval=FALSE}
+gc2 = calcGCContentRef(queryList, "hg19")
+plotGCContent(gc2)
+```
+
+## Width distribution plots
+
+*Width distribution plots* display a quantile-trimmed histogram (qthist) of widths of the genomic ranges in the query. These plots are quantile-trimmed to preserve the visual shape of the distribution in the face of extreme outliers which sometimes occur in genomic ranges.
+
+```{r width-distribution-single, fig.cap="Width distribution plot. Frequency of widths in this query"}
+# Calculate the widths
+qt1 = calcWidth(query)
+
+# Plot the width distribution
+plotQTHist(qt1)
+```
+
+You can also plot the frequency distribution for more than one query.
+
+```{r width-distribution-multi}
+qt2 = calcWidth(queryList)
+plotQTHist(qt2)
+```
+
+
+Both the quantile and the bins can be manually adjusted. The quantile you indicate should be the proportion of the data that you want in each end bar of the histogram. You can also adjust the colors of these plots:
+
+```{r changing the quantiles and bins}
+plotQTHist(qt1, bins=7, quantile = .015, EndBarColor = 'black',
+	MiddleBarColor='darkblue')
+```
+
+# Conclusion
+
+GenomicDistributions provides a variety of ways to visualize your data. 3 key features make it very useful: First, it uses a modular, systematic way to name *calc* and *plot* functions, and the function names and interfaces are all consistent. Second, it is optimized for speed. You will find these functions to be much faster than other commonly accepted alternatives due to way we've written the functions under the hood. And finally, it provides a single, convenient package for many types of plots, so you don't have to look around in multiple places.

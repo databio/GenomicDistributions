@@ -9,10 +9,18 @@ binChroms(binCount, chromSizes)
 \arguments{
 \item{binCount}{number of bins (total; *not* per chromosome)}
 
-\item{chromSizes}{a named list of size (length) for each chromosome}
+\item{chromSizes}{a named list of size (length) for each chromosome.}
+}
+\value{
+A data.table object assigning a bin ID to each chromosome region.
 }
 \description{
 Given a list of chromosomes with corresponding sizes, this script will
 produce (roughly) evenly-sized bins across the chromosomes. It does not
 account for assembly gaps or the like.
+}
+\examples{
+chromSizes = c(chr1=249250621, chr2=243199373, chr3=198022430)
+cBins = binChroms(1000, chromSizes)
+
 }

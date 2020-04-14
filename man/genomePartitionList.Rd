@@ -2,7 +2,8 @@
 % Please edit documentation in R/partition-plots.R
 \name{genomePartitionList}
 \alias{genomePartitionList}
-\title{Create a basic genome partition list of genes, exons, introns, and intergenic}
+\title{Create a basic genome partition list of genes, exons, introns, and 
+intergenic}
 \usage{
 genomePartitionList(genesGR, exonsGR)
 }
@@ -11,9 +12,17 @@ genomePartitionList(genesGR, exonsGR)
 
 \item{exonsGR}{a GRanges object of exons coordinates}
 }
+\value{
+A list of GRanges objects, each corresponding to a partition of the 
+genome. Partitions include proximal and core promoters, exons and introns.
+}
 \description{
 Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
 corresponding to various breakdown of the genome, based on the given
-annotations; it gives you proximal and core promoters, exons, and introns. To
-be used as a partionList for calcPartitions()
+annotations; it gives you proximal and core promoters, exons, and introns. 
+To be used as a partionList for calcPartitions()
+}
+\examples{
+geneModels = getGeneModels("hg38")
+partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
 }

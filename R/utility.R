@@ -1,4 +1,29 @@
-
+#' Checks class of the list of variables. To be used in functions
+#'
+#' @param checkList list of object to check, e.g. 
+#' list(varname=c("data.frame", "numeric")). 
+#' Multiuple strings in the vector are treated as OR.
+#' 
+#' @examples
+#' x <- function(var1) {
+#'     cl = list(var1=c("numeric","character"))
+#'     .validateInputs(cl)
+#'     return(var1^2)
+#' }
+.validateInputs <- function(checkList) {
+    nms = names(checkList)
+    for(i in seq_along(checkList)){
+        fail = FALSE
+        clss = checkList[[i]]
+        x = get(nms[i], envir=parent.frame(1))
+        for(cls in clss){
+            if (is(x, cls)) fail = append(fail, TRUE)
+        }
+        if(!any(fail)) 
+            stop(paste0(nms[i], " must be a ", paste(clss, collapse=" or "), 
+                        ".  Got: ", class(x)))
+    }
+}
 
 # Checks to make sure a BSgenome object is installed,
 # and if so, returns it. If the genome is not installed, it issues a warning
@@ -22,14 +47,15 @@
 # DT = data.table::data.table(letters, grp = rep(c("group1", "group2"), 13))
 # splitDataTable(DT, "grp")
 # splitDataTable(DT, 2)
-splitDataTable = function(DT, splitFactor) {
-	if (is.numeric(splitFactor)) {
-		splitFactor = colnames(DT)[splitFactor]
-		message("Integer splitFactor, changed to: ", splitFactor)
+splitDataTable = function(DT, split_factor) {
+    factor_order = unique(DT[, get(split_factor)])
+	if (is.numeric(split_factor)) {
+		split_factor = colnames(DT)[split_factor]
+		message("Integer split_factor, changed to: ", split_factor)
 	}
-	lapply( split(1:nrow(DT), DT[, get(splitFactor)]), function(x) DT[x])
+	l = lapply( split(1:nrow(DT), DT[, get(split_factor)]), function(x) DT[x])
+    return(l[factor_order])
 }
-
 
 
 #Two utility functions for converting data.tables into GRanges objects
@@ -138,19 +164,34 @@ theme_blank_facet_label = function() {
 # \code{labelCuts} will take a cut group, (e.g., a quantile division of 
 # some signal), and give you clean labels (similar to the cut method).
 # @param breakPoints The exact values you want as boundaries for your bins
-# @param digits Number of digits to cut the labels off. 
+# @param round_digits Number of digits to cut round labels to. 
+# @param signif_digits Number of significant digits to specify. 
 # @param collapse Character to separate the labels
 # @param infBins use >/< as labels on the edge bins
 # @examples 
 # labelCuts(seq(0,100,by=20))
-labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
-	labels = 
-	apply(round(cbind( breakPoints[-length(breakPoints)],	
-		breakPoints[-1]),digits), 1, paste0, collapse=collapse) 
-
-	if (infBins) {
-		labels[1] = paste0("<", breakPoints[2])
-		labels[length(labels)] = paste0(">", breakPoints[length(breakPoints)-1])
-	}
-	return(labels)
+labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-", infBins=FALSE) {
+      roundedLabels = signif(round(
+      	cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)
+      # set the Inf values to NA so formatC can add commas
+      is.na(roundedLabels) = sapply(roundedLabels, is.infinite) 
+      labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
+      labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
+      if (infBins) {
+        labels[1] = paste0("<", formatC(breakPoints[2], format="d", big.mark=","))
+        labels[length(labels)] = paste0(">", formatC(breakPoints[length(breakPoints)-1], format="d", big.mark=","))
+      }
+      return(labels)
 }
+
+# labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
+# 	labels = 
+# 	apply(round(cbind( breakPoints[-length(breakPoints)],	
+# 		breakPoints[-1]),digits), 1, paste0, collapse=collapse) 
+
+# 	if (infBins) {
+# 		labels[1] = paste0("<", breakPoints[2])
+# 		labels[length(labels)] = paste0(">", breakPoints[length(breakPoints)-1])
+# 	}
+# 	return(labels)
+# }

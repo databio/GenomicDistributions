@@ -18,6 +18,15 @@ plotChromBins(
 
 \item{plotTitle}{Title for plot.}
 }
+\value{
+A ggplot object showing the distribution of the query regions over bins of
+the reference genome.
+}
 \description{
 Plots result from \code{genomicDistribution} calculation
+}
+\examples{
+agg = data.frame("regionID"=1:5, "chr"=rep(c("chr1"), 5), "withinGroupID"=1:5, "N"=c(1,3,5,7,9))  
+ChromBins = plotChromBins(agg)
+
 }

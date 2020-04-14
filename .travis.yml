@@ -1,0 +1,6 @@
+branches:
+  only:
+  - master
+  - dev
+language: r
+r: bioc-release

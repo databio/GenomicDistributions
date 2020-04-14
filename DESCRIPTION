@@ -1,6 +1,6 @@
 Package: GenomicDistributions
-Version: 0.6
-Date: 2019-09
+Version: 0.7.0
+Date: 2020-04
 Title: Produces Summaries and Plots of Features Distributed Across Genomes
 Description: If you have a set of genomic ranges, this package can help you with
  some simple visualizations. It produces several kinds of plots, for example:
@@ -12,14 +12,23 @@ Description: If you have a set of genomic ranges, this package can help you with
  or intergenic regions.
 Authors@R: c(
 	person(given=c("Nathan", "C."), "Sheffield",
-	email = "nathan@code.databio.org", role=c("aut", "cre")))
+	email = "nathan@code.databio.org", role=c("aut", "cre")), 
+    person("Tessa", "Danehy", role="ctb"),
+    person("John", "Lawson", role="ctb"),
+    person("Jose", "Verdezoto", role="ctb"),
+    person("Michal", "Stolarczyk", role="ctb"),
+    person("Jason", "Smith", role="ctb"),
+    person("Kristyna", "Kupkova", role="ctb"))
 Depends:
     R (>= 3.0),
+    IRanges,
     GenomicRanges
 Imports:
     data.table,
     ggplot2,
-    methods
+    reshape2,
+    methods,
+    Biostrings,
 Suggests:
     AnnotationFilter,
     rtracklayer,
@@ -35,7 +44,7 @@ Enhances:
 LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 URL: http://code.databio.org/GenomicDistributions
 BugReports: http://github.com/databio/GenomicDistributions
 Encoding: UTF-8

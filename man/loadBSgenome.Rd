@@ -8,6 +8,8 @@ loadBSgenome(genomeBuild, masked = TRUE)
 }
 \arguments{
 \item{genomeBuild}{One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'}
+
+\item{masked}{Should we used the masked version? Default:TRUE}
 }
 \description{
 This function will let you use a simple character vector (e.g. 'hg19') to

@@ -12,6 +12,9 @@ calcChromBins(query, bins)
 \item{bins}{Pre-computed bins (as a GRangesList object) to aggregate
 over; for example, these could be genome bins}
 }
+\value{
+A data.table showing where on which chromosomes ranges are distributed.
+}
 \description{
 Returns a data.table showing counts of regions in GR, in the bins
 In other words, where on which chromosomes are the ranges distributed?

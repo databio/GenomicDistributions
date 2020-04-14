@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
+## [0.7] -- 2020-04-11
+
+	- Revamped TSS distance distribution plots to better reflect the scale of distances
+	- Added new versions of partition plots
+	- Added new cell-type specificity plot
+	- Added new quantile-trimmed histogram for width distribution plots
+	- Added new unit tests and updated coding style for bioconductor
+
 ## [0.6] -- 2019-09-20
 
 	- Added functions to calculate GC content
