@@ -17,10 +17,12 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' GRquery = rtracklayer::import(query)
 #' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
 #' package="GenomicDistributions")
 #' cellMatrix = data.table::fread(exampleCellMatrixFile)
-#' signalMatrix = calcOpenSignal(query, cellMatrix)
+#' signalMatrix = calcOpenSignal(GRquery, cellMatrix)
 #' }
 calcOpenSignal = function(query,
                           cellMatrix){
@@ -114,10 +116,12 @@ calcOpenSignal = function(query,
 #' @export
 #' @examples
 #' \dontrun{
+#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' GRquery = rtracklayer::import(query)
 #' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
 #' package="GenomicDistributions")
 #' cellMatrix = data.table::fread(exampleCellMatrixFile)
-#' signalMatrix = calcOpenSignal(query, cellMatrix)
+#' signalMatrix = calcOpenSignal(GRquery, cellMatrix)
 #' plotSignal = plotOpenSignal(signalMatrix)
 #' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
 #' }
