@@ -32,9 +32,11 @@ across cell types and returns a matrix, where each row is the input genomic
 }
 \examples{
 \dontrun{
+query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+GRquery = rtracklayer::import(query)
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
 package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
-signalMatrix = calcOpenSignal(query, cellMatrix)
+signalMatrix = calcOpenSignal(GRquery, cellMatrix)
 }
 }
