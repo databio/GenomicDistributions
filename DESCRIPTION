@@ -12,7 +12,13 @@ Description: If you have a set of genomic ranges, this package can help you with
  or intergenic regions.
 Authors@R: c(
 	person(given=c("Nathan", "C."), "Sheffield",
-	email = "nathan@code.databio.org", role=c("aut", "cre")))
+	email = "nathan@code.databio.org", role=c("aut", "cre")), 
+    person("Tessa", "Danehy", role="ctb"),
+    person("John", "Lawson", role="ctb"),
+    person("Jose", "Verdezoto", role="ctb"),
+    person("Michal", "Stolarczyk", role="ctb"),
+    person("Jason", "Smith", role="ctb"),
+    person("Kristyna", "Kupkova", role="ctb"))
 Depends:
     R (>= 3.0),
     IRanges,
