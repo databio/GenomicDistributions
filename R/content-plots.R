@@ -10,8 +10,10 @@
 #' @export
 #' @examples
 #' \dontrun{
+#'query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#'GRquery = rtracklayer::import(query)
 #'bsg = loadBSgenome('hg19')
-#'gcvec = calcGCContent(query, bsg)
+#'gcvec = calcGCContent(GRquery, bsg)
 #' }
 calcGCContent = function(query, ref) {
     .validateInputs(list(query=c("GRanges","GRangesList"),
@@ -41,8 +43,10 @@ calcGCContent = function(query, ref) {
 #' @export
 #' @examples
 #' \dontrun{
+#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' GRquery = rtracklayer::import(query)
 #' refAssembly = 'hg19'
-#' GCcontent = calcGCContentRef(query, refAssembly)
+#' GCcontent = calcGCContentRef(GRquery, refAssembly)
 #' } 
 calcGCContentRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges","GRangesList"),

@@ -3,7 +3,7 @@ library(data.table)
 library(testthat)
 library(GenomicDistributions)
 # data
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt.gz", 
+exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
                                     package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
 f = system.file("extdata", "vistaEnhancers.bed.gz", 
