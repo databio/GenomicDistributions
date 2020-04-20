@@ -72,7 +72,7 @@ plotGCContent = function(gcvectors) {
     .validateInputs(list(gcvectors=c("numeric","list")))
     gcdf = lapply(gcvectors, as.data.frame)
     # reshape2 is deprecated, but there's no other way to do this easily...
-    gcdfReshaped = reshape2::melt(gcdf)
+    gcdfReshaped = reshape2::melt(gcdf, id.vars=NULL)
     colnames(gcdfReshaped)[colnames(gcdfReshaped) == "L1"] = "regionSet"
     # plot multiple regionsets if gcvectors is a list
     if (is(gcvectors, "list")) {
