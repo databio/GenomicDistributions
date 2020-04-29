@@ -91,6 +91,10 @@ plotGCContent = function(gcvectors) {
                    color="red", linetype="dashed", size=0.5) + 
         theme_classic()
     }    
-    g = g + xlim(0,1) + xlab("gc %")
+    g = g + 
+        ggtitle("GC content distribution") + 
+        theme(plot.title = element_text(hjust=0.5)) +
+        xlab("gc %") + 
+        xlim(0,1) 
     return(g)
 }

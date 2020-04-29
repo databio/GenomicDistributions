@@ -217,7 +217,7 @@ plotOpenSignal = function(signalMatrix,
       geom_boxplot(outlier.colour = NA, fill = NA) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
-            text = element_text(size=15)) +
+            text = element_text(size=10)) +
       xlab("") +
       ylab("normalized signal") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
@@ -232,7 +232,7 @@ plotOpenSignal = function(signalMatrix,
     boxPlot = p + geom_boxplot(outlier.colour = NA, aes(fill = tissue), alpha = 0.9) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
-            text = element_text(size=15)) +
+            text = element_text(size=10)) +
       xlab("") +
       ylab("normalized signal") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
@@ -250,7 +250,7 @@ plotOpenSignal = function(signalMatrix,
       geom_col(alpha = 0.9)+
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
-            text = element_text(size=15)) +
+            text = element_text(size=10)) +
       xlab("") +
       ylab("med (normalized signal)") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
