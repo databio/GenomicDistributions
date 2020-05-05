@@ -229,7 +229,9 @@ calcExpectedPartitions = function(query, partitionList) {
     tpartition = table(partition)
     expectedPartitions = data.table::data.table(
         partition=factor(names(tpartition)), observed=as.vector(tpartition))
-    expectedPartitions[,expected:=partitionCounts$N]
+    expectedPartitions = merge(expectedPartitions, partitionCounts,
+                               by = "partition")
+    setnames(expectedPartitions,"N","expected")
     expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
     return(expectedPartitions[match(partitionNames,
@@ -480,6 +482,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #' expectedPlot = plotExpectedPartitions(p)
 plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
     .validateInputs(list(expectedPartitions="data.frame"))
+    expectedPartitions = na.omit(expectedPartitions)
     if ("name" %in% names(expectedPartitions)){
         # It has multiple regions
         p = ggplot(expectedPartitions, 
@@ -506,7 +509,7 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
         expectedPartitions = expectedPartitions[
             order(expectedPartitions$log10OE),]
     }
-
+    
     p = p + 
         geom_bar(stat="identity", position="dodge") + 
         geom_hline(aes(yintercept=0), linetype="dotted") +
