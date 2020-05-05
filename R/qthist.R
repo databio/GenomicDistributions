@@ -90,7 +90,7 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
         ggtitle("Quantile Trimmed Histogram") +
         theme(legend.position="bottom") +
         geom_text(aes(label= paste((output[["quantile"]]*100),"%", sep='')),
-            data=df[qbaridx,], vjust=-1)
+            data=df[qbaridx,], hjust=-1, angle=90, size=2.5)
     return(g)
 }
 

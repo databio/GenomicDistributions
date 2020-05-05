@@ -72,7 +72,7 @@ plotGCContent = function(gcvectors) {
     .validateInputs(list(gcvectors=c("numeric","list")))
     gcdf = lapply(gcvectors, as.data.frame)
     # reshape2 is deprecated, but there's no other way to do this easily...
-    gcdfReshaped = reshape2::melt(gcdf)
+    gcdfReshaped = reshape2::melt(gcdf, id.vars=NULL)
     colnames(gcdfReshaped)[colnames(gcdfReshaped) == "L1"] = "regionSet"
     # plot multiple regionsets if gcvectors is a list
     if (is(gcvectors, "list")) {
@@ -91,6 +91,10 @@ plotGCContent = function(gcvectors) {
                    color="red", linetype="dashed", size=0.5) + 
         theme_classic()
     }    
-    g = g + xlim(0,1) + xlab("gc %")
+    g = g + 
+        ggtitle("GC content distribution") + 
+        theme(plot.title = element_text(hjust=0.5)) +
+        xlab("gc %") + 
+        xlim(0,1) 
     return(g)
 }

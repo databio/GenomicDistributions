@@ -139,4 +139,15 @@ test_that("Partitions", {
     gp = genomePartitionList(testGR2, testGR3)
     expect_equal(gp, partList)
     
+    # calcPartitions
+    partition = rep(0, length(testGR1))
+    for (i in seq_along(partList)) {
+      ols = countOverlaps(testGR1[partition==0], partList[[i]])
+      partition[partition==0][ols > 0] = names(partList)[[i]]
+    }
+    partition[partition=="0"] = "intergenic"
+    testPartitions = data.frame(table(partition))
+    Partitions = calcPartitions(testGR1, partList)
+    expect_equal(Partitions, testPartitions)
+    
 })
