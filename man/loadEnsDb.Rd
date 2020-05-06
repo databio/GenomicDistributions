@@ -9,6 +9,9 @@ loadEnsDb(genomeBuild)
 \arguments{
 \item{genomeBuild}{One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'}
 }
+\value{
+A BSgenome compatible Ensembl gene annotation string.
+}
 \description{
 This function will let you use a simple character vector (e.g. 'hg19') to
 load and then return BSgenome objects. This lets you avoid having to use the

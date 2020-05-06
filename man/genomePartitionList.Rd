@@ -14,13 +14,16 @@ genomePartitionList(genesGR, exonsGR)
 }
 \value{
 A list of GRanges objects, each corresponding to a partition of the 
-genome. Partitions include proximal and core promoters, exons and introns.
+    genome. Partitions include proximal and core promoters, exons and 
+    introns.
 }
 \description{
 Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
 corresponding to various breakdown of the genome, based on the given
-annotations; it gives you proximal and core promoters, exons, and introns. 
-To be used as a partionList for calcPartitions()
+annotations; it gives you proximal and core promoters, exons, and introns.
+}
+\details{
+To be used as a partitionList for \code{calcPartitions}.
 }
 \examples{
 geneModels = getGeneModels("hg38")

@@ -11,7 +11,7 @@ getGeneModels(refAssembly)
 }
 \description{
 Some functions require gene models, which can obtained from any source.
-This function allows you to retreive a few common built-in ones.
+This function allows you to retrieve a few common built-in ones.
 }
 \examples{
 getGeneModels("hg38")

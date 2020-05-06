@@ -19,7 +19,7 @@ not overlap with anything in the partitionList. Defaults to "intergenic"}
 }
 \value{
 A data.frame assigning each element of a GRanges object to a
- partition from a previously provided partitionList.
+    partition from a previously provided partitionList.
 }
 \description{
 Takes a GRanges object, then assigns each element to a partition from the

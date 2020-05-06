@@ -16,27 +16,31 @@ plotQTHist(
 \arguments{
 \item{widths}{Results from \code{calcWidths}}
 
-\item{EndBarColor}{Color for the quantile bars on both ends of the graph (optional)}
+\item{EndBarColor}{Color for the quantile bars on both ends of the graph
+(optional)}
 
-\item{MiddleBarColor}{Color for the bars in the middle of the graph (optional)}
+\item{MiddleBarColor}{Color for the bars in the middle of the graph
+(optional)}
 
 \item{quantile}{Quantile of data to be contained in each end bar (optional)
 Quantiles must be under .2, optimal size is under .1}
 
-\item{bins}{The number of bins for the histogram to allocate data to. (optional)}
+\item{bins}{The number of bins for the histogram to allocate data to.
+(optional)}
 
-\item{indep}{logical value which returns a list of plots that have had their bins calculated
-'    independently; the normal version will plot them on the same x and y axis.}
+\item{indep}{logical value which returns a list of plots that have had their
+bins calculated independently; the normal version will plot them on the 
+same x and y axis.}
 }
 \value{
 A ggplot2 plot object
 }
 \description{
-Given the results from \code{calcWidth}, plots a histogram of widths
+Given the results from \code{calcWidth}, plots a histogram of widths.
 }
 \details{
-x-axis breaks for the frequency calculations are based on the "divisions" results from 
-helper function \code{calcDivisions}
+x-axis breaks for the frequency calculations are based on the "divisions" 
+results from helper function \code{calcDivisions}.
 }
 \examples{
 plotQTHist(runif(500)*1000)
