@@ -106,7 +106,7 @@ This plot uses log-scale increasing bins to show how your regions are distribute
 ```{r tss-distribution-multi, fig.cap="TSS plots with multiple region sets"}
 
 TSSdist2 = calcFeatureDistRefTSS(queryList, "hg19")
-plotFeatureDist(TSSdist2)
+plotFeatureDist(TSSdist2, featureName="TSS")
 
 ```
 
