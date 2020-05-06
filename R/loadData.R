@@ -6,8 +6,9 @@
 #' more complex annotation for a complete BSgenome object (e.g.
 #' BSgenome.Hsapiens.UCSC.hg38.masked)
 #' 
-#' @param genomeBuild	One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
-#' @param masked	Should we used the masked version? Default:TRUE
+#' @param genomeBuild One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
+#' @param masked Should we used the masked version? Default:TRUE
+#' @return A BSgenome compatible genome string.
 #' @export
 #' @examples
 #' \dontrun{
@@ -47,7 +48,8 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
 #' more complex annotation for a complete BSgenome object (e.g.
 #' BSgenome.Hsapiens.UCSC.hg38.masked)
 #' 
-#' @param genomeBuild	One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
+#' @param genomeBuild One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
+#' @return A BSgenome compatible Ensembl gene annotation string.
 #' @export
 #' @examples
 #' \dontrun{
@@ -73,7 +75,10 @@ loadEnsDb = function(genomeBuild) {
 
 
 
-# Generate chromSizes for common genome assemblies
+# Generate chromSizes for common genome assemblies.
+#
+# @param assemblyList A string representing a genome. One of 'hg38', 'hg19',
+#     'mm10', 'mm9'
 buildChromSizes = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	for (refAssembly in assemblyList) {
 		message(refAssembly)
@@ -87,6 +92,9 @@ buildChromSizes = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 
 
 # Generates Rdata objects for TSSs, to be included in the package for example.
+#
+# @param assemblyList A string representing a genome. One of 'hg38', 'hg19',
+#     'mm10', 'mm9'
 buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	if (!requireNamespace("ensembldb", quietly=TRUE)) {
 		message("ensembldb package is not installed.")
@@ -120,6 +128,13 @@ buildTSSs = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 }
 
 
+# This function will let you use a simple character vector (e.g. 'hg19') to
+# load and then return BSgenome objects. This lets you avoid having to use the
+# more complex annotation for a complete BSgenome object (e.g.
+# TxDb.Hsapiens.UCSC.hg38.knownGene)
+#
+# @param genomeBuild One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
+# @return A BSgenome compatible transcript database string.
 loadTxDb = function(genomeBuild) {
 	databasePkgString = switch (genomeBuild,
 		grch38 = "TxDb.Hsapiens.UCSC.hg38.knownGene",
@@ -143,6 +158,8 @@ loadTxDb = function(genomeBuild) {
 
 # Generates RData objects for gene models, which can then be included in the 
 # package
+# @param assemblyList A string representing a genome. One of 'hg38', 'hg19',
+#     'mm10', 'mm9'
 buildGeneModels = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 
 	if (!requireNamespace("ensembldb", quietly=TRUE)) {
@@ -184,10 +201,18 @@ buildGeneModels = function(assemblyList = list("hg38", "hg19", "mm10", "mm9")) {
 	}
 }
 
+
+# Returns built-in chrom sizes for a given reference assembly
+#
+# @param refAssembly A string identifier for the reference assembly
 getChromSizes = function(refAssembly) {
 	getReferenceData(refAssembly, tagline="chromSizes_")
 }
 
+
+# Returns built-in TSSs for a given reference assembly
+#
+# @param refAssembly A string identifier for the reference assembly
 getTSSs = function(refAssembly) { 
 	getReferenceData(refAssembly, tagline="TSS_")
 }
@@ -196,7 +221,7 @@ getTSSs = function(refAssembly) {
 #' Returns built-in gene models for a given reference assembly
 #'
 #' Some functions require gene models, which can obtained from any source.
-#' This function allows you to retreive a few common built-in ones.
+#' This function allows you to retrieve a few common built-in ones.
 #' @param refAssembly A string identifier for the reference assembly
 #' @export
 #' @examples
@@ -207,12 +232,14 @@ getGeneModels = function(refAssembly) {
 
 # This is a generic getter function that will return a data object requested,
 # if it is included in the built-in data with the package. Data objects can 
-# be requested for different reference assemblies and data types (specified by a
-# tagline, which is a unique string identifying the data type).
-# @refAssembly Reference assembly string (like hg38)
-# @tagline the string that was used to identify data of a given type in the 
-# data building step. It's used for the filename so we know what to load, and is 
-# what makes this function generic (so it can load different data types).
+# be requested for different reference assemblies and data types (specified by
+# a tagline, which is a unique string identifying the data type).
+# @param refAssembly Reference assembly string (e.g. 'hg38')
+# @param tagline The string that was used to identify data of a given type in 
+#     the data building step. It's used for the filename so we know
+#     what to load, and is what makes this function generic (so it 
+#     can load different data types).
+# @return A requested and included package data object.
 getReferenceData = function(refAssembly, tagline) {
 	# query available datasets and convert the packageIQR object into a vector
 	datasetListIQR = utils::data(package="GenomicDistributions")

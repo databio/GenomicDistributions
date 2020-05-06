@@ -3,7 +3,7 @@
 #' The length of a genomic region (the distance between the start and end) is called the width
 #' When given a query set of genomic regions, this function returns the width
 #' @param query A GRanges or GRangesList object with query sets
-#' 
+#' @return A vector of the widths (end-start coordinates) of GRanges objects.
 #' @export
 #' @examples
 #' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
@@ -18,26 +18,29 @@ calcWidth = function(query) {
     width(query)
 }
 
+
 #' Plot quantile-trimmed histogram
 #' 
-#' Given the results from \code{calcWidth}, plots a histogram of widths
+#' Given the results from \code{calcWidth}, plots a histogram of widths.
 #' 
-#' x-axis breaks for the frequency calculations are based on the "divisions" results from 
-#' helper function \code{calcDivisions}
+#' x-axis breaks for the frequency calculations are based on the "divisions" 
+#' results from helper function \code{calcDivisions}.
 #' 
 #' @param widths Results from \code{calcWidths}
-#' @param EndBarColor Color for the quantile bars on both ends of the graph (optional)
-#' @param MiddleBarColor Color for the bars in the middle of the graph (optional)
+#' @param EndBarColor Color for the quantile bars on both ends of the graph
+#'     (optional)
+#' @param MiddleBarColor Color for the bars in the middle of the graph
+#'     (optional)
 #' @param quantile Quantile of data to be contained in each end bar (optional)
 #' Quantiles must be under .2, optimal size is under .1
-#' @param bins The number of bins for the histogram to allocate data to. (optional)
-#' @param indep logical value which returns a list of plots that have had their bins calculated
-#''    independently; the normal version will plot them on the same x and y axis.
-#'
+#' @param bins The number of bins for the histogram to allocate data to.
+#'     (optional)
+#' @param indep logical value which returns a list of plots that have had their
+#'     bins calculated independently; the normal version will plot them on the 
+#'     same x and y axis.
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
-
 #' plotQTHist(runif(500)*1000)
 #' plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
 plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
@@ -71,7 +74,9 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
     } else {
         g = ggplot(df, aes(x=cuts, y=Freq))
     }
-    colors_vect = c( EndBarColor , rep(MiddleBarColor, (length(output[["divisions"]])-3)), EndBarColor) # creates a vector for the colors    
+    # Create a vector for the colors
+    colors_vect = c(EndBarColor ,
+        rep(MiddleBarColor, (length(output[["divisions"]])-3)), EndBarColor)
     colors_vect = rep(colors_vect, nplots)
 
     nbars = output[["bins"]]+2
@@ -85,7 +90,7 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
         theme_blank_facet_label() +
         ylab("Frequency") +
         xlab("") +
-        theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
+        theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
         theme(plot.title = element_text(hjust = 0.5)) + # Center title
         ggtitle("Quantile Trimmed Histogram") +
         theme(legend.position="bottom") +
@@ -97,9 +102,13 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
 
 # Internal helper function for \code{plotQTHist}
 # 
-# If the bins or quantiles for the hist. are specified by the user, those are used
-# otherwise, calculates bins based on size of the dataset, and quantile based on bins
-# Returns the divisions that will be used in plotting the histogram
+# If the bins or quantiles for the hist. are specified by the user, those are 
+# used otherwise, calculates bins based on size of the dataset, and quantile 
+# based on bins.
+#
+# @param widths A vector of GRanges widths.
+# @return A list of the divisions that will be used in plotting the histogram. 
+# @examples
 # calcDivisions(runif(500)*1000)
 calcDivisions = function(widths, bins=NULL, quantile = NULL){
     if(is.list(widths))
@@ -113,7 +122,8 @@ calcDivisions = function(widths, bins=NULL, quantile = NULL){
         n = length(widths)
         if (n > 10000) {n = 10000}
         if (n < 500) {n = 500}
-        b = round(n^.15 + (n/200) ) # finding number of bins based on the size of dataset
+        # finding number of bins based on the size of dataset
+        b = round(n^.15 + (n/200) )
     }
     # calculating quantiles
     if(!is.null(quantile)){
@@ -122,8 +132,10 @@ calcDivisions = function(widths, bins=NULL, quantile = NULL){
         q = quantile
     }
     else{
-        q = round(25/(b))/100 # finding the quantile on each side based on number of bins
-        q = max(.01,q) # minimum on each side is 1%
+        # finding the quantile on each side based on number of bins
+        q = round(25/(b))/100
+        # minimum on each side is 1%
+        q = max(.01,q)
     }
     quant = unname(quantile(widths, probs = c((q), (1-(q)))))
     seq_10 = seq(quant[1], quant[2], length = b+1)

@@ -1,4 +1,21 @@
 # Old, slow version based on GRanges methods
+#
+# Find the distance to the nearest genomic feature.
+# 
+# For a given query set of genomic regions, and a given feature set of 
+# regions, this function will return the distance for each query region to its
+# closest feature. It ignores strand and returns the distance as positive or 
+# negative, depending on whether the feature is upstream or downstream.
+# 
+# This function is similar to the bioconductor distanceToNearest function, but
+# returns negative values for downstream distances instead of absolute values.
+# This allows you to assess the relative location.
+# 
+# @param query A GRanges or GRangesList object with query sets
+# @param features A GRanges object with features to test distance to
+# 
+# @return A vector of genomic distances for each query region relative to its 
+#         closest feature.
 calcFeatureDistBioc = function(query, features) {
     .validateInputs(list(query=x("GRangesList","GRanges")))
 	if (is(query, "GRangesList")) {
@@ -27,10 +44,10 @@ calcFeatureDistBioc = function(query, features) {
 
 #' Find the distance to the nearest genomic feature
 #' 
-#' For a given query set of genomic regions, and a given feature set of regions,
-#' this function will return the distance for each query region to its closest
-#' feature. It ignores strand and returns the distance as positive or negative,
-#' depending on whether the feature is upstream or downstream
+#' For a given query set of genomic regions, and a given feature set of 
+#' regions, this function will return the distance for each query region to its
+#' closest feature. It ignores strand and returns the distance as positive or 
+#' negative, depending on whether the feature is upstream or downstream
 #' 
 #' This function is similar to the bioconductor distanceToNearest function, but
 #' returns negative values for downstream distances instead of absolute values.
@@ -39,6 +56,8 @@ calcFeatureDistBioc = function(query, features) {
 #' @param query A GRanges or GRangesList object with query sets
 #' @param features A GRanges object with features to test distance to
 #' 
+#' @return A vector of genomic distances for each query region relative to its 
+#'     closest feature.
 #' @export
 calcFeatureDist = function(query, features) {
     .validateInputs(list(query=c("GRangesList","GRanges")))
@@ -56,6 +75,11 @@ calcFeatureDist = function(query, features) {
 
 # Function uses data.table rolling join to identify the nearest features
 # really quickly.
+#
+# @param DT1 A data.table object to be joined to a second data.table object.
+# @param DT2 A second data.table object to join with DT1.
+#
+# @return A rolling joined data.table object.
 DTNearest = function(DT1, DT2) {
 	#data.table::set(DT1, j=mid, value=start + round((end-start)/2))
 	#data.table::set(DT2, j=mid, value=start + round((end-start)/2))
@@ -86,6 +110,7 @@ DTNearest = function(DT1, DT2) {
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
+#' @return A vector of distances for each query region relative to TSSs.
 #' @export
 calcFeatureDistRefTSS = function(query, refAssembly) {
 	features = getTSSs(refAssembly)
@@ -93,9 +118,9 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 }
 
 
-#' Converts a nucleotide count into a label with abbreviation
-#' @param x base count
-#' @return A label with 'kb' or 'mb' appended if appropriate
+# Converts a nucleotide count into a label with abbreviation
+# @param x base count
+# @return A label with 'kb' or 'mb' appended if appropriate
 genomeLabel = function(x) {
     .validateInputs(list(x="numeric"))
 	lab = x
@@ -200,9 +225,13 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 
 
 # Internal helper function for \code{plotFeatureDist}
+#
+# @param dists A vector of genomic distances.
+# @param divisions A vector of bin sizes to divide the dists into.
+# @return A data.frame of the table of the frequency of dists in divisions.
 cutDists = function(dists, divisions=NULL) {
 	if (is.null(divisions)) {
-		message("hi")
+		#message("hi")  # DEBUG
 		poscuts = seq(0,100000, by=2000)
 		divisions = sort(unique(c(-poscuts, poscuts)))
 	}

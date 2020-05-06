@@ -28,6 +28,9 @@
 # Checks to make sure a BSgenome object is installed,
 # and if so, returns it. If the genome is not installed, it issues a warning
 # and returns NULL.
+#
+# @param BSgenomeString A BSgenome compatible genome string.
+# @return A BSgenome object if installed.
 .requireAndReturn = function(BSgenomeString) {
 	if (requireNamespace(BSgenomeString))
 		return(utils::getAnywhere(BSgenomeString)$objs[[1]])
@@ -58,8 +61,19 @@ splitDataTable = function(DT, split_factor) {
 }
 
 
-#Two utility functions for converting data.tables into GRanges objects
-#genes = dtToGR(gModels, "chr", "txStart", "txEnd", "strand", "geneId");
+# Two utility functions for converting data.tables into GRanges objects
+#
+# @param DT A data.table representing genomic regions.
+# @param chr A string representing the chromosome column.
+# @param start A string representing the name of the start column.
+# @param end A string representing the name of the end column.
+# @param strand A string representing the name of the strand column.
+# @param name A string representing the name of the name column.
+# @param metaCols A string representing the name of the metadata column(s)
+#     to include in the returned GRanges object.
+# @return A GRanges object.
+# @examples
+# genes = dtToGR(gModels, "chr", "txStart", "txEnd", "strand", "geneId")
 dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=NA) {
 	if (is.na(end)) {
 		if ("end" %in% colnames(DT)) {
@@ -96,7 +110,20 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
 # Converts a data.table (DT) object to a GenomicRanges (GR) object. Tries to be
 # intelligent, guessing chr and start, but you have to supply end or other
 # columns if you want them to be carried into the GR.
-dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA, splitFactor=NA, metaCols=NA) {
+#
+# @param DT A data.table representing genomic regions.
+# @param chr A string representing the chromosome column.
+# @param start A string representing the name of the start column.
+# @param end A string representing the name of the end column.
+# @param strand A string representing the name of the strand column.
+# @param name A string representing the name of the name column.
+# @param splitFactor A string representing the name of the column to use to
+#     split the data.table into multiple data.tables.
+# @param metaCols A string representing the name of the metadata column(s)
+#     to include in the returned GRanges object.
+# @return A GRanges object.
+dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA,
+                  splitFactor=NA, metaCols=NA) {
 	if(is.na(splitFactor)) {
 		return(dtToGrInternal(DT, chr, start, end, strand, name,metaCols))
 	}
@@ -115,7 +142,11 @@ dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA, spli
 
 }
 
-# Convert a GenomicRanges into a data.table
+
+# Convert a GenomicRanges into a data.table.
+#
+# @param A Granges object
+# @return A data.table object.
 grToDt = function(GR) {
 	DF=as.data.frame(elementMetadata(GR))
 	if( ncol(DF) > 0) {
@@ -128,6 +159,9 @@ grToDt = function(GR) {
 
 
 # Converts a list of data.tables (From BSreadbeds) into GRanges.
+#
+# @param A list of data.tables
+# @return A GRangesList object.
 BSdtToGRanges = function(dtList) {
 	gList = list()
 	for (i in 1:length(dtList)) {
@@ -141,9 +175,12 @@ BSdtToGRanges = function(dtList) {
 }
 
 
-# Clear ggplot face label
+# Clear ggplot face label.
+#
 # Usually ggplot2 facets are labeled with boxes surrounding the label. This
 # function removes the box, so it's a simple label for each facet.
+#
+# @return A ggplot theme
 theme_blank_facet_label = function() {
 	return(theme(
 		panel.grid.major = element_blank(),
@@ -168,6 +205,7 @@ theme_blank_facet_label = function() {
 # @param signif_digits Number of significant digits to specify. 
 # @param collapse Character to separate the labels
 # @param infBins use >/< as labels on the edge bins
+# @return A vector of histogram axis labels.
 # @examples 
 # labelCuts(seq(0,100,by=20))
 labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-", infBins=FALSE) {

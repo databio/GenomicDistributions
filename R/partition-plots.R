@@ -84,12 +84,15 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #' 
 #' Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
 #' corresponding to various breakdown of the genome, based on the given
-#' annotations; it gives you proximal and core promoters, exons, and introns. 
-#' To be used as a partionList for calcPartitions()
+#' annotations; it gives you proximal and core promoters, exons, and introns.
+#' 
+#' To be used as a partitionList for \code{calcPartitions}.
+#' 
 #' @param genesGR a GRanges object of gene coordinates
 #' @param exonsGR a GRanges object of exons coordinates
 #' @return A list of GRanges objects, each corresponding to a partition of the 
-#' genome. Partitions include proximal and core promoters, exons and introns.
+#'     genome. Partitions include proximal and core promoters, exons and 
+#'     introns. 
 #' @export
 #' @examples 
 #' geneModels = getGeneModels("hg38")
@@ -122,14 +125,15 @@ genomePartitionList = function(genesGR, exonsGR) {
 #' etc; this function will yield the number of each for a query GRanges object
 #' There will be a priority order to these, to account for regions that may
 #' overlap multiple genomic partitions.
-#' @param query              GRanges or GRangesList with regions to classify
-#' @param partitionList     an ORDERED and NAMED list of genomic partitions
+#'
+#' @param query GRanges or GRangesList with regions to classify
+#' @param partitionList an ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps
-#' @param remainder    A character vector to assign any query regions that do
+#' @param remainder A character vector to assign any query regions that do
 #'     not overlap with anything in the partitionList. Defaults to "intergenic"
 #' @return A data.frame assigning each element of a GRanges object to a
-#'  partition from a previously provided partitionList.
+#'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
 #' f = system.file("extdata", "vistaEnhancers.bed.gz",
@@ -178,8 +182,9 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #' etc; this function will yield the number of each for a query GRanges object
 #' There will be a priority order to these, to account for regions that may
 #' overlap multiple genomic partitions.
-#' @param query          GRanges or GRangesList with regions to classify.
-#' @param partitionList  An ORDERED and NAMED list of genomic partitions
+#'
+#' @param query GRanges or GRangesList with regions to classify.
+#' @param partitionList An ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps.
 #' @return A data.frame assigning each element of a GRanges object to a
@@ -246,8 +251,9 @@ calcExpectedPartitions = function(query, partitionList) {
 #' etc; this function will yield the number of each for a query GRanges object
 #' There will be a priority order to these, to account for regions that may
 #' overlap multiple genomic partitions.
-#' @param query          GRanges or GRangesList with regions to classify.
-#' @param partitionList  An ORDERED and NAMED list of genomic partitions
+#' 
+#' @param query GRanges or GRangesList with regions to classify.
+#' @param partitionList An ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps.
 #' @param remainder  Which partition do you want to account for 'everything 
@@ -333,9 +339,10 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
 }
 
 
-#' Internal helper function for \code{plotCumulativePartitions}
-#'
-#' @param assignedPartitions Results from \code{calcCumulativePartitions}
+# Internal helper function for \code{plotCumulativePartitions}.
+#
+# @param assignedPartitions Results from \code{calcCumulativePartitions}.
+# @return A data.table object of partition names and values.
 setLabels = function(assignedPartitions) {
     if (methods::is(assignedPartitions, c("list"))){
         # It has multiple regions
@@ -365,10 +372,12 @@ setLabels = function(assignedPartitions) {
 #'
 #' This function plots the cumulative distribution of regions across a 
 #' feature set.
+#'
 #' @param assignedPartitions Results from \code{calcCumulativePartitions}
 #' @param feature_names An optional character vector of feature names, in the 
-#'                      same order as the GenomicRanges or GenomicRangesList 
-#'                      object.
+#'     same order as the GenomicRanges or GenomicRangesList object.
+#' @return A ggplot object of the cumulative distribution of regions in 
+#'     features.
 #' @export
 #' @examples 
 #' f = system.file("extdata", "vistaEnhancers.bed.gz",
@@ -590,6 +599,15 @@ plotPartitions = function(assignedPartitions, labels=NULL) {
 }
 
 
+# Calculate the percentage overlap of a list of GRanges object against a 
+# list of known partitions.
+#
+# @param listGR  A list of GRanges objects.
+# @param partitionList A character vector of partition names.
+# @param backgroundGR A GRanges object to remove from listGR overlap 
+#     as background.
+# @return A named list of the frequency of input regions against provided
+#     partitions.
 partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
     if (! is(listGR, "list")) {
         # Try to correct for someone providing a single GR instead of a list.
@@ -615,6 +633,10 @@ partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
 
 
 # A version for percentages, not yet activated
+# Plot the percentage overlap of a list of GRanges objects.
+# 
+# @param percList A named list of percentage overlap of regions to genomic
+#     partitions.
 plotPartitionPercents = function(percList, labels = NULL) {
     if(is.null(labels)) {
         labels = rownames(percList$resAllAve)

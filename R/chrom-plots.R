@@ -23,9 +23,9 @@
 #'
 #' @return
 #' A data.table, expanded to nrow = number of bins, with these id columns:
-#' 		id: region ID
-#' 		binID: repeating ID (this is the value to aggregate across)
-#' 		ubinID: unique bin IDs
+#'     id: region ID
+#'     binID: repeating ID (this is the value to aggregate across)
+#'     ubinID: unique bin IDs
 #' @export
 #' @examples
 #' Rbins = binRegion(1, 3000, 100, 1000)
