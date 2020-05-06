@@ -203,9 +203,13 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 	maxlabel = genomeLabel(size)
 	edgeLabels = c(minlabel, rep("", barcount-3), maxlabel)
 	if (tile) {
+		if (!"name"  %in% names(df)) {
+			df$name = "Region set"
+		}
+
 		xs = rep(seq_len(length(unique(df$cuts))), nplots)
 		g = ggplot(df) + 
-			geom_raster(aes(x=xs, y=name, fill=df$Freq)) +
+			geom_raster(aes(x=xs, y=name, fill=Freq)) +
 			scale_fill_gradient(low="navy", high="orange") +
 			geom_point(aes(x=midx, y=0.5), color="black", size=2, shape=17, alpha=0.8) + 
 			theme_classic() + 
@@ -259,7 +263,7 @@ cutDists = function(dists, divisions=NULL, nbins=50, size=100000, infBins=TRUE) 
 		# column to distinguish them.
 		nameList = names(dists)
 		if(is.null(nameList)) {
-			nameList = 1:length(query) # Fallback to sequential numbers
+			nameList = 1:length(dists) # Fallback to sequential numbers
 		}
 
 		# Append names
