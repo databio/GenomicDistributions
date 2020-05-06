@@ -222,6 +222,34 @@ labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-",
       return(labels)
 }
 
+#' Nathan's magical named list function.
+#' This function is a drop-in replacement for the base list() function,
+#' which automatically names your list according to the names of the 
+#' variables used to construct it.
+#' It seamlessly handles lists with some names and others absent,
+#' not overwriting specified names while naming any unnamed parameters.
+#' Took me awhile to figure this out.
+#'
+#' @param ...	arguments passed to list()
+#' @return A named list object.
+#' @export
+#' @examples
+#' x=5
+#' y=10
+#' nlist(x,y) # returns list(x=5, y=10)
+#' list(x,y) # returns unnamed list(5, 10)
+nlist = function(...) {
+    fcall = match.call(expand.dots=FALSE)
+    l = list(...)
+    if(!is.null(names(list(...)))) { 
+        names(l)[names(l) == ""] = fcall[[2]][names(l) == ""]
+    } else {
+        names(l) = fcall[[2]]
+    }
+    return(l)
+}
+
+
 # labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
 # 	labels = 
 # 	apply(round(cbind( breakPoints[-length(breakPoints)],	
