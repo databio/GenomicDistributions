@@ -144,9 +144,11 @@ genomeLabel = function(x) {
 #' @param bgdists Background distances. If provided, will plot a background
 #'     distribution of expected distances 
 #' @param featureName Character vector for plot labels (optional).
-#' @param divisions A vector that defines the bin boundaries for the histogram
 #' @param numbers a logical indicating whether the raw numbers should be 
 #'     displayed, rather than percentages (optional).
+#' @param nbins Number of bins on each side of the center point.
+#' @param width Number of bases to include in plot on each side of the center point.
+#' @param infBins Include catch-all bins on the sides?
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
@@ -154,13 +156,10 @@ genomeLabel = function(x) {
 #' query = rtracklayer::import(queryFile)
 #' TSSdist = calcFeatureDistRefTSS(query, "hg19")
 #' plotFeatureDist(TSSdist, featureName="TSS")
-plotFeatureDist = function(dists, bgdists=NULL, featureName="features", divisions=NULL, 
-                           numbers=FALSE) {
-	if (is.null(divisions)) {
-		poscuts = seq(0,100000, by=2000)
-		divisions = sort(unique(c(-poscuts, poscuts)))
-	}
-	df = cutDists(dists, divisions)
+plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
+                           numbers=FALSE, nbins=50, width=100000, infBins=FALSE) {
+	df = cutDists(dists, divisions=NULL, nbins, width, infBins)
+	
 	# We could scale
 	# df$Freq = scale(df$Freq, center=FALSE)
 	if(is.list(dists)){
@@ -170,11 +169,11 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 	}
 
 	if (!is.null(bgdists)) {
-		bgDistsDF = cutDists(bgDists, divisions)
+		bgDistsDF = cutDists(bgDists, divisions=NULL, nbins, width, infBins)
 		# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
 		bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
 		df$bgFreq = rep(bgDistsDF$Freq, nplots)
-		df$bgX = rep(seq_len(length(divisions)-1), nplots)
+		df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
 	}
 
 	if ("name" %in% names(df)){
@@ -199,10 +198,10 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 	}
 
 	# find midpoint
-	midx = length(divisions)/2
-	barcount = length(divisions)
-	minlabel = genomeLabel(min(divisions))
-	maxlabel = genomeLabel(max(divisions))
+	midx = nrow(df)/2
+	barcount = nrow(df)
+	minlabel = genomeLabel(-width)
+	maxlabel = genomeLabel(width)
 	edgeLabels = c(minlabel, rep("", barcount-3), maxlabel)
 	g = g +
 		geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
@@ -228,12 +227,17 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 #
 # @param dists A vector of genomic distances.
 # @param divisions A vector of bin sizes to divide the dists into.
+# @param nbins Number of bins on each side of the center point.
+# @param width Number of bases to include in plot on each side of the center point.
+# @param infBins Include catch-all bins on the sides?
 # @return A data.frame of the table of the frequency of dists in divisions.
-cutDists = function(dists, divisions=NULL) {
+cutDists = function(dists, divisions=NULL, nbins=50, width=100000, infBins=TRUE) {
 	if (is.null(divisions)) {
-		#message("hi")  # DEBUG
-		poscuts = seq(0,100000, by=2000)
+		poscuts = seq(0, width, by=width/nbins)
 		divisions = sort(unique(c(-poscuts, poscuts)))
+		if (infBins) {
+			divisions = c(-Inf, divisions, Inf)
+		}
 	}
 	if (is.list(dists)) {
 		x = lapply(dists, cutDists, divisions)
@@ -252,7 +256,7 @@ cutDists = function(dists, divisions=NULL) {
 		return(xb)
 	}
 
-	labels = labelCuts(sort(divisions), collapse=" to ", infBins=TRUE)
+	labels = labelCuts(sort(divisions), collapse=" to ", infBins=infBins)
 	cuts = cut(dists, divisions, labels)
 	df = as.data.frame(table(cuts))
 	return(df)

@@ -5,7 +5,7 @@
 \title{Calculates the distribution of overlaps for a query set to a reference 
 assembly}
 \usage{
-calcPartitionsRef(query, refAssembly)
+calcPartitionsRef(query, refAssembly, metric = NULL, backgroundGR = NULL)
 }
 \arguments{
 \item{query}{A GenomicRanges or GenomicRangesList object with query regions}

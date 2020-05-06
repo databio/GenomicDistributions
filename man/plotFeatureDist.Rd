@@ -8,8 +8,10 @@ plotFeatureDist(
   dists,
   bgdists = NULL,
   featureName = "features",
-  divisions = NULL,
-  numbers = FALSE
+  numbers = FALSE,
+  nbins = 50,
+  width = 1e+05,
+  infBins = FALSE
 )
 }
 \arguments{
@@ -20,10 +22,14 @@ distribution of expected distances}
 
 \item{featureName}{Character vector for plot labels (optional).}
 
-\item{divisions}{A vector that defines the bin boundaries for the histogram}
-
 \item{numbers}{a logical indicating whether the raw numbers should be 
 displayed, rather than percentages (optional).}
+
+\item{nbins}{Number of bins.}
+
+\item{width}{Size of genome to include}
+
+\item{infBins}{Include catch-all bins on the sides?}
 }
 \value{
 A ggplot2 plot object
