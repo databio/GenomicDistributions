@@ -10,8 +10,9 @@ plotFeatureDist(
   featureName = "features",
   numbers = FALSE,
   nbins = 50,
-  width = 1e+05,
-  infBins = FALSE
+  size = 1e+05,
+  infBins = FALSE,
+  tile = FALSE
 )
 }
 \arguments{
@@ -25,9 +26,9 @@ distribution of expected distances}
 \item{numbers}{a logical indicating whether the raw numbers should be 
 displayed, rather than percentages (optional).}
 
-\item{nbins}{Number of bins.}
+\item{nbins}{Number of bins on each side of the center point.}
 
-\item{width}{Size of genome to include}
+\item{size}{Number of bases to include in plot on each side of the center point.}
 
 \item{infBins}{Include catch-all bins on the sides?}
 }

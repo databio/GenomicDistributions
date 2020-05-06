@@ -147,7 +147,7 @@ genomeLabel = function(x) {
 #' @param numbers a logical indicating whether the raw numbers should be 
 #'     displayed, rather than percentages (optional).
 #' @param nbins Number of bins on each side of the center point.
-#' @param width Number of bases to include in plot on each side of the center point.
+#' @param size Number of bases to include in plot on each side of the center point.
 #' @param infBins Include catch-all bins on the sides?
 #' @return A ggplot2 plot object
 #' @export
@@ -157,8 +157,8 @@ genomeLabel = function(x) {
 #' TSSdist = calcFeatureDistRefTSS(query, "hg19")
 #' plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
-                           numbers=FALSE, nbins=50, width=100000, infBins=FALSE) {
-	df = cutDists(dists, divisions=NULL, nbins, width, infBins)
+                           numbers=FALSE, nbins=50, size=100000, infBins=FALSE, tile=FALSE) {
+	df = cutDists(dists, divisions=NULL, nbins, size, infBins)
 	
 	# We could scale
 	# df$Freq = scale(df$Freq, center=FALSE)
@@ -169,7 +169,7 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 	}
 
 	if (!is.null(bgdists)) {
-		bgDistsDF = cutDists(bgDists, divisions=NULL, nbins, width, infBins)
+		bgDistsDF = cutDists(bgDists, divisions=NULL, nbins, size, infBins)
 		# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
 		bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
 		df$bgFreq = rep(bgDistsDF$Freq, nplots)
@@ -178,13 +178,12 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 
 	if ("name" %in% names(df)){
 	    if (!numbers)
-	        df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
-	                     by = name][, "Freq.Per"]
+	        df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), by = name]$"Freq.Per"
 		# It has multiple regions
 		g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
 			facet_grid(. ~name)
 	} else {
-	    if (!numbers)
+	    if (!numbers) 
 	        df$Freq = (df$Freq / sum(df$Freq)) * 100
 		g = ggplot(df, aes(x=cuts, y=Freq))
 	}
@@ -198,11 +197,25 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 	}
 
 	# find midpoint
-	midx = nrow(df)/2
+	midx = nrow(df)/2/nplots
 	barcount = nrow(df)
-	minlabel = genomeLabel(-width)
-	maxlabel = genomeLabel(width)
+	minlabel = genomeLabel(-size)
+	maxlabel = genomeLabel(size)
 	edgeLabels = c(minlabel, rep("", barcount-3), maxlabel)
+	if (tile) {
+		xs = rep(seq_len(length(unique(df$cuts))), nplots)
+		g = ggplot(df) + 
+			geom_raster(aes(x=xs, y=name, fill=df$Freq)) +
+			scale_fill_gradient(low="navy", high="orange") +
+			geom_point(aes(x=midx, y=0.5), color="black", size=2, shape=17, alpha=0.8) + 
+			theme_classic() + 
+			labs(fill=ifelse(numbers,"Counts","Frequency (%)")) +
+			theme(legend.position="bottom") + 
+			xlab(paste("Distance to", featureName)) +
+			scale_x_discrete(labels=edgeLabels)
+		return(g)
+	}
+
 	g = g +
 		geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
 		geom_point(aes(x=midx, y=0), color="tan2", size=2, shape=17, alpha=0.8) +
@@ -228,12 +241,12 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 # @param dists A vector of genomic distances.
 # @param divisions A vector of bin sizes to divide the dists into.
 # @param nbins Number of bins on each side of the center point.
-# @param width Number of bases to include in plot on each side of the center point.
+# @param size Number of bases to include in plot on each side of the center point.
 # @param infBins Include catch-all bins on the sides?
 # @return A data.frame of the table of the frequency of dists in divisions.
-cutDists = function(dists, divisions=NULL, nbins=50, width=100000, infBins=TRUE) {
+cutDists = function(dists, divisions=NULL, nbins=50, size=100000, infBins=TRUE) {
 	if (is.null(divisions)) {
-		poscuts = seq(0, width, by=width/nbins)
+		poscuts = seq(0, size, by=size/nbins)
 		divisions = sort(unique(c(-poscuts, poscuts)))
 		if (infBins) {
 			divisions = c(-Inf, divisions, Inf)
