@@ -593,42 +593,106 @@ plotPartitions = function(assignedPartitions, labels=NULL) {
 }
 
 
-partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
-    if (! is(listGR, "list")) {
-        # Try to correct for someone providing a single GR instead of a list.
-        listGR = list(listGR)
+# partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
+#     if (! is(listGR, "list")) {
+#         # Try to correct for someone providing a single GR instead of a list.
+#         listGR = list(listGR)
+#     }
+#     res = lapply(listGR, calcPartitions, partitionList)
+#     classes = c(names(partitionList), 0)
+#     resAll = t(sapply(res, tableCount, classList=classes))
+# 
+#     resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
+#     rownames(resAllAve) = names(listGR)
+#     #incDecCol = c("goldenrod3", "navy", "purple", "orange")
+#     if (!is.null(backgroundGR)) {
+#         back = calcPartitions(backgroundGR, partitionList)
+#         backAll = table(back)
+#         backAllAve = sweep(backAll, 1, sum(backAll), FUN="/")*100
+#         resDiffAveNorm = log10(sweep(resAllAve, 2, backAllAve, FUN="/"))
+# 
+#         return(nlist(resAllAve, resDiffAveNorm))
+#     }
+#     return(nlist(resAllAve))
+# }
+
+
+
+calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
+    .validateInputs(list(listGR=c("GRanges","GRangesList"),
+                         partitionList="list"))
+    if(!(is(listGR, "GRangesList"))){
+        listGR = GRangesList(listGR)
     }
     res = lapply(listGR, calcPartitions, partitionList)
-    classes = c(names(partitionList), 0)
-    resAll = t(sapply(res, tableCount, classList=classes))
-
-    resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
-    rownames(resAllAve) = names(listGR)
-    #incDecCol = c("goldenrod3", "navy", "purple", "orange")
+    resAll = Reduce(function(x,y) merge(x, y, by="partition"), res)
+    names(resAll) = c("Partition", names(res))
+    rownames(resAll) = resAll$Partition
+    resAll[, 1] = NULL
+    # should transpose df to calculate percentages
+    tResAll = t(resAll)
+    resAllAve = sweep(tResAll, 1, apply(tResAll, 1, sum), FUN="/")*100
+    resAllAve = as.data.frame(resAllAve)
+    # if background GRanges is provided
     if (!is.null(backgroundGR)) {
         back = calcPartitions(backgroundGR, partitionList)
-        backAll = table(back)
+        rownames(back) = back$Partition
+        back[, 1] = NULL
+        backAll = t(back)
         backAllAve = sweep(backAll, 1, sum(backAll), FUN="/")*100
         resDiffAveNorm = log10(sweep(resAllAve, 2, backAllAve, FUN="/"))
-
         return(nlist(resAllAve, resDiffAveNorm))
     }
     return(nlist(resAllAve))
 }
 
-
-# A version for percentages, not yet activated
-plotPartitionPercents = function(percList, labels = NULL) {
+# # A version for percentages, rewritten
+plotPartitionPercents = function(percentList, labels = NULL) {
+    .validateInputs(list(percentList="list"))
     if(is.null(labels)) {
-        labels = rownames(percList$resAllAve)
+        labels = rownames(percentList$resAllAve)
     }
-    colors = 1:NROW(percList$resAllAve)
-
-    barplot(percList$resAllAve, beside=TRUE, col=colors, ylab="Percent")
-    legend('topright', labels, pch=15, col=colors)
-    if (! is.null(percList$resDiffAveNorm)) {
-    barplot(percList$resDiffAveNorm, beside=TRUE, col=colors,
-        ylab=expression('Log'[10]*'(fold change)'))
-    legend('bottomright', labels, pch=15, col=colors)
+    # need to reshape the data to account for diff regionsets and partitions
+    percData = as.matrix(t(percentList$resAllAve))
+    percReshaped = reshape2::melt(percData, value.name="Percent")
+    colnames(percReshaped)[colnames(percReshaped) == "Var2"] = "regionSet"
+    g = ggplot2::ggplot(percReshaped, aes(x=Var1, y=Percent, fill=regionSet)) +
+      geom_bar(stat="identity", position = position_dodge()) +
+      xlab("Genomic Partition") +
+      theme_classic() +
+      theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
+      theme(plot.title=element_text(hjust = 0.5)) +
+      theme(aspect.ratio=1) +
+      ggtitle("Percentage distribution across genomic partitions") 
+  
+    # If multiple regionsets are provided
+    if (length(rownames(percentList$resAllAve)) > 1) { 
+        g = g + theme(legend.position = "bottom") 
+    } else {
+        # If a single regionset provided, no need to include legend
+        g = g + theme(legend.position = "none")
+    }
+    if (!is.null(percentList$resDiffAveNorm)) {
+        b = barplot(percentList$resDiffAveNorm, beside=TRUE, col=colors,
+              ylab=expression('Log'[10]*'(fold change)'))
+        return(b)
+    } else {
+        return(g)
     }
 }
+
+# # A version for percentages, not yet activated
+# plotPartitionPercents = function(percList, labels = NULL) {
+#     if(is.null(labels)) {
+#         labels = rownames(percList$resAllAve)
+#     }
+#     colors = 1:NROW(percList$resAllAve)
+# 
+#     barplot(percList$resAllAve, beside=TRUE, col=colors, ylab="Percent")
+#     legend('topright', labels, pch=15, col=colors)
+#     if (! is.null(percList$resDiffAveNorm)) {
+#     barplot(percList$resDiffAveNorm, beside=TRUE, col=colors,
+#         ylab=expression('Log'[10]*'(fold change)'))
+#     legend('bottomright', labels, pch=15, col=colors)
+#     }
+# }
