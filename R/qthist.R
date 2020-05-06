@@ -58,6 +58,17 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
         }
     }
     output = calcDivisions(widths, quantile=quantile, bins=bins)
+    # if all widths are the same - recalculate divisions
+    divisionCheck = output[["divisions"]]
+    if (length(divisionCheck) > length(unique(divisionCheck))){
+      if (length(unique(divisionCheck)) == 3){
+        output[["divisions"]] = c(-Inf, divisionCheck[2]-1, divisionCheck[2], Inf)
+        output[["bins"]] = 1
+      } else {
+        output[["divisions"]] = unique(divisionCheck)
+        output[["bins"]] = (length(unique(divisionCheck)) - 3)
+      }
+    }
     if(is(widths, "List")){
         widths = as.list(widths)
     }
