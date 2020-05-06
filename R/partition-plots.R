@@ -16,12 +16,23 @@
 #'     package="GenomicDistributions")
 #' query = rtracklayer::import(f)
 #' calcPartitionsRef(query, "hg19")
-calcPartitionsRef = function(query, refAssembly) {
+calcPartitionsRef = function(query, refAssembly, 
+                              metric=NULL, backgroundGR=NULL) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
     partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-    return(calcPartitions(query, partitionList))
+    if (is.null(metric)) {
+        message("Calculating overlaps...")
+        return(calcPartitions(query, partitionList))
+    } else if (metric == "percent") {
+        message("Calculating overlaps and converting to percents...")
+        if (is.null(backgroundGR)) {
+              return(calcPartitionPercents(query, partitionList))
+        } else {
+              return(calcPartitionPercents(query, partitionList, backgroundGR))
+        }
+    }
 }
 
 
@@ -651,46 +662,37 @@ plotPartitionPercents = function(percentList, labels = NULL) {
         labels = rownames(percentList$resAllAve)
     }
     # need to reshape the data to account for diff regionsets and partitions
-    percData = as.matrix(t(percentList$resAllAve))
-    percReshaped = reshape2::melt(percData, value.name="Percent")
-    colnames(percReshaped)[colnames(percReshaped) == "Var2"] = "regionSet"
-    g = ggplot2::ggplot(percReshaped, aes(x=Var1, y=Percent, fill=regionSet)) +
-      geom_bar(stat="identity", position = position_dodge()) +
-      xlab("Genomic Partition") +
-      theme_classic() +
-      theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
-      theme(plot.title=element_text(hjust = 0.5)) +
-      theme(aspect.ratio=1) +
-      ggtitle("Percentage distribution across genomic partitions") 
-  
-    # If multiple regionsets are provided
-    if (length(rownames(percentList$resAllAve)) > 1) { 
-        g = g + theme(legend.position = "bottom") 
-    } else {
-        # If a single regionset provided, no need to include legend
-        g = g + theme(legend.position = "none")
-    }
+    plotA =  percentReshape(percentList, "resAllAve")
     if (!is.null(percentList$resDiffAveNorm)) {
-        b = barplot(percentList$resDiffAveNorm, beside=TRUE, col=colors,
-              ylab=expression('Log'[10]*'(fold change)'))
-        return(b)
+        plotB =  percentReshape(percentList, "resDiffAveNorm")
+        plotB = plotB + 
+          ylab(expression(log[10]*'(Fold change)'))
+        return(plotB)
     } else {
-        return(g)
+        return(plotA)
     }
 }
 
-# # A version for percentages, not yet activated
-# plotPartitionPercents = function(percList, labels = NULL) {
-#     if(is.null(labels)) {
-#         labels = rownames(percList$resAllAve)
-#     }
-#     colors = 1:NROW(percList$resAllAve)
-# 
-#     barplot(percList$resAllAve, beside=TRUE, col=colors, ylab="Percent")
-#     legend('topright', labels, pch=15, col=colors)
-#     if (! is.null(percList$resDiffAveNorm)) {
-#     barplot(percList$resDiffAveNorm, beside=TRUE, col=colors,
-#         ylab=expression('Log'[10]*'(fold change)'))
-#     legend('bottomright', labels, pch=15, col=colors)
-#     }
-# }
+# Helper function to deal with sevaral dfs with one or more regions
+percentReshape = function(percentList, percentdf){
+  percData = as.matrix(t(percentList[[percentdf]]))
+  percReshaped = reshape2::melt(percData, value.name="Percent")
+  colnames(percReshaped)[colnames(percReshaped) == "Var2"] = "regionSet"
+  g = ggplot2::ggplot(percReshaped, aes(x=Var1, y=Percent, fill=regionSet)) +
+    geom_bar(stat="identity", position = position_dodge()) +
+    xlab("Genomic Partition") +
+    theme_classic() +
+    theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
+    theme(plot.title=element_text(hjust = 0.5)) +
+    theme(aspect.ratio=1) +
+    ggtitle("Distribution across genomic partitions") 
+  
+  # If multiple regionsets are provided
+  if (length(rownames(percentList[[percentdf]])) > 1) { 
+    g = g + theme(legend.position = "bottom") 
+  } else {
+    # If a single regionset provided, no need to include legend
+    g = g + theme(legend.position = "none")
+  }
+  
+}
