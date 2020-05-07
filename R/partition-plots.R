@@ -538,23 +538,20 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
         xlab('') +
         ylab(expression(log[10](over(Obs, Exp)))) +
         coord_flip() +
+        theme_blank_facet_label() +
         theme(axis.line = element_line(size = 0.5),
               axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
               panel.background = element_rect(fill = "transparent"),
-              plot.background = element_rect(fill = "transparent",
-                                             color = NA),
-              legend.background = element_rect(fill = "transparent",
-                                               color = NA),
-              legend.box.background = element_rect(fill = "transparent",
-                                                   color = NA),
+              plot.background = element_rect(fill = "transparent", color = NA),
               aspect.ratio = 1,
-              legend.position = "none",
+              legend.position = "bottom",
               plot.title = element_text(hjust = 0.5),
               panel.border = element_rect(colour = "black", fill=NA,
                                           size=0.5)
-        )
+        ) +
+        scale_fill_discrete(name="User set")
 
     if (!exists("p")) {
         p = ggplot()
