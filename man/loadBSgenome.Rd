@@ -11,9 +11,6 @@ loadBSgenome(genomeBuild, masked = TRUE)
 
 \item{masked}{Should we used the masked version? Default:TRUE}
 }
-\value{
-A BSgenome compatible genome string.
-}
 \description{
 This function will let you use a simple character vector (e.g. 'hg19') to
 load and then return BSgenome objects. This lets you avoid having to use the
