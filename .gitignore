@@ -4,6 +4,8 @@ docs/*
 .Rbuildignore
 .Rhistory
 *.Rproj
+*.bed.gz
+*.sqlite
 
 # OS generated files 
 .DS_Store
