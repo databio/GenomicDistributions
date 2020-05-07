@@ -163,7 +163,7 @@ plotPartitionPercents(perc)
 ```
 
 As with the raw partitions, you can plot more than one regionset at a time by creating a named list
-```{r percentage-partition-plot, fig.cap="Percentage partition distribution plot for multiple regionsets", fig.small=TRUE}
+```{r percentage-partition-plot-multi, fig.cap="Percentage partition distribution plot for multiple regionsets", fig.small=TRUE}
 perc2 = calcPartitionsRef(queryList, "hg19", metric = "percent")
 plotPartitionPercents(perc2)
 ```
