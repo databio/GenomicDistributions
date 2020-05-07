@@ -37,14 +37,25 @@ codingFilter = AnnotationFilter::AnnotationFilter(
     ~ gene_biotype == "protein_coding")
 geneFeats = ensembldb::genes(EnsDb, filter = codingFilter, columns=NULL)
 exonFeats = ensembldb::exons(EnsDb, filter = codingFilter, columns=NULL)
+UTR5Feats = ensembldb::fiveUTRsByTranscript(EnsDb, filter = codingFilter,
+                                            columns = NULL)
+UTR3Feats = ensembldb::threeUTRsByTranscript(EnsDb, filter = codingFilter, 
+                                             columns = NULL)
 # Smash 
 exonFeats = reduce(exonFeats)
+UTR5Feats = unlist(UTR5Feats)
+UTR3Feats = unlist(UTR3Feats)
 # Since we're storing this data, we want it to be small.
 elementMetadata(geneFeats) = NULL
 elementMetadata(exonFeats) = NULL
+elementMetadata(UTR5Feats) = NULL
+elementMetadata(UTR3Feats) = NULL
 # Change from ensembl-style chrom annotation to UCSC_style
 seqlevels(geneFeats) = paste0("chr", seqlevels(geneFeats))
 seqlevels(exonFeats) = paste0("chr", seqlevels(exonFeats))
-geneModels = list(genesGR=geneFeats, exonsGR=exonFeats)
+seqlevels(UTR5Feats) = paste0("chr", seqlevels(UTR5Feats))
+seqlevels(UTR3Feats) = paste0("chr", seqlevels(UTR3Feats))
+geneModels = list(genesGR=geneFeats, exonsGR=exonFeats, 
+                  threeUTRGR=UTR3Feats, fiveUTRGR=UTR5Feats)
 assign(storedObjectName, geneModels)
 do.call("use_data", list(as.name(storedObjectName), overwrite = TRUE))
