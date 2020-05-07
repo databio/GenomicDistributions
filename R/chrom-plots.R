@@ -136,9 +136,8 @@ calcChromBins = function(query, bins) {
 
 	queryDT = grToDt(query)
 	
-	# This jExpression will just count the number of regions.
-	jExpr = ".N"
-	res = BSAggregate(queryDT, bins, jExpr=jExpr)
+	# This function will just count the number of regions.
+	res = calcOLCount(queryDT, bins)
 
 	# order chromosomes by current order.
 	res[, chr:=factor(chr, levels=unique(res$chr))]
