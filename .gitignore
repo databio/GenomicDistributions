@@ -4,3 +4,6 @@ docs/*
 .Rbuildignore
 .Rhistory
 *.Rproj
+
+*.bed.gz
+*.sqlite

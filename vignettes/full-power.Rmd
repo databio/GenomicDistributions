@@ -1,0 +1,107 @@
+---
+title: "Full power GenomicDistributions"
+author: "Nathan Sheffield"
+date: "2020-05-07"
+output: 
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{2. Full power GenomicDistributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+# Full power GenomicDistributions
+
+This vignette shows how to use GenomicDistributions of full-size data. It is pre-computed. 
+
+
+
+# Introduction
+
+Welcome to the GenomicDistributions benchmarking.
+
+Here's what you need to have installed:
+
+
+```r
+BiocManager::install("ChIPpeakAnno")
+# BiocManager::install("EnsDb.Hsapiens.v75") # hg19
+BiocManager::install("EnsDb.Hsapiens.v86") # hg38
+devtools::install_github("databio/GenomicDistributions")
+```
+
+
+
+```r
+library(microbenchmark)
+library(GenomicDistributions)
+library(ChIPpeakAnno)
+# library(EnsDb.Hsapiens.v75) # hg19
+library(EnsDb.Hsapiens.v86) # hg38
+
+## create annotation file from EnsDb or TxDb
+annoData <- toGRanges(EnsDb.Hsapiens.v86, feature="gene")
+annoData[1:2]
+```
+
+```
+## GRanges object with 2 ranges and 1 metadata column:
+##                   seqnames      ranges strand |   gene_name
+##                      <Rle>   <IRanges>  <Rle> | <character>
+##   ENSG00000223972     chr1 11869-14409      + |     DDX11L1
+##   ENSG00000227232     chr1 14404-29570      - |      WASH7P
+##   -------
+##   seqinfo: 357 sequences from GRCh38 genome
+```
+
+Let's retrieve a local path to an example bed file and use BiocFileCache to download it here if we don't already have it locally:
+
+
+```r
+path <- getwd()
+bfc <- BiocFileCache::BiocFileCache(getwd())
+url = "http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2423312_ENCFF155HVK_peaks_GRCh38.bed.gz"
+bedpath = BiocFileCache::bfcrpath(BiocFileCache::BiocFileCache(getwd()), url)
+```
+
+Read this file in and build a GenomicRanges object:
+
+
+```r
+df = data.table::fread(bedpath)
+gr1 = GenomicDistributions:::dtToGr(df, chr="V1", start="V2", end="V3")
+gr1
+```
+
+```
+## GRanges object with 300000 ranges and 0 metadata columns:
+##          seqnames              ranges strand
+##             <Rle>           <IRanges>  <Rle>
+##        1    chr16   30957196-30958063      *
+##        2     chr3     9731358-9731870      *
+##        3    chr19   45092682-45093257      *
+##        4    chr11   46617154-46617591      *
+##        5     chr4 174283581-174284022      *
+##      ...      ...                 ...    ...
+##   299996     chr4   78821000-78821400      *
+##   299997     chr1   47485688-47486088      *
+##   299998    chr13   90405253-90405653      *
+##   299999     chr7 140210564-140210964      *
+##   300000    chr19   11375370-11375770      *
+##   -------
+##   seqinfo: 60 sequences from an unspecified genome; no seqlengths
+```
+
+Set up benchmarking functions to compare:
+
+
+```r
+TSSdist = calcFeatureDist(sort(gr1), sort(annoData))
+p = plotFeatureDist(TSSdist, featureName="TSS")
+print(p)
+```
+
+![plot of chunk unnamed-chunk-7](figures-full-power/unnamed-chunk-7-1.png)

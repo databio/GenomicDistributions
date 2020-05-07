@@ -13,3 +13,7 @@ devtools::install_github("databio/GenomicDistributions")
 ## Quick start
 
 See the vignettes for more information: http://code.databio.org/GenomicDistributions
+
+## Building long vignettes
+
+In the [long_vignettes](/long_vignettes) are vignettes that require large external data and take a long time to run. Therefore, they should be pre-built. You can render them manually by running [long_vignettes/render-long-vignettes.R](long_vignettes/render-long-vignettes.R). This will use `knitr` to run the vignette and put the result into the `vignettes` folder, along with output figures.
