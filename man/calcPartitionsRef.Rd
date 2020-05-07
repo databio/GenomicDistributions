@@ -5,7 +5,7 @@
 \title{Calculates the distribution of overlaps for a query set to a reference 
 assembly}
 \usage{
-calcPartitionsRef(query, refAssembly)
+calcPartitionsRef(query, refAssembly, metric = NULL, backgroundGR = NULL)
 }
 \arguments{
 \item{query}{A GenomicRanges or GenomicRangesList object with query regions}
@@ -13,18 +13,22 @@ calcPartitionsRef(query, refAssembly)
 \item{refAssembly}{A character vector specifying the reference genome
 assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
 with \code{getTSSs}.}
+
+\item{metric}{An optional character vector if needed to calculate 
+percentage overlaps across genomic partitions}
+
+\item{backgroundGR}{An optional GRanges object to correct for genomic 
+background when using the "percent" metric}
 }
 \value{
 A data.frame indicating the number of query region overlaps in   
     several genomic partitions.
 }
 \description{
-This function is a wrapper for \code{calcPartitions} that uses built-in
+This function is a wrapper for \code{calcPartitions} and \code{calcPartitionPercents} that uses built-in
 partitions for a given reference genome assembly.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-calcPartitionsRef(query, "hg19")
+calcPartitionsRef(vistaEnhancers, "hg19")
+calcPartitionsRef(vistaEnhancers, "hg19", metric="percent")
 }

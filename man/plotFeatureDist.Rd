@@ -8,8 +8,11 @@ plotFeatureDist(
   dists,
   bgdists = NULL,
   featureName = "features",
-  divisions = NULL,
-  numbers = FALSE
+  numbers = FALSE,
+  nbins = 50,
+  size = 1e+05,
+  infBins = FALSE,
+  tile = FALSE
 )
 }
 \arguments{
@@ -20,10 +23,16 @@ distribution of expected distances}
 
 \item{featureName}{Character vector for plot labels (optional).}
 
-\item{divisions}{A vector that defines the bin boundaries for the histogram}
-
 \item{numbers}{a logical indicating whether the raw numbers should be 
 displayed, rather than percentages (optional).}
+
+\item{nbins}{Number of bins on each side of the center point.}
+
+\item{size}{Number of bases to include in plot on each side of the center point.}
+
+\item{infBins}{Include catch-all bins on the sides?}
+
+\item{tile}{Turn on a tile mode, which plots a tiled figure instead of a histogram.}
 }
 \value{
 A ggplot2 plot object
@@ -33,8 +42,6 @@ Given the results from \code{featureDistribution}, plots a histogram of
 distances surrounding the features of interest
 }
 \examples{
-queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-query = rtracklayer::import(queryFile)
-TSSdist = calcFeatureDistRefTSS(query, "hg19")
+TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
 plotFeatureDist(TSSdist, featureName="TSS")
 }

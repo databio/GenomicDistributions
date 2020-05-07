@@ -9,13 +9,14 @@ calcWidth(query)
 \arguments{
 \item{query}{A GRanges or GRangesList object with query sets}
 }
+\value{
+A vector of the widths (end-start coordinates) of GRanges objects.
+}
 \description{
 The length of a genomic region (the distance between the start and end) is called the width
 When given a query set of genomic regions, this function returns the width
 }
 \examples{
-queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-query = rtracklayer::import(queryFile)
-TSSdist = calcFeatureDistRefTSS(query, "hg19")
+TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
 plotFeatureDist(TSSdist, featureName="TSS")
 }

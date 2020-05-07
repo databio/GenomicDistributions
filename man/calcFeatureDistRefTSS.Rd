@@ -13,6 +13,9 @@ calcFeatureDistRefTSS(query, refAssembly)
 assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 \code{getTSSs}.}
 }
+\value{
+A vector of distances for each query region relative to TSSs.
+}
 \description{
 Given a query GRanges object and an assembly string, this function will grab
 the TSS list for the given reference assembly and then calculate the distance

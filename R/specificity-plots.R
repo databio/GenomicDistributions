@@ -1,31 +1,24 @@
 #' The function calcOpenSignal takes the input BED file(s) in form of GRanges 
 #' or GRangesList object, overlaps it with all defined open chromatin regions 
 #' across cell types and returns a matrix, where each row is the input genomic
-#'  region (if overlap was found), each column is a cell type, and the value 
-#'  is a normalized ATAC-seq signal.
+#' region (if overlap was found), each column is a cell type, and the value 
+#' is a normalized ATAC-seq signal.
 #
-#' @param  query Genomic regions to be analyzed. Can be GRanges or GRangesList 
-#'               object.
+#' @param query Genomic regions to be analyzed. Can be GRanges or GRangesList 
+#'     object.
 #' @param cellMatrix Matrix with open chromatin signal values, rows are genomic
-#'            regions, columns are cell types. First column contains 
-#'            information about the genomic region in following form: 
-#'            chr_start_end. Can be either data.frame or data.table object.
-#' @return 
-#' A data.table with cell specific open chromatin signal values for query 
-#' regions.
+#'     regions, columns are cell types. First column contains 
+#'     information about the genomic region in following form: 
+#'     chr_start_end. Can be either data.frame or data.table object.
+#' @return  A data.table with cell specific open chromatin signal values for 
+#'     query regions.
 #' 
 #' @export
 #' @examples
 #' \dontrun{
-#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' GRquery = rtracklayer::import(query)
-#' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-#' package="GenomicDistributions")
-#' cellMatrix = data.table::fread(exampleCellMatrixFile)
-#' signalMatrix = calcOpenSignal(GRquery, cellMatrix)
+#' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 #' }
-calcOpenSignal = function(query,
-                          cellMatrix){
+calcOpenSignal = function(query, cellMatrix){
   .validateInputs(list(query=c("GRanges","GRangesList")))
   if (is(query, "GRangesList")) {
     # Recurse over each GRanges object
@@ -91,37 +84,31 @@ calcOpenSignal = function(query,
 #' calcOpenSignal.
 #'
 #' @param signalMatrix Output data.table from \code{calcOpenSignal} function.
-#' @param  plotType Options are: jitter - jitter plot with box plot on top / 
-#'           boxPlot - box plot without individual points and outliers / 
-#'           barPlot (default) - bar height represents the median signal value
-#'           for a given cell type.
+#' @param  plotType Options are: jitter - jitter plot with box plot on top
+#'     boxPlot - box plot without individual points and outliers
+#'     barPlot (default) - bar height represents the median signal value
+#'     for a given cell type.
 #' @param cellGroup - This option allows to selcet a group of cells to be 
-#'           plotted, if NA (default) all available cell groups are ploted, 
-#'           available options: {"blood", "bone", "CNS", "embryonic", "eye", 
-#'           "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
-#'           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
-#'            "skin", "urinarySystem", "vasculature"}, can be passed as a 
-#'            character string or vector of strings.
+#'     plotted, if NA (default) all available cell groups are ploted, 
+#'     available options: {"blood", "bone", "CNS", "embryonic", "eye", 
+#'     "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
+#'     "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
+#'     "skin", "urinarySystem", "vasculature"}, can be passed as a 
+#'     character string or vector of strings.
 #' @param cellTypeMetadata Metadata for cell type - tissue association. This
-#'          option is for users, who provide their own open region signal 
-#'          matrix. The cellTypeMetadata matrix must contain two columns called
-#'          cellType and tissue. cellType column containes the cell type names 
-#'          in the provided signalMatrix column names. The tissue columns 
-#'          provides an information, which tissue the cell type comes from.
+#'     option is for users, who provide their own open region signal 
+#'     matrix. The cellTypeMetadata matrix must contain two columns called
+#'     cellType and tissue. cellType column containes the cell type names 
+#'     in the provided signalMatrix column names. The tissue columns 
+#'     provides an information, which tissue the cell type comes from.
 #' @param colorScheme Provide color values for each tissue if you want to 
-#'         change the default colors.
-#' @return 
-#' A ggplot object.
+#'     change the default colors.
+#' @return A ggplot object.
 #' 
 #' @export
 #' @examples
 #' \dontrun{
-#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' GRquery = rtracklayer::import(query)
-#' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-#' package="GenomicDistributions")
-#' cellMatrix = data.table::fread(exampleCellMatrixFile)
-#' signalMatrix = calcOpenSignal(GRquery, cellMatrix)
+#' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 #' plotSignal = plotOpenSignal(signalMatrix)
 #' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
 #' }

@@ -18,8 +18,8 @@ plotOpenSignal(
 \arguments{
 \item{signalMatrix}{Output data.table from \code{calcOpenSignal} function.}
 
-\item{plotType}{Options are: jitter - jitter plot with box plot on top / 
-boxPlot - box plot without individual points and outliers / 
+\item{plotType}{Options are: jitter - jitter plot with box plot on top
+boxPlot - box plot without individual points and outliers
 barPlot (default) - bar height represents the median signal value
 for a given cell type.}
 
@@ -28,8 +28,8 @@ plotted, if NA (default) all available cell groups are ploted,
 available options: {"blood", "bone", "CNS", "embryonic", "eye", 
 "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
 "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
- "skin", "urinarySystem", "vasculature"}, can be passed as a 
- character string or vector of strings.}
+"skin", "urinarySystem", "vasculature"}, can be passed as a 
+character string or vector of strings.}
 
 \item{cellTypeMetadata}{Metadata for cell type - tissue association. This
 option is for users, who provide their own open region signal 
@@ -50,12 +50,7 @@ calcOpenSignal.
 }
 \examples{
 \dontrun{
-query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-GRquery = rtracklayer::import(query)
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-package="GenomicDistributions")
-cellMatrix = data.table::fread(exampleCellMatrixFile)
-signalMatrix = calcOpenSignal(GRquery, cellMatrix)
+signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 plotSignal = plotOpenSignal(signalMatrix)
 plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
 }

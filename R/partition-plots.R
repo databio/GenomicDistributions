@@ -1,27 +1,40 @@
 #' Calculates the distribution of overlaps for a query set to a reference 
 #' assembly
 #'
-#' This function is a wrapper for \code{calcPartitions} that uses built-in
+#' This function is a wrapper for \code{calcPartitions} and \code{calcPartitionPercents} that uses built-in
 #' partitions for a given reference genome assembly.
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
 #'     with \code{getTSSs}.
+#' @param metric An optional character vector if needed to calculate 
+#'     percentage overlaps across genomic partitions
+#' @param backgroundGR An optional GRanges object to correct for genomic 
+#'     background when using the "percent" metric
 #' @return A data.frame indicating the number of query region overlaps in   
 #'     several genomic partitions.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' calcPartitionsRef(query, "hg19")
-calcPartitionsRef = function(query, refAssembly) {
+#' calcPartitionsRef(vistaEnhancers, "hg19")
+#' calcPartitionsRef(vistaEnhancers, "hg19", metric="percent")
+calcPartitionsRef = function(query, refAssembly, 
+                              metric=NULL, backgroundGR=NULL) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
     partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-    return(calcPartitions(query, partitionList))
+    if (is.null(metric)) {
+        message("Calculating overlaps...")
+        return(calcPartitions(query, partitionList))
+    } else if (metric == "percent") {
+        message("Calculating overlaps and converting to percents...")
+        if (is.null(backgroundGR)) {
+              return(calcPartitionPercents(query, partitionList))
+        } else {
+              return(calcPartitionPercents(query, partitionList, backgroundGR))
+        }
+    }
 }
 
 
@@ -39,18 +52,16 @@ calcPartitionsRef = function(query, refAssembly) {
 #'     several genomic partitions.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' calcExpectedPartitionsRef(query, "hg19")
+#' calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 calcExpectedPartitionsRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
+    chromSizes = getChromSizes(refAssembly)
+    genomeSize = sum(chromSizes)
     partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-    return(calcExpectedPartitions(query, partitionList))
+    return(calcExpectedPartitions(query, partitionList, genomeSize))
 }
-
 
 #' Calculates the cumulative distribution of overlaps for a query set to a
 #' reference assembly
@@ -66,10 +77,7 @@ calcExpectedPartitionsRef = function(query, refAssembly) {
 #'     several genomic partitions.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' calcCumulativePartitionsRef(query, "hg19")
+#' calcCumulativePartitionsRef(vistaEnhancers, "hg19")
 calcCumulativePartitionsRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
@@ -84,16 +92,18 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #' 
 #' Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
 #' corresponding to various breakdown of the genome, based on the given
-#' annotations; it gives you proximal and core promoters, exons, and introns. 
-#' To be used as a partionList for calcPartitions()
+#' annotations; it gives you proximal and core promoters, exons, and introns.
+#' 
+#' To be used as a partitionList for \code{calcPartitions}.
+#' 
 #' @param genesGR a GRanges object of gene coordinates
 #' @param exonsGR a GRanges object of exons coordinates
 #' @return A list of GRanges objects, each corresponding to a partition of the 
-#' genome. Partitions include proximal and core promoters, exons and introns.
+#'     genome. Partitions include proximal and core promoters, exons and 
+#'     introns. 
 #' @export
 #' @examples 
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
 genomePartitionList = function(genesGR, exonsGR) {
     .validateInputs(list(exonsGR=c("GRanges", "GRangesList"), 
                          genesGR="GRanges"))
@@ -122,22 +132,19 @@ genomePartitionList = function(genesGR, exonsGR) {
 #' etc; this function will yield the number of each for a query GRanges object
 #' There will be a priority order to these, to account for regions that may
 #' overlap multiple genomic partitions.
-#' @param query              GRanges or GRangesList with regions to classify
-#' @param partitionList     an ORDERED and NAMED list of genomic partitions
+#'
+#' @param query GRanges or GRangesList with regions to classify
+#' @param partitionList an ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps
-#' @param remainder    A character vector to assign any query regions that do
+#' @param remainder A character vector to assign any query regions that do
 #'     not overlap with anything in the partitionList. Defaults to "intergenic"
 #' @return A data.frame assigning each element of a GRanges object to a
-#'  partition from a previously provided partitionList.
+#'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' calcPartitions(query, partitionList)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' calcPartitions(vistaEnhancers, partitionList)
 calcPartitions = function(query, partitionList, remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
@@ -157,10 +164,10 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     partitionNames = names(partitionList)
     partition = rep(0, length(query))  
     for (pi in 1:length(partitionList)) {
-        cat(partitionNames[pi],":")
+        # message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
-        message("\tfound ", sum(ol>0))
+        # message("\tfound ", sum(ol>0))
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     partition[partition=="0"] = remainder
@@ -178,21 +185,26 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #' etc; this function will yield the number of each for a query GRanges object
 #' There will be a priority order to these, to account for regions that may
 #' overlap multiple genomic partitions.
-#' @param query          GRanges or GRangesList with regions to classify.
-#' @param partitionList  An ORDERED and NAMED list of genomic partitions
+#'
+#' @param query GRanges or GRangesList with regions to classify.
+#' @param partitionList An ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps.
+#' @param genomeSize The number of bases in the query genome. In other words, 
+#'     the sum of all chromosome sizes.
 #' @return A data.frame assigning each element of a GRanges object to a
 #'     partition from a previously provided partitionList.
+#' @param remainder  Which partition do you want to account for 'everything 
+#'     else'?
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' calcExpectedPartitions(query, partitionList)
-calcExpectedPartitions = function(query, partitionList) {
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR,
+#'                                     geneModels_hg19$exonsGR)
+#' chromSizes = getChromSizes('hg19')
+#' genomeSize = sum(chromSizes)
+#' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
+calcExpectedPartitions = function(query, partitionList,
+                                  genomeSize=NULL, remainder="Intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
     if (methods::is(query, c("GRangesList"))) {
@@ -215,23 +227,37 @@ calcExpectedPartitions = function(query, partitionList) {
         data.frame(N=(elementNROWS(partitionList)/
                       sum(elementNROWS(partitionList))*query_total)),
         keep.rownames="partition")
+    if (!is.null(genomeSize)) {
+        # Calculate remainder
+        partitionCounts = rbind(partitionCounts,
+            data.table::data.table(partition=remainder,
+                                   N=(genomeSize-sum(partitionCounts$N))))
+    }
     partitionCounts = partitionCounts[order(partitionCounts$partition)]
     partition = rep(0, length(query))
     for (pi in 1:length(partitionList)) {
-        cat(partitionNames[pi],":")
+        # message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
-        message("\tfound ", sum(ol>0))
+        # message("\tfound ", sum(ol>0))
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     # Remove remainder
-    partition = partition[!partition=="0"]
+    if (!is.null(genomeSize)) {
+        # message(remainder,":")
+        count = length(partition[partition=="0"])
+        partition[partition=="0"] = remainder
+        # message("\tfound ", count)
+        partitionNames = c(partitionNames, remainder)
+    } else {
+        partition = partition[!partition=="0"]
+    }
     tpartition = table(partition)
     expectedPartitions = data.table::data.table(
         partition=factor(names(tpartition)), observed=as.vector(tpartition))
     expectedPartitions = merge(expectedPartitions, partitionCounts,
                                by = "partition")
-    setnames(expectedPartitions,"N","expected")
+    data.table::setnames(expectedPartitions,"N","expected")
     expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
     return(expectedPartitions[match(partitionNames,
@@ -248,8 +274,9 @@ calcExpectedPartitions = function(query, partitionList) {
 #' etc; this function will yield the number of each for a query GRanges object
 #' There will be a priority order to these, to account for regions that may
 #' overlap multiple genomic partitions.
-#' @param query          GRanges or GRangesList with regions to classify.
-#' @param partitionList  An ORDERED and NAMED list of genomic partitions
+#' 
+#' @param query GRanges or GRangesList with regions to classify.
+#' @param partitionList An ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps.
 #' @param remainder  Which partition do you want to account for 'everything 
@@ -258,12 +285,8 @@ calcExpectedPartitions = function(query, partitionList) {
 #'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' calcCumulativePartitions(query, partitionList)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' calcCumulativePartitions(vistaEnhancers, partitionList)
 calcCumulativePartitions = function(query, partitionList, remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
@@ -291,7 +314,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
                                   cumsize=as.numeric(),
                                   frif=as.numeric())
     for (pi in 1:length(partitionList)) {
-        cat(partitionNames[pi],":")
+        # message(partitionNames[pi],":")
         # Find overlaps
         hits  = suppressWarnings(findOverlaps(query, partitionList[[pi]]))
         olap  = suppressWarnings(pintersect(query[queryHits(hits)],
@@ -305,7 +328,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         hits[, size:=width(pHits)]
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
-        message("\tfound ", nrow(hits))
+        # message("\tfound ", nrow(hits))
 
         # Make mutually exclusive; remove hits from query
         query = query[-hits$xid]
@@ -322,10 +345,10 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         frif = rbind(frif, x)
     }
     # Create remainder...
-    cat(remainder,":")
+    # cat(remainder,":")
     x = data.table::data.table(partition=remainder,
                                size=as.numeric(width(query)))
-    message("\tfound ", length(query))
+    # message("\tfound ", length(query))
     x = x[order(x$size),]
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
@@ -335,9 +358,10 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
 }
 
 
-#' Internal helper function for \code{plotCumulativePartitions}
-#'
-#' @param assignedPartitions Results from \code{calcCumulativePartitions}
+# Internal helper function for \code{plotCumulativePartitions}.
+#
+# @param assignedPartitions Results from \code{calcCumulativePartitions}.
+# @return A data.table object of partition names and values.
 setLabels = function(assignedPartitions) {
     if (methods::is(assignedPartitions, c("list"))){
         # It has multiple regions
@@ -367,16 +391,15 @@ setLabels = function(assignedPartitions) {
 #'
 #' This function plots the cumulative distribution of regions across a 
 #' feature set.
+#'
 #' @param assignedPartitions Results from \code{calcCumulativePartitions}
 #' @param feature_names An optional character vector of feature names, in the 
-#'                      same order as the GenomicRanges or GenomicRangesList 
-#'                      object.
+#'     same order as the GenomicRanges or GenomicRangesList object.
+#' @return A ggplot object of the cumulative distribution of regions in 
+#'     features.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' p = calcCumulativePartitionsRef(query, "hg19")
+#' p = calcCumulativePartitionsRef(vistaEnhancers, "hg19")
 #' cumuPlot = plotCumulativePartitions(p)
 plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
     .validateInputs(list(assignedPartitions="data.frame"))
@@ -475,10 +498,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #'     query regions across a given partition list.  
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' p = calcExpectedPartitionsRef(query, "hg19")
+#' p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 #' expectedPlot = plotExpectedPartitions(p)
 plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
     .validateInputs(list(expectedPartitions="data.frame"))
@@ -558,10 +578,7 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #'  regions across a given partition list.  
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' p = calcPartitionsRef(query, "hg19")
+#' p = calcPartitionsRef(vistaEnhancers, "hg19")
 #' partPlot = plotPartitions(p)
 plotPartitions = function(assignedPartitions, labels=NULL) {
     # resAll = t(sapply(assignedPartitions, table))
@@ -593,42 +610,114 @@ plotPartitions = function(assignedPartitions, labels=NULL) {
 }
 
 
-partitionPercents = function(listGR, partitionList, backgroundGR = NULL) {
-    if (! is(listGR, "list")) {
-        # Try to correct for someone providing a single GR instead of a list.
-        listGR = list(listGR)
+#' Calculate the percentage overlap of a list of GRanges object against a 
+#' list of known partitions.
+#'
+#' @param listGR  A list of GRanges objects. Produced by 
+#'     \code{calcPartitionPercents}
+#' @param partitionList A list with GRanges objects corresponding to
+#'     the different partitions.
+#' @param backgroundGR A GRanges object to remove from listGR overlap 
+#'     as background.
+#' @return A named list of the frequency of input regions against provided
+#'     partitions.
+#' @export
+#' @examples
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
+calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
+    .validateInputs(list(listGR=c("GRanges","GRangesList"),
+                         partitionList="list"))
+    if(!(is(listGR, "GRangesList"))){
+        listGR = GRangesList(listGR)
     }
     res = lapply(listGR, calcPartitions, partitionList)
-    classes = c(names(partitionList), 0)
-    resAll = t(sapply(res, tableCount, classList=classes))
-
-    resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
-    rownames(resAllAve) = names(listGR)
-    #incDecCol = c("goldenrod3", "navy", "purple", "orange")
+    resAll = Reduce(function(x,y) merge(x, y, by="partition"), res)
+    names(resAll) = c("Partition", names(res))
+    rownames(resAll) = resAll$Partition
+    resAll[, 1] = NULL
+    # should transpose df to sum and calculate percentages
+    tResAll = t(resAll)
+    resAllAve = sweep(tResAll, 1, apply(tResAll, 1, sum), FUN="/")*100
+    resAllAve = as.data.frame(resAllAve)
+    # Normalize if background GRanges object is provided
     if (!is.null(backgroundGR)) {
         back = calcPartitions(backgroundGR, partitionList)
-        backAll = table(back)
+        rownames(back) = back$Partition
+        back[, 1] = NULL
+        backAll = t(back)
         backAllAve = sweep(backAll, 1, sum(backAll), FUN="/")*100
         resDiffAveNorm = log10(sweep(resAllAve, 2, backAllAve, FUN="/"))
-
         return(nlist(resAllAve, resDiffAveNorm))
     }
     return(nlist(resAllAve))
 }
 
 
-# A version for percentages, not yet activated
-plotPartitionPercents = function(percList, labels = NULL) {
-    if(is.null(labels)) {
-        labels = rownames(percList$resAllAve)
-    }
-    colors = 1:NROW(percList$resAllAve)
 
-    barplot(percList$resAllAve, beside=TRUE, col=colors, ylab="Percent")
-    legend('topright', labels, pch=15, col=colors)
-    if (! is.null(percList$resDiffAveNorm)) {
-    barplot(percList$resDiffAveNorm, beside=TRUE, col=colors,
-        ylab=expression('Log'[10]*'(fold change)'))
-    legend('bottomright', labels, pch=15, col=colors)
+#' Plot the percentage overlap of GRanges objects against defined partitions.
+#' 
+#' @param percentList A named list of percentage overlap of regions to genomic
+#'    partitions. Produced by \code{calcPartitionPercents}
+#' @return A ggplot object using a barplot to show either percentage overlap
+#'         or genomic background corrected overlap data
+#' @export
+#' @examples 
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
+#' p = plotPartitionPercents(partPerc)
+plotPartitionPercents = function(percentList) {
+    .validateInputs(list(percentList="list"))
+    #if(is.null(labels)) {
+        #labels = rownames(percentList$resAllAve)
+    #}
+    # need to reshape the data to account for multiple regionsets and norm data
+    percPlot =  percentReshape(percentList, "resAllAve")
+    if (!is.null(percentList$resDiffAveNorm)) {
+        normPlot =  percentReshape(percentList, "resDiffAveNorm")
+        normPlot = normPlot + 
+          ylab(expression(log[10]*(over("user overlap", background))))
+        return(normPlot)
+    } else {
+        return(percPlot)
     }
 }
+
+#' Internal helper function
+#' 
+#' Used for \code{plotPartitionPercents}
+#' 
+#' @param percentList A list with either percentages or background
+#'        corrected values
+#' @param percentdf A character vector pointing to the appropriate
+#'        data frame inside percentList
+#' @return A ggplot object
+percentReshape = function(percentList, percentdf){
+    percData = as.matrix(t(percentList[[percentdf]]))
+    percReshaped = reshape2::melt(percData, value.name="Percent")
+    colnames(percReshaped)[colnames(percReshaped) == "Var2"] = "regionSet"
+ 
+    # If multiple regionsets are provided
+    if (length(rownames(percentList[[percentdf]])) > 1) { 
+        g = ggplot2::ggplot(percReshaped, 
+                            aes(x=Var1, y=Percent, fill=regionSet)) +
+            geom_bar(stat="identity", position = position_dodge()) +
+            theme_classic() +
+            theme(legend.position = "bottom") 
+    } else {
+        # If a single regionset provided, no need to include legend
+        g = ggplot2::ggplot(percReshaped, aes(x=Var1, y=Percent)) + 
+            geom_bar(stat="identity", fill=c("gray35"), 
+                     position = position_dodge()) +
+            theme_classic() +
+            theme(legend.position = "none") 
+    }
+    g = g + 
+        xlab("Genomic Partition") +
+        theme_blank_facet_label() +
+        theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
+        theme(plot.title=element_text(hjust = 0.5)) +
+        theme(aspect.ratio=1) +
+        ggtitle("Distribution across genomic partitions")
+}
+

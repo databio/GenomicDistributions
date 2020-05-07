@@ -23,9 +23,9 @@
 #'
 #' @return
 #' A data.table, expanded to nrow = number of bins, with these id columns:
-#' 		id: region ID
-#' 		binID: repeating ID (this is the value to aggregate across)
-#' 		ubinID: unique bin IDs
+#'     id: region ID
+#'     binID: repeating ID (this is the value to aggregate across)
+#'     ubinID: unique bin IDs
 #' @export
 #' @examples
 #' Rbins = binRegion(1, 3000, 100, 1000)
@@ -160,10 +160,7 @@ calcChromBins = function(query, bins) {
 #' reference genome.
 #' @export
 #' @examples 
-#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' GRquery = rtracklayer::import(query)
-#' ChromBins = calcChromBinsRef(GRquery, "hg19")
-#' 
+#' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
 calcChromBinsRef = function(query, refAssembly, binCount=10000) {
     .validateInputs(list(refAssembly="character", 
                          query=c("GRanges","GRangesList")))

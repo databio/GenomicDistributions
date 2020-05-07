@@ -1,0 +1,83 @@
+---
+title: "Full power GenomicDistributions"
+author: "Nathan Sheffield"
+date: "`r Sys.Date()`"
+output: 
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{2. Full power GenomicDistributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+# These settings make the vignette prettier
+knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+#refreshPackage("GenomicDistributions")
+#devtools::build_vignettes("code/GenomicDistributions")
+#devtools::test("code/GenomicDistributions")
+```
+
+# Full power GenomicDistributions
+
+This vignette shows how to use GenomicDistributions of full-size data. It is pre-computed. 
+
+```{r, echo=FALSE}
+# These settings make the vignette prettier
+knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+#refreshPackage("GenomicDistributions")
+#devtools::build_vignettes("code/GenomicDistributions")
+#devtools::test("code/GenomicDistributions")
+```
+
+# Introduction
+
+Welcome to the GenomicDistributions benchmarking.
+
+Here's what you need to have installed:
+
+```{r, eval=FALSE}
+BiocManager::install("ChIPpeakAnno")
+# BiocManager::install("EnsDb.Hsapiens.v75") # hg19
+BiocManager::install("EnsDb.Hsapiens.v86") # hg38
+devtools::install_github("databio/GenomicDistributions")
+```
+
+
+```{r}
+library(microbenchmark)
+library(GenomicDistributions)
+library(ChIPpeakAnno)
+# library(EnsDb.Hsapiens.v75) # hg19
+library(EnsDb.Hsapiens.v86) # hg38
+
+## create annotation file from EnsDb or TxDb
+annoData <- toGRanges(EnsDb.Hsapiens.v86, feature="gene")
+annoData[1:2]
+```
+
+Let's retrieve a local path to an example bed file and use BiocFileCache to download it here if we don't already have it locally:
+
+```{r}
+path <- getwd()
+bfc <- BiocFileCache::BiocFileCache(getwd())
+url = "http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2423312_ENCFF155HVK_peaks_GRCh38.bed.gz"
+bedpath = BiocFileCache::bfcrpath(BiocFileCache::BiocFileCache(getwd()), url)
+```
+
+Read this file in and build a GenomicRanges object:
+
+```{r}
+df = data.table::fread(bedpath)
+gr1 = GenomicDistributions:::dtToGr(df, chr="V1", start="V2", end="V3")
+gr1
+```
+
+Set up benchmarking functions to compare:
+
+```{r}
+TSSdist = calcFeatureDist(sort(gr1), sort(annoData))
+p = plotFeatureDist(TSSdist, featureName="TSS")
+print(p)
+```

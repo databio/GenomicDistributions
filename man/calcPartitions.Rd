@@ -19,7 +19,7 @@ not overlap with anything in the partitionList. Defaults to "intergenic"}
 }
 \value{
 A data.frame assigning each element of a GRanges object to a
- partition from a previously provided partitionList.
+    partition from a previously provided partitionList.
 }
 \description{
 Takes a GRanges object, then assigns each element to a partition from the
@@ -30,10 +30,6 @@ There will be a priority order to these, to account for regions that may
 overlap multiple genomic partitions.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-geneModels = getGeneModels("hg38")
-partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-calcPartitions(query, partitionList)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+calcPartitions(vistaEnhancers, partitionList)
 }

@@ -1,4 +1,21 @@
 # Old, slow version based on GRanges methods
+#
+# Find the distance to the nearest genomic feature.
+# 
+# For a given query set of genomic regions, and a given feature set of 
+# regions, this function will return the distance for each query region to its
+# closest feature. It ignores strand and returns the distance as positive or 
+# negative, depending on whether the feature is upstream or downstream.
+# 
+# This function is similar to the bioconductor distanceToNearest function, but
+# returns negative values for downstream distances instead of absolute values.
+# This allows you to assess the relative location.
+# 
+# @param query A GRanges or GRangesList object with query sets
+# @param features A GRanges object with features to test distance to
+# 
+# @return A vector of genomic distances for each query region relative to its 
+#         closest feature.
 calcFeatureDistBioc = function(query, features) {
     .validateInputs(list(query=x("GRangesList","GRanges")))
 	if (is(query, "GRangesList")) {
@@ -27,10 +44,10 @@ calcFeatureDistBioc = function(query, features) {
 
 #' Find the distance to the nearest genomic feature
 #' 
-#' For a given query set of genomic regions, and a given feature set of regions,
-#' this function will return the distance for each query region to its closest
-#' feature. It ignores strand and returns the distance as positive or negative,
-#' depending on whether the feature is upstream or downstream
+#' For a given query set of genomic regions, and a given feature set of 
+#' regions, this function will return the distance for each query region to its
+#' closest feature. It ignores strand and returns the distance as positive or 
+#' negative, depending on whether the feature is upstream or downstream
 #' 
 #' This function is similar to the bioconductor distanceToNearest function, but
 #' returns negative values for downstream distances instead of absolute values.
@@ -39,6 +56,8 @@ calcFeatureDistBioc = function(query, features) {
 #' @param query A GRanges or GRangesList object with query sets
 #' @param features A GRanges object with features to test distance to
 #' 
+#' @return A vector of genomic distances for each query region relative to its 
+#'     closest feature.
 #' @export
 calcFeatureDist = function(query, features) {
     .validateInputs(list(query=c("GRangesList","GRanges")))
@@ -56,6 +75,11 @@ calcFeatureDist = function(query, features) {
 
 # Function uses data.table rolling join to identify the nearest features
 # really quickly.
+#
+# @param DT1 A data.table object to be joined to a second data.table object.
+# @param DT2 A second data.table object to join with DT1.
+#
+# @return A rolling joined data.table object.
 DTNearest = function(DT1, DT2) {
 	#data.table::set(DT1, j=mid, value=start + round((end-start)/2))
 	#data.table::set(DT2, j=mid, value=start + round((end-start)/2))
@@ -86,6 +110,7 @@ DTNearest = function(DT1, DT2) {
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
+#' @return A vector of distances for each query region relative to TSSs.
 #' @export
 calcFeatureDistRefTSS = function(query, refAssembly) {
 	features = getTSSs(refAssembly)
@@ -93,9 +118,9 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 }
 
 
-#' Converts a nucleotide count into a label with abbreviation
-#' @param x base count
-#' @return A label with 'kb' or 'mb' appended if appropriate
+# Converts a nucleotide count into a label with abbreviation
+# @param x base count
+# @return A label with 'kb' or 'mb' appended if appropriate
 genomeLabel = function(x) {
     .validateInputs(list(x="numeric"))
 	lab = x
@@ -119,23 +144,21 @@ genomeLabel = function(x) {
 #' @param bgdists Background distances. If provided, will plot a background
 #'     distribution of expected distances 
 #' @param featureName Character vector for plot labels (optional).
-#' @param divisions A vector that defines the bin boundaries for the histogram
 #' @param numbers a logical indicating whether the raw numbers should be 
 #'     displayed, rather than percentages (optional).
+#' @param nbins Number of bins on each side of the center point.
+#' @param size Number of bases to include in plot on each side of the center point.
+#' @param infBins Include catch-all bins on the sides?
+#' @param tile Turn on a tile mode, which plots a tiled figure instead of a histogram.
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
-#' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' query = rtracklayer::import(queryFile)
-#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+#' TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
 #' plotFeatureDist(TSSdist, featureName="TSS")
-plotFeatureDist = function(dists, bgdists=NULL, featureName="features", divisions=NULL, 
-                           numbers=FALSE) {
-	if (is.null(divisions)) {
-		poscuts = seq(0,100000, by=2000)
-		divisions = sort(unique(c(-poscuts, poscuts)))
-	}
-	df = cutDists(dists, divisions)
+plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
+                           numbers=FALSE, nbins=50, size=100000, infBins=FALSE, tile=FALSE) {
+	df = cutDists(dists, divisions=NULL, nbins, size, infBins)
+	
 	# We could scale
 	# df$Freq = scale(df$Freq, center=FALSE)
 	if(is.list(dists)){
@@ -145,22 +168,21 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 	}
 
 	if (!is.null(bgdists)) {
-		bgDistsDF = cutDists(bgDists, divisions)
+		bgDistsDF = cutDists(bgDists, divisions=NULL, nbins, size, infBins)
 		# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
 		bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
 		df$bgFreq = rep(bgDistsDF$Freq, nplots)
-		df$bgX = rep(seq_len(length(divisions)-1), nplots)
+		df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
 	}
 
 	if ("name" %in% names(df)){
 	    if (!numbers)
-	        df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
-	                     by = name][, "Freq.Per"]
+	        df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), by = name]$"Freq.Per"
 		# It has multiple regions
 		g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
 			facet_grid(. ~name)
 	} else {
-	    if (!numbers)
+	    if (!numbers) 
 	        df$Freq = (df$Freq / sum(df$Freq)) * 100
 		g = ggplot(df, aes(x=cuts, y=Freq))
 	}
@@ -174,11 +196,32 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 	}
 
 	# find midpoint
-	midx = length(divisions)/2
-	barcount = length(divisions)
-	minlabel = genomeLabel(min(divisions))
-	maxlabel = genomeLabel(max(divisions))
-	edgeLabels = c(minlabel, rep("", barcount-3), maxlabel)
+	midx = nrow(df)/2/nplots
+	barcount = nrow(df)/nplots
+	minlabel = genomeLabel(-size)
+	maxlabel = genomeLabel(size)
+	edgeLabels = c(minlabel, rep("", barcount-2), maxlabel)
+
+	if (tile) {
+		if (!"name"  %in% names(df)) {
+			df$name = "Region set"
+		}
+
+		ncuts = length(unique(df$cuts))
+		xs = rep(seq_len(ncuts), nplots)
+		g = ggplot(df) + 
+			geom_raster(aes(x=xs, y=name, fill=Freq)) +
+			scale_fill_gradient(low="navy", high="orange") +
+			geom_point(aes(x=midx, y=0.5), color="black", size=2, shape=17, alpha=0.8) + 
+			theme_classic() + 
+			labs(fill=ifelse(numbers,"Counts","Frequency (%)")) +
+			theme(legend.position="bottom") + 
+			xlab(paste("Distance to", featureName)) +
+			theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) +
+			scale_x_continuous(breaks=c(1, ncuts), labels=c(minlabel, maxlabel))
+		return(g)
+	}
+
 	g = g +
 		geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
 		geom_point(aes(x=midx, y=0), color="tan2", size=2, shape=17, alpha=0.8) +
@@ -189,22 +232,32 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features", division
 		xlab(paste("Distance to", featureName)) +
 		ylab(ifelse(numbers,"Counts","Frequency (%)")) +
 		# theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
-		theme(axis.text.x=element_text(angle = 0, hjust = c(0,1), vjust=0.5)) + # vlab()
+		theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
 		ggtitle(paste("Distribution relative to", featureName)) +
 		theme(legend.position="bottom") + 
-		scale_x_discrete(labels=edgeLabels)
+		theme(panel.spacing.x=unit(1, "lines")) + scale_x_discrete(labels=edgeLabels) +
+		scale_x_discrete(labels=edgeLabels, expand=expansion(mult=0.035))
 
 	return(g)
 }
 
 
 # Internal helper function for \code{plotFeatureDist}
-cutDists = function(dists, divisions=NULL) {
+#
+# @param dists A vector of genomic distances.
+# @param divisions A vector of bin sizes to divide the dists into.
+# @param nbins Number of bins on each side of the center point.
+# @param size Number of bases to include in plot on each side of the center point.
+# @param infBins Include catch-all bins on the sides?
+# @return A data.frame of the table of the frequency of dists in divisions.
+cutDists = function(dists, divisions=NULL, nbins=50, size=100000, infBins=TRUE) {
 	if (is.null(divisions)) {
-		message("hi")
-		poscuts = seq(0,100000, by=2000)
+		poscuts = seq(0, size, by=size/nbins)
 		divisions = sort(unique(c(-poscuts, poscuts)))
+		if (infBins) {
+			divisions = c(-Inf, divisions, Inf)
+		}
 	}
 	if (is.list(dists)) {
 		x = lapply(dists, cutDists, divisions)
@@ -213,7 +266,7 @@ cutDists = function(dists, divisions=NULL) {
 		# column to distinguish them.
 		nameList = names(dists)
 		if(is.null(nameList)) {
-			nameList = 1:length(query) # Fallback to sequential numbers
+			nameList = 1:length(dists) # Fallback to sequential numbers
 		}
 
 		# Append names
@@ -223,7 +276,7 @@ cutDists = function(dists, divisions=NULL) {
 		return(xb)
 	}
 
-	labels = labelCuts(sort(divisions), collapse=" to ", infBins=TRUE)
+	labels = labelCuts(sort(divisions), collapse=" to ", infBins=infBins)
 	cuts = cut(dists, divisions, labels)
 	df = as.data.frame(table(cuts))
 	return(df)

@@ -5,8 +5,8 @@
 \title{The function calcOpenSignal takes the input BED file(s) in form of GRanges 
 or GRangesList object, overlaps it with all defined open chromatin regions 
 across cell types and returns a matrix, where each row is the input genomic
- region (if overlap was found), each column is a cell type, and the value 
- is a normalized ATAC-seq signal.}
+region (if overlap was found), each column is a cell type, and the value 
+is a normalized ATAC-seq signal.}
 \usage{
 calcOpenSignal(query, cellMatrix)
 }
@@ -20,23 +20,18 @@ information about the genomic region in following form:
 chr_start_end. Can be either data.frame or data.table object.}
 }
 \value{
-A data.table with cell specific open chromatin signal values for query 
-regions.
+A data.table with cell specific open chromatin signal values for 
+    query regions.
 }
 \description{
 The function calcOpenSignal takes the input BED file(s) in form of GRanges 
 or GRangesList object, overlaps it with all defined open chromatin regions 
 across cell types and returns a matrix, where each row is the input genomic
- region (if overlap was found), each column is a cell type, and the value 
- is a normalized ATAC-seq signal.
+region (if overlap was found), each column is a cell type, and the value 
+is a normalized ATAC-seq signal.
 }
 \examples{
 \dontrun{
-query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-GRquery = rtracklayer::import(query)
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-package="GenomicDistributions")
-cellMatrix = data.table::fread(exampleCellMatrixFile)
-signalMatrix = calcOpenSignal(GRquery, cellMatrix)
+signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 }
 }
