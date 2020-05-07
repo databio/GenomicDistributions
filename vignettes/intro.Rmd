@@ -106,14 +106,14 @@ This plot uses log-scale increasing bins to show how your regions are distribute
 ```{r tss-distribution-multi, fig.cap="TSS plots with multiple region sets"}
 
 TSSdist2 = calcFeatureDistRefTSS(queryList, "hg19")
-plotFeatureDist(TSSdist2)
+plotFeatureDist(TSSdist2, featureName="TSS")
 
 ```
 
 You can also plot a tiled version that aligns them all vertically:
 
 ```{r tiled-distance-plot, fig.cap="Tiled feature distance plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
-plotFeatureDist(TSSdist2, tile=TRUE)
+plotFeatureDist(TSSdist2, featureName="TSS", tile=TRUE)
 ```
 
 If you want to check distances to other features, that's no problem; `calcFeatureDistRefTSS()` is really just a wrapper for the workhorse function, `calcFeatureDist()`. To show how this works, get some features you want to check the distance to. Here, let's just shift our query set by a normally distributed random number:

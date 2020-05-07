@@ -198,16 +198,18 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 
 	# find midpoint
 	midx = nrow(df)/2/nplots
-	barcount = nrow(df)
+	barcount = nrow(df)/nplots
 	minlabel = genomeLabel(-size)
 	maxlabel = genomeLabel(size)
-	edgeLabels = c(minlabel, rep("", barcount-3), maxlabel)
+	edgeLabels = c(minlabel, rep("", barcount-2), maxlabel)
+
 	if (tile) {
 		if (!"name"  %in% names(df)) {
 			df$name = "Region set"
 		}
 
-		xs = rep(seq_len(length(unique(df$cuts))), nplots)
+		ncuts = length(unique(df$cuts))
+		xs = rep(seq_len(ncuts), nplots)
 		g = ggplot(df) + 
 			geom_raster(aes(x=xs, y=name, fill=Freq)) +
 			scale_fill_gradient(low="navy", high="orange") +
@@ -216,7 +218,8 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 			labs(fill=ifelse(numbers,"Counts","Frequency (%)")) +
 			theme(legend.position="bottom") + 
 			xlab(paste("Distance to", featureName)) +
-			scale_x_discrete(labels=edgeLabels)
+			theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) +
+			scale_x_continuous(breaks=c(1, ncuts), labels=c(minlabel, maxlabel))
 		return(g)
 	}
 
@@ -230,11 +233,12 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 		xlab(paste("Distance to", featureName)) +
 		ylab(ifelse(numbers,"Counts","Frequency (%)")) +
 		# theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
-		theme(axis.text.x=element_text(angle = 0, hjust = c(0,1), vjust=0.5)) + # vlab()
+		theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) + # vlab()
 		theme(plot.title = element_text(hjust = 0.5)) + # Center title
 		ggtitle(paste("Distribution relative to", featureName)) +
 		theme(legend.position="bottom") + 
-		scale_x_discrete(labels=edgeLabels)
+		theme(panel.spacing.x=unit(1, "lines")) + scale_x_discrete(labels=edgeLabels) +
+		scale_x_discrete(labels=edgeLabels, expand=expansion(mult=0.035))
 
 	return(g)
 }
