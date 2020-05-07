@@ -691,8 +691,8 @@ plotPartitionPercents = function(percentList) {
     percPlot =  percentReshape(percentList, "resAllAve")
     if (!is.null(percentList$resDiffAveNorm)) {
         normPlot =  percentReshape(percentList, "resDiffAveNorm")
-        normPlot = plotB + 
-          ylab(expression(log[10]*'(Fold change)'))
+        normPlot = normPlot + 
+          ylab(expression(log[10]*(over("user overlap", background))))
         return(normPlot)
     } else {
         return(percPlot)
@@ -718,19 +718,19 @@ percentReshape = function(percentList, percentdf){
         g = ggplot2::ggplot(percReshaped, 
                             aes(x=Var1, y=Percent, fill=regionSet)) +
             geom_bar(stat="identity", position = position_dodge()) +
+            theme_classic() +
             theme(legend.position = "bottom") 
     } else {
         # If a single regionset provided, no need to include legend
         g = ggplot2::ggplot(percReshaped, aes(x=Var1, y=Percent)) + 
             geom_bar(stat="identity", fill=c("gray35"), 
                      position = position_dodge()) +
+            theme_classic() +
             theme(legend.position = "none") 
     }
     g = g + 
         xlab("Genomic Partition") +
-        theme_classic() + 
         theme_blank_facet_label() +
-        theme(legend.position = "none") +
         theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
         theme(plot.title=element_text(hjust = 0.5)) +
         theme(aspect.ratio=1) +
