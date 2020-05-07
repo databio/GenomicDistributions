@@ -220,7 +220,7 @@ One feature we are often interested in is the tissue specificity of a set of gen
 
 We have produced example reference data matrixes based on ENCODE accessibility information, which can be downloaded from [big.databio.org](http://big.databio.org/open_chromatin_matrix/). Here, we'll demonstrate how this works with some tiny built-in example reference data.
 
-```{r specificity-plot-single, fig.height = 6, fig.cap="Specificty of chromatin accessibility across cell types."}
+```{r specificity-plot-single, fig.height = 6, fig.cap="Specificity of chromatin accessibility across cell types."}
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
 op = calcOpenSignal(query, cellMatrix)
@@ -228,7 +228,7 @@ plotOpenSignal(op)
 ```
 
 To plot multiple datasets at a time:
-```{r specificity-plot-multi, fig.height = 7, fig.cap="Specificty of chromatin accessibility across cell types."}
+```{r specificity-plot-multi, fig.height = 7, fig.cap="Specificity of chromatin accessibility across cell types."}
 op2 = calcOpenSignal(queryList, cellMatrix)
 plotOpenSignal(op2)
 ```
