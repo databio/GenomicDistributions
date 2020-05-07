@@ -31,6 +31,8 @@ displayed, rather than percentages (optional).}
 \item{size}{Number of bases to include in plot on each side of the center point.}
 
 \item{infBins}{Include catch-all bins on the sides?}
+
+\item{tile}{Turn on a tile mode, which plots a tiled figure instead of a histogram.}
 }
 \value{
 A ggplot2 plot object
