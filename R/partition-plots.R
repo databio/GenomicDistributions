@@ -163,10 +163,10 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     partitionNames = names(partitionList)
     partition = rep(0, length(query))  
     for (pi in 1:length(partitionList)) {
-        cat(partitionNames[pi],":")
+        # message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
-        message("\tfound ", sum(ol>0))
+        # message("\tfound ", sum(ol>0))
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     partition[partition=="0"] = remainder
