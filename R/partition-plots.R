@@ -164,10 +164,10 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     partitionNames = names(partitionList)
     partition = rep(0, length(query))  
     for (pi in 1:length(partitionList)) {
-        # message(partitionNames[pi],":")
+        cat(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
-        # message("\tfound ", sum(ol>0))
+        message("\tfound ", sum(ol>0))
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     partition[partition=="0"] = remainder
@@ -231,23 +231,24 @@ calcExpectedPartitions = function(query, partitionList,
         # Calculate remainder
         partitionCounts = rbind(partitionCounts,
             data.table::data.table(partition=remainder,
-                                   N=(genomeSize-sum(partitionCounts$N))))
+                                   N=((genomeSize-sum(partitionCounts$N))/
+                                       genomeSize)*query_total))
     }
     partitionCounts = partitionCounts[order(partitionCounts$partition)]
     partition = rep(0, length(query))
     for (pi in 1:length(partitionList)) {
-        # message(partitionNames[pi],":")
+        cat(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
-        # message("\tfound ", sum(ol>0))
+        message("\tfound ", sum(ol>0))
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     # Remove remainder
     if (!is.null(genomeSize)) {
-        # message(remainder,":")
+        cat(remainder,":")
         count = length(partition[partition=="0"])
         partition[partition=="0"] = remainder
-        # message("\tfound ", count)
+        message("\tfound ", count)
         partitionNames = c(partitionNames, remainder)
     } else {
         partition = partition[!partition=="0"]
@@ -314,7 +315,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
                                   cumsize=as.numeric(),
                                   frif=as.numeric())
     for (pi in 1:length(partitionList)) {
-        # message(partitionNames[pi],":")
+        cat(partitionNames[pi],":")
         # Find overlaps
         hits  = suppressWarnings(findOverlaps(query, partitionList[[pi]]))
         olap  = suppressWarnings(pintersect(query[queryHits(hits)],
@@ -328,7 +329,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         hits[, size:=width(pHits)]
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
-        # message("\tfound ", nrow(hits))
+        message("\tfound ", nrow(hits))
 
         # Make mutually exclusive; remove hits from query
         query = query[-hits$xid]
@@ -345,10 +346,10 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         frif = rbind(frif, x)
     }
     # Create remainder...
-    # cat(remainder,":")
+    cat(remainder,":")
     x = data.table::data.table(partition=remainder,
                                size=as.numeric(width(query)))
-    # message("\tfound ", length(query))
+    message("\tfound ", length(query))
     x = x[order(x$size),]
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
