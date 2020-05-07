@@ -143,9 +143,6 @@ gp = calcPartitionsRef(query, "hg19")
 plotPartitions(gp)
 ```
 
-### Percentage partition distribution plots
-Additionally, Genomic Distributions offers the alternative of looking at the percentage overlap across a defined set of partitions simply by setting the metric="percent" argument in the above mentioned function
-
 
 Can you do 2 at a time? Yep:
 
@@ -155,25 +152,41 @@ plotPartitions(gp2)
 ```
 
 ### Percentage partition distribution plots
-Additionally, Genomic Distributions offers the alternative of looking at the percentage overlap across a defined set of partitions simply by setting the metric="percent" argument in the above mentioned function
+Additionally, Genomic Distributions offers the alternative of looking at the percentage overlap across a defined set of partitions, simply by setting the metric argument to "percent" as follows:
 
 ```{r percentage-partition-plot, fig.cap="Percentage partition distribution plot. Percentage distribution of regions across genomic features", fig.small=TRUE}
+# Calculate the percentage overlaps:
 perc = calcPartitionsRef(query, "hg19", metric = "percent")
+
+# Plot the results:
 plotPartitionPercents(perc)
 ```
 
-As with the raw partitions, you can plot more than one regionset at a time by creating a named list
+As with the raw overlap partitions, you can plot more than one regionset at a time by passing the appropriate named GRangeslist:
+
 ```{r percentage-partition-plot-multi, fig.cap="Percentage partition distribution plot for multiple regionsets", fig.small=TRUE}
 perc2 = calcPartitionsRef(queryList, "hg19", metric = "percent")
 plotPartitionPercents(perc2)
 ```
 
-When using the metric="percent" option, you can also look at the percentage overlap normalized for genomic background.
-```{r norm-percentage-partition-plot, fig.cap="Percentage partition distribution plot for multiple regionsets correcting for genomic background", fig.small=TRUE}
-backGR = GenomicRanges::shift(query, 1e8)
-pback = calcPartitionsRef(queryList, "hg19", metric = "percent", backgroundGR = backGR)
+When using the "percent" metric, you can also look at the percentage overlap normalized for genomic background. To do this, you need to provide a background GRanges object to the backgroundGR argument:
+
+```{r norm-percentage-partition-plot, fig.cap="Percentage distribution plot corrected for genomic background", fig.small=TRUE}
+# Create a background GRanges object:
+back = GenomicRanges::shift(query, 1e8)
+
+# Pass the background obj to the main calculation function and plot the results:
+pback = calcPartitionsRef(query, "hg19", metric="percent", backgroundGR=back)
 plotPartitionPercents(pback)
 ```
+
+If you're assuming you can do this with more than one regionset, you're right:
+
+```{r multiple-norm-percentage-partition-plot, fig.cap="Corrected genomic background for multiple regionsets", fig.small=TRUE}
+pback = calcPartitionsRef(queryList, "hg19", metric="percent", backgroundGR=back)
+plotPartitionPercents(pback)
+```
+
 
 ### Expected partition distribution plots
  
