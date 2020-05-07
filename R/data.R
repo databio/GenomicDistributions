@@ -5,6 +5,9 @@
 #' @format A named vectors of lengths with one item per chromosome
 #' @source BSgenome.Hsapiens.UCSC.hg19 package
 #' @name chromSizes_hg19
+#' @docType data
+#' @keywords datasets
+#' @usage data(chromSizes_hg19)
 NULL
 
 
@@ -15,6 +18,9 @@ NULL
 #' @format A named vectors of lengths with one item per chromosome
 #' @source EnsDb.Hsapiens.v75 package
 #' @name TSS_hg19
+#' @docType data
+#' @keywords datasets
+#' @usage data(TSS_hg19)
 NULL
 
 #' hg38 gene models
@@ -24,6 +30,9 @@ NULL
 #' @format A list of two GRanges objects, with genes and exons locations
 #' @source EnsDb.Hsapiens.v75 package
 #' @name geneModels_hg19
+#' @docType data
+#' @keywords datasets
+#' @usage data(geneModels_hg19)
 NULL
 
 
@@ -45,6 +54,9 @@ NULL
 #' individual cell types and values are normalized open chromatin signal values.
 #' @source \url{http://big.databio.org/open_chromatin_matrix/openSignalMatrix_hg19_quantileNormalized_round4.txt.gz}
 #' @name exampleOpenSignalMatrix_hg19
+#' @docType data
+#' @keywords datasets
+#' @usage data(exampleOpenSignalMatrix_hg19)
 NULL
 
 
@@ -54,6 +66,9 @@ NULL
 #'
 #' @format GenomicRanges::GRanges
 #' @name vistaEnhancers
+#' @docType data
+#' @keywords datasets
+#' @usage data(vistaEnhancers)
 NULL
 
 
@@ -63,6 +78,9 @@ NULL
 #'
 #' @format GenomicRanges::GRanges
 #' @name setB_100
+#' @docType data
+#' @keywords datasets
+#' @usage data(setB_100)
 NULL
 
 
@@ -73,5 +91,8 @@ NULL
 #' @format data.table with 3 columns (cellType, tissue and group) and 74 rows (one per cellType)
 #' @source self-curated dataset
 #' @name cellTypeMetadata
+#' @docType data
+#' @keywords datasets
+#' @usage data(cellTypeMetadata)
 NULL
 
