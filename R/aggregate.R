@@ -13,7 +13,10 @@
 #'     functions for methylation calls) that you wish to aggregate. 
 #'     It can be a combined table, with individual samples identified 
 #'     by column passed to splitFactor.
+#' @param splitFactor Split a data.table on this column name.
 #' @param regionsGRL Regions across which you want to aggregate.
+#' @param regionsGRL.length A vector of the lengths of included regions. 
+#'     Including this will speed up calculation.
 #' @param excludeGR A GenomicRanges object with regions you want to 
 #'     exclude from the aggregation function. These regions will
 #'     be eliminated from the input table and not counted.
@@ -27,12 +30,14 @@
 #'     Turn on this flag to aggregate across all region 
 #'     groups, making the result uncontiguous, and resulting 
 #'     in 1 row per *region group*.
+#' @param sumCols Restrict the reporting of the sum of all numeric columns.
+#' @param keepCols Subset sum of columns to named list.
 #' @return e A data.table object representing the aggregated BSDT.
 #'
 #' @export
 BSAggregate = function(BSDT, regionsGRL, excludeGR=NULL, regionsGRL.length=NULL,
 	splitFactor=NULL, keepCols=NULL, sumCols=NULL, jExpr=NULL,
-	byRegionGroup=FALSE, keep.na=FALSE) {
+	byRegionGroup=FALSE) {
 
 	# Assert that regionsGRL is a GRL.
 	# If regionsGRL is given as a GRanges, we convert to GRL
@@ -98,10 +103,6 @@ BSAggregate = function(BSDT, regionsGRL, excludeGR=NULL, regionsGRL.length=NULL,
 	}
 
 	BSDT[,regionID:=subjectHits(fo)] #record which region they overlapped.
-	#BSDT[queryHits(fo),regionID:=subjectHits(fo)]
-	#if (!keep.na) {
-	#	BSDT = BSDT[queryHits(fo),]
-	#}
 
 	if (is.null(jExpr)) {
 		cols=c(sumCols, keepCols)
