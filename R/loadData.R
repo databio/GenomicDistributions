@@ -33,7 +33,6 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
         stop("I don't know how to map the string ", genomeBuild,
              " to a BSgenome")
     }
-    s
     return(.requireAndReturn(databasePkgString))
 }
 
