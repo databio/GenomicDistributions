@@ -26,6 +26,5 @@ annotations; it gives you proximal and core promoters, exons, and introns.
 To be used as a partitionList for \code{calcPartitions}.
 }
 \examples{
-geneModels = getGeneModels("hg38")
-partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
 }

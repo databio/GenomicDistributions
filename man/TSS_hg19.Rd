@@ -2,13 +2,13 @@
 % Please edit documentation in R/data.R
 \name{TSS_hg19}
 \alias{TSS_hg19}
-\title{TSS locations}
+\title{hg19 TSS locations}
 \format{
 A named vectors of lengths with one item per chromosome
 }
 \source{
-BSGenome package
+EnsDb.Hsapiens.v75 package
 }
 \description{
-A dataset containing chromosome sizes for common reference genome assemblies
+A dataset containing chromosome sizes for Homo Sapiens hg38 genome assembly
 }

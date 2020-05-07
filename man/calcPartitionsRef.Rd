@@ -29,9 +29,6 @@ This function is a wrapper for \code{calcPartitions} and \code{calcPartitionPerc
 partitions for a given reference genome assembly.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-calcPartitionsRef(query, "hg19")
-calcPartitionsRef(query, "hg19", metric="percent")
+calcPartitionsRef(vistaEnhancers, "hg19")
+calcPartitionsRef(vistaEnhancers, "hg19", metric="percent")
 }

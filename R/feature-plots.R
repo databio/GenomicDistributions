@@ -153,9 +153,7 @@ genomeLabel = function(x) {
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
-#' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' query = rtracklayer::import(queryFile)
-#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+#' TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
 #' plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
                            numbers=FALSE, nbins=50, size=100000, infBins=FALSE, tile=FALSE) {

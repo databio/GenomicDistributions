@@ -3,10 +3,7 @@ library(testthat)
 library(data.table)
 
 # data
-refs = c("hg38", "hg19")
-f = system.file("extdata", "vistaEnhancers.bed.gz", 
-                package="GenomicDistributions")
-query = rtracklayer::import(f)
+query = vistaEnhancers
 querySftd = GenomicRanges::shift(query, 100000)
 queryList = GRangesList(q1=query, q2=querySftd)
 
@@ -21,7 +18,7 @@ test_that("binRegion works with binSize and binCount", {
 })
 
 test_that("calcChromBinsRef works with list input", {
-    expect_visible(calcChromBinsRef(queryList, refs[1]))
+    expect_visible(calcChromBinsRef(queryList, "hg19"))
 })
 
 context("result")
@@ -35,7 +32,7 @@ test_that("binRegion returns result of correct length", {
 })
 
 test_that("calcChromBinsRef returns a proper object type, length ad includes all the regions", {
-    result = calcChromBinsRef(query, refs[1])
+    result = calcChromBinsRef(query, "hg19")
     expect_is(result, "data.table")
     expect_length(result, 7)
     expect_equal(sum(result$N), length(query))

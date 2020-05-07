@@ -13,8 +13,7 @@ BSAggregate(
   keepCols = NULL,
   sumCols = NULL,
   jExpr = NULL,
-  byRegionGroup = FALSE,
-  keep.na = FALSE
+  byRegionGroup = FALSE
 )
 }
 \arguments{
@@ -28,6 +27,15 @@ by column passed to splitFactor.}
 \item{excludeGR}{A GenomicRanges object with regions you want to 
 exclude from the aggregation function. These regions will
 be eliminated from the input table and not counted.}
+
+\item{regionsGRL.length}{A vector of the lengths of included regions. 
+Including this will speed up calculation.}
+
+\item{splitFactor}{Split a data.table on this column name.}
+
+\item{keepCols}{Subset sum of columns to named list.}
+
+\item{sumCols}{Restrict the reporting of the sum of all numeric columns.}
 
 \item{jExpr}{You can pass a custom command in the j slot to data.table
 specifying which columns to aggregate, and which functions to 

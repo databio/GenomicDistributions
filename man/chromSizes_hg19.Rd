@@ -2,13 +2,13 @@
 % Please edit documentation in R/data.R
 \name{chromSizes_hg19}
 \alias{chromSizes_hg19}
-\title{Chromosome sizes}
+\title{hg19 chromosome sizes}
 \format{
 A named vectors of lengths with one item per chromosome
 }
 \source{
-BSGenome package
+BSgenome.Hsapiens.UCSC.hg19 package
 }
 \description{
-A dataset containing chromosome sizes for common reference genome assemblies
+A dataset containing chromosome sizes for Homo Sapiens hg38 genome assembly
 }

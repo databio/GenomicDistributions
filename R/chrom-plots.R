@@ -161,10 +161,7 @@ calcChromBins = function(query, bins) {
 #' reference genome.
 #' @export
 #' @examples 
-#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' GRquery = rtracklayer::import(query)
-#' ChromBins = calcChromBinsRef(GRquery, "hg19")
-#' 
+#' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
 calcChromBinsRef = function(query, refAssembly, binCount=10000) {
     .validateInputs(list(refAssembly="character", 
                          query=c("GRanges","GRangesList")))

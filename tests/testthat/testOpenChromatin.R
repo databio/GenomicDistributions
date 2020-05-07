@@ -3,12 +3,8 @@ library(data.table)
 library(testthat)
 library(GenomicDistributions)
 # data
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-                                    package="GenomicDistributions")
-cellMatrix = data.table::fread(exampleCellMatrixFile)
-f = system.file("extdata", "vistaEnhancers.bed.gz", 
-                package="GenomicDistributions")
-query = rtracklayer::import(f)
+cellMatrix = exampleOpenSignalMatrix_hg19
+query = vistaEnhancers
 querySftd = GenomicRanges::shift(query, 100000)
 queryList = GRangesList(q1=query, q2=querySftd)
 

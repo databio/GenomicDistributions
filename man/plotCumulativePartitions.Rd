@@ -21,9 +21,6 @@ This function plots the cumulative distribution of regions across a
 feature set.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-p = calcCumulativePartitionsRef(query, "hg19")
+p = calcCumulativePartitionsRef(vistaEnhancers, "hg19")
 cumuPlot = plotCumulativePartitions(p)
 }

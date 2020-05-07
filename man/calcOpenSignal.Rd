@@ -32,11 +32,6 @@ is a normalized ATAC-seq signal.
 }
 \examples{
 \dontrun{
-query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-GRquery = rtracklayer::import(query)
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-package="GenomicDistributions")
-cellMatrix = data.table::fread(exampleCellMatrixFile)
-signalMatrix = calcOpenSignal(GRquery, cellMatrix)
+signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 }
 }

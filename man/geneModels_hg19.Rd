@@ -2,13 +2,13 @@
 % Please edit documentation in R/data.R
 \name{geneModels_hg19}
 \alias{geneModels_hg19}
-\title{Gene models}
+\title{hg38 gene models}
 \format{
-A named vectors of lengths with one item per chromosome
+A list of two GRanges objects, with genes and exons locations
 }
 \source{
-BSGenome package
+EnsDb.Hsapiens.v75 package
 }
 \description{
-A dataset containing chromosome sizes for common reference genome assemblies
+A dataset containing gene models for Homo Sapiens hg38 genome assembly.
 }

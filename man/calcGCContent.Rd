@@ -21,9 +21,7 @@ granges object, with percent of Cs and Gs.
 }
 \examples{
 \dontrun{
-query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-GRquery = rtracklayer::import(query)
 bsg = loadBSgenome('hg19')
-gcvec = calcGCContent(GRquery, bsg)
+gcvec = calcGCContent(vistaEnhancers, bsg)
 }
 }

@@ -6,9 +6,7 @@
 #' @return A vector of the widths (end-start coordinates) of GRanges objects.
 #' @export
 #' @examples
-#' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' query = rtracklayer::import(queryFile)
-#' TSSdist = calcFeatureDistRefTSS(query, "hg19")
+#' TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
 #' plotFeatureDist(TSSdist, featureName="TSS")
 calcWidth = function(query) { 
     if (is(query, "GRangesList")) {

@@ -25,9 +25,6 @@ GRanges objects. Each region in the query will be assigned to a given
 partition that it overlaps with the highest priority.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-p = calcPartitionsRef(query, "hg19")
+p = calcPartitionsRef(vistaEnhancers, "hg19")
 partPlot = plotPartitions(p)
 }

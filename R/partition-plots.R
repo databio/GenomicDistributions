@@ -16,11 +16,8 @@
 #'     several genomic partitions.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' calcPartitionsRef(query, "hg19")
-#' calcPartitionsRef(query, "hg19", metric="percent")
+#' calcPartitionsRef(vistaEnhancers, "hg19")
+#' calcPartitionsRef(vistaEnhancers, "hg19", metric="percent")
 calcPartitionsRef = function(query, refAssembly, 
                               metric=NULL, backgroundGR=NULL) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
@@ -55,10 +52,7 @@ calcPartitionsRef = function(query, refAssembly,
 #'     several genomic partitions.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' calcExpectedPartitionsRef(query, "hg19")
+#' calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 calcExpectedPartitionsRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
@@ -82,10 +76,7 @@ calcExpectedPartitionsRef = function(query, refAssembly) {
 #'     several genomic partitions.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' calcCumulativePartitionsRef(query, "hg19")
+#' calcCumulativePartitionsRef(vistaEnhancers, "hg19")
 calcCumulativePartitionsRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
@@ -111,8 +102,7 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #'     introns. 
 #' @export
 #' @examples 
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
 genomePartitionList = function(genesGR, exonsGR) {
     .validateInputs(list(exonsGR=c("GRanges", "GRangesList"), 
                          genesGR="GRanges"))
@@ -152,12 +142,8 @@ genomePartitionList = function(genesGR, exonsGR) {
 #'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' calcPartitions(query, partitionList)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' calcPartitions(vistaEnhancers, partitionList)
 calcPartitions = function(query, partitionList, remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
@@ -207,12 +193,8 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' calcExpectedPartitions(query, partitionList)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' calcExpectedPartitions(vistaEnhancers, partitionList)
 calcExpectedPartitions = function(query, partitionList) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
@@ -280,12 +262,8 @@ calcExpectedPartitions = function(query, partitionList) {
 #'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' calcCumulativePartitions(query, partitionList)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' calcCumulativePartitions(vistaEnhancers, partitionList)
 calcCumulativePartitions = function(query, partitionList, remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
@@ -398,10 +376,7 @@ setLabels = function(assignedPartitions) {
 #'     features.
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' p = calcCumulativePartitionsRef(query, "hg19")
+#' p = calcCumulativePartitionsRef(vistaEnhancers, "hg19")
 #' cumuPlot = plotCumulativePartitions(p)
 plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
     .validateInputs(list(assignedPartitions="data.frame"))
@@ -500,10 +475,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #'     query regions across a given partition list.  
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' p = calcExpectedPartitionsRef(query, "hg19")
+#' p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 #' expectedPlot = plotExpectedPartitions(p)
 plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
     .validateInputs(list(expectedPartitions="data.frame"))
@@ -583,10 +555,7 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #'  regions across a given partition list.  
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz",
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' p = calcPartitionsRef(query, "hg19")
+#' p = calcPartitionsRef(vistaEnhancers, "hg19")
 #' partPlot = plotPartitions(p)
 plotPartitions = function(assignedPartitions, labels=NULL) {
     # resAll = t(sapply(assignedPartitions, table))
@@ -631,12 +600,8 @@ plotPartitions = function(assignedPartitions, labels=NULL) {
 #'     partitions.
 #' @export
 #' @examples
-#' f = system.file("extdata", "vistaEnhancers.bed.gz", 
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' partPerc = calcPartitionPercents(query, partitionList)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
 calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
     .validateInputs(list(listGR=c("GRanges","GRangesList"),
                          partitionList="list"))
@@ -675,12 +640,8 @@ calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
 #'         or genomic background corrected overlap data
 #' @export
 #' @examples 
-#' f = system.file("extdata", "vistaEnhancers.bed.gz", 
-#'     package="GenomicDistributions")
-#' query = rtracklayer::import(f)
-#' geneModels = getGeneModels("hg38")
-#' partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-#' partPerc = calcPartitionPercents(query, partitionList)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
 #' p = plotPartitionPercents(partPerc)
 plotPartitionPercents = function(percentList) {
     .validateInputs(list(percentList="list"))

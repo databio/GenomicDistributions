@@ -25,9 +25,6 @@ Produces a barplot showing how query regions of interest are distributed
 relative to the expected distribution across a given partition list
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-p = calcExpectedPartitionsRef(query, "hg19")
+p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 expectedPlot = plotExpectedPartitions(p)
 }

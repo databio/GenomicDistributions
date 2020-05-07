@@ -18,11 +18,7 @@ A ggplot object using a barplot to show either percentage overlap
 Plot the percentage overlap of GRanges objects against defined partitions.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz", 
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-geneModels = getGeneModels("hg38")
-partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-partPerc = calcPartitionPercents(query, partitionList)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
 p = plotPartitionPercents(partPerc)
 }

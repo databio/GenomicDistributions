@@ -225,7 +225,7 @@ getTSSs = function(refAssembly) {
 #' @param refAssembly A string identifier for the reference assembly
 #' @export
 #' @examples
-#' getGeneModels("hg38")
+#' getGeneModels("hg19")
 getGeneModels = function(refAssembly) { 
 	getReferenceData(refAssembly, tagline="geneModels_")
 }
@@ -252,7 +252,7 @@ getReferenceData = function(refAssembly, tagline) {
 				envir=environment())
 		return(get(dataObjectVar))
 	} else {
-		error("I don't have built-in data for reference assembly ",
+		stop("I don't have built-in data for reference assembly ",
 			refAssembly, "(looking for ", tagline, ")")
 	}
 }
