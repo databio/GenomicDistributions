@@ -149,6 +149,7 @@ genomeLabel = function(x) {
 #' @param nbins Number of bins on each side of the center point.
 #' @param size Number of bases to include in plot on each side of the center point.
 #' @param infBins Include catch-all bins on the sides?
+#' @param tile Turn on a tile mode, which plots a tiled figure instead of a histogram.
 #' @return A ggplot2 plot object
 #' @export
 #' @examples

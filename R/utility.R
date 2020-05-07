@@ -216,7 +216,7 @@ labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-",
       labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
       labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
       if (infBins) {
-        labels[1] = paste0("<", formatC(breakPoints[2], format="d", big.mark=","))
+        labels[1] = paste0("<=", formatC(breakPoints[2], format="d", big.mark=","))
         labels[length(labels)] = paste0(">", formatC(breakPoints[length(breakPoints)-1], format="d", big.mark=","))
       }
       return(labels)

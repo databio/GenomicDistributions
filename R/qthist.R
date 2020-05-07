@@ -62,7 +62,7 @@ plotQTHist = function(widths, EndBarColor = "gray57", MiddleBarColor = "gray27",
     divisionCheck = output[["divisions"]]
     if (length(divisionCheck) > length(unique(divisionCheck))){
       if (length(unique(divisionCheck)) == 3){
-        output[["divisions"]] = c(-Inf, divisionCheck[2]-1, divisionCheck[2], Inf)
+        output[["divisions"]] = c(-Inf, divisionCheck[2], divisionCheck[2]+1, Inf)
         output[["bins"]] = 1
       } else {
         output[["divisions"]] = unique(divisionCheck)
