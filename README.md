@@ -1,13 +1,23 @@
 [![Build Status](https://travis-ci.org/databio/GenomicDistributions.svg?branch=dev)](https://travis-ci.org/databio/GenomicDistributions)
 
-# Genomic Distributions
+# GenomicDistributions
 
 Functions for calculating and plotting the distribution of query features (*e.g.* genomic ranges) across the genome. If you have a set of genomic ranges, the GenomicDistributions R package can help you with some simple visualizations.
 
 ## Installing
 
-```
+### Main package
+
+```r
 devtools::install_github("databio/GenomicDistributions")
+```
+
+### Data package
+
+Includes full data files, too large to include in GenomicDistributions
+
+```r
+install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
 ```
 
 ## Quick start

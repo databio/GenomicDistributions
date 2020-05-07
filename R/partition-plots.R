@@ -57,10 +57,11 @@ calcExpectedPartitionsRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
+    chromSizes = getChromSizes(refAssembly)
+    genomeSize = sum(chromSizes)
     partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-    return(calcExpectedPartitions(query, partitionList))
+    return(calcExpectedPartitions(query, partitionList, genomeSize))
 }
-
 
 #' Calculates the cumulative distribution of overlaps for a query set to a
 #' reference assembly
@@ -189,13 +190,21 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #' @param partitionList An ORDERED and NAMED list of genomic partitions
 #'     GRanges. This list must be in priority order; the input will be assigned
 #'     to the first partition it overlaps.
+#' @param genomeSize The number of bases in the query genome. In other words, 
+#'     the sum of all chromosome sizes.
 #' @return A data.frame assigning each element of a GRanges object to a
 #'     partition from a previously provided partitionList.
+#' @param remainder  Which partition do you want to account for 'everything 
+#'     else'?
 #' @export
 #' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
-#' calcExpectedPartitions(vistaEnhancers, partitionList)
-calcExpectedPartitions = function(query, partitionList) {
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR,
+#'                                     geneModels_hg19$exonsGR)
+#' chromSizes = getChromSizes('hg19')
+#' genomeSize = sum(chromSizes)
+#' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
+calcExpectedPartitions = function(query, partitionList,
+                                  genomeSize=NULL, remainder="Intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
     if (methods::is(query, c("GRangesList"))) {
@@ -218,6 +227,12 @@ calcExpectedPartitions = function(query, partitionList) {
         data.frame(N=(elementNROWS(partitionList)/
                       sum(elementNROWS(partitionList))*query_total)),
         keep.rownames="partition")
+    if (!is.null(genomeSize)) {
+        # Calculate remainder
+        partitionCounts = rbind(partitionCounts,
+            data.table::data.table(partition=remainder,
+                                   N=(genomeSize-sum(partitionCounts$N))))
+    }
     partitionCounts = partitionCounts[order(partitionCounts$partition)]
     partition = rep(0, length(query))
     for (pi in 1:length(partitionList)) {
@@ -228,13 +243,21 @@ calcExpectedPartitions = function(query, partitionList) {
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     # Remove remainder
-    partition = partition[!partition=="0"]
+    if (!is.null(genomeSize)) {
+        cat(remainder,":")
+        count = length(partition[partition=="0"])
+        partition[partition=="0"] = remainder
+        message("\tfound ", count)
+        partitionNames = c(partitionNames, remainder)
+    } else {
+        partition = partition[!partition=="0"]
+    }
     tpartition = table(partition)
     expectedPartitions = data.table::data.table(
         partition=factor(names(tpartition)), observed=as.vector(tpartition))
     expectedPartitions = merge(expectedPartitions, partitionCounts,
                                by = "partition")
-    setnames(expectedPartitions,"N","expected")
+    data.table::setnames(expectedPartitions,"N","expected")
     expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
     return(expectedPartitions[match(partitionNames,

@@ -4,10 +4,7 @@
 \alias{setB_100}
 \title{Example BED file read with rtracklayer::import}
 \format{
-GRanges
-}
-\source{
-
+GenomicRanges::GRanges
 }
 \description{
 Example BED file read with rtracklayer::import

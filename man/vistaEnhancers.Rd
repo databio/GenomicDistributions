@@ -4,10 +4,7 @@
 \alias{vistaEnhancers}
 \title{Example BED file read with rtracklayer::import}
 \format{
-GRanges
-}
-\source{
-
+GenomicRanges::GRanges
 }
 \description{
 Example BED file read with rtracklayer::import
