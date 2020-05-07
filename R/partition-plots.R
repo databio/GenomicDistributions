@@ -209,7 +209,8 @@ calcExpectedPartitions = function(query, partitionList,
                          partitionList="list"))
     if (methods::is(query, c("GRangesList"))) {
         # Recurse over each GRanges object
-        x = lapply(query, calcExpectedPartitions, partitionList)
+        x = lapply(query, calcExpectedPartitions, partitionList,
+                   genomeSize, remainder)
         nameList = names(query)
         if(is.null(nameList)) {
             nameList = 1:length(query) # Fallback to sequential numbers
