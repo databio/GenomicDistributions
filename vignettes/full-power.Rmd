@@ -37,24 +37,45 @@ devtools::install_github("databio/GenomicDistributions")
 
 ```r
 library(microbenchmark)
+```
+
+```
+## Error in library(microbenchmark): there is no package called 'microbenchmark'
+```
+
+```r
 library(GenomicDistributions)
 library(ChIPpeakAnno)
+```
+
+```
+## Error in library(ChIPpeakAnno): there is no package called 'ChIPpeakAnno'
+```
+
+```r
 # library(EnsDb.Hsapiens.v75) # hg19
 library(EnsDb.Hsapiens.v86) # hg38
+```
 
+```
+## Error in library(EnsDb.Hsapiens.v86): there is no package called 'EnsDb.Hsapiens.v86'
+```
+
+```r
 ## create annotation file from EnsDb or TxDb
 annoData <- toGRanges(EnsDb.Hsapiens.v86, feature="gene")
+```
+
+```
+## Error in toGRanges(EnsDb.Hsapiens.v86, feature = "gene"): could not find function "toGRanges"
+```
+
+```r
 annoData[1:2]
 ```
 
 ```
-## GRanges object with 2 ranges and 1 metadata column:
-##                   seqnames      ranges strand |   gene_name
-##                      <Rle>   <IRanges>  <Rle> | <character>
-##   ENSG00000223972     chr1 11869-14409      + |     DDX11L1
-##   ENSG00000227232     chr1 14404-29570      - |      WASH7P
-##   -------
-##   seqinfo: 357 sequences from GRCh38 genome
+## Error in eval(expr, envir, enclos): object 'annoData' not found
 ```
 
 Let's retrieve a local path to an example bed file and use BiocFileCache to download it here if we don't already have it locally:
@@ -100,8 +121,24 @@ Set up benchmarking functions to compare:
 
 ```r
 TSSdist = calcFeatureDist(sort(gr1), sort(annoData))
+```
+
+```
+## Error in sort(annoData): object 'annoData' not found
+```
+
+```r
 p = plotFeatureDist(TSSdist, featureName="TSS")
+```
+
+```
+## Error in cutDists(dists, divisions = NULL, nbins, size, infBins): object 'TSSdist' not found
+```
+
+```r
 print(p)
 ```
 
-![plot of chunk unnamed-chunk-7](figures-full-power/unnamed-chunk-7-1.png)
+```
+## Error in print(p): object 'p' not found
+```
