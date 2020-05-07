@@ -30,6 +30,39 @@ testGR4 = GenomicRanges::shift(testGR2, 2500)
 testGR5 = GenomicRanges::shift(testGR2, 4000)
 ###############################################################################
 
+# test for calcOLCount
+# reset test data in case it was changed by another unit test section
+coordDT1 = copy(origCoordDT1)
+coordDT2 = copy(origCoordDT2)
+testGR1 = dtToGr(coordDT1)
+testGR2 = dtToGr(coordDT2)
+test_that("calcOLCount", {
+    
+    # uses midpoint coordinate of queryRegionDT
+    testGRList = GRangesList(dtToGr(data.table(chr=c("chr1", "chr1"),
+                                   start = c(1, 2001),
+                                   end = c(2000, 4000))), 
+                             dtToGr(data.table(chr=c("chr2", "chr2"),
+                                               start = c(1, 2001),
+                                               end = c(2000, 4000))),
+                             dtToGr(data.table(chr=c("chr3", "chr3"),
+                                               start = c(1, 2001),
+                                               end = c(2000, 4000))))
+    olCount1 = calcOLCount(queryRegionDT = coordDT2, regionsGRL = testGRList)
+    expect_equal(olCount1$N, c(2, 1, 1, 1))
+    expect_equal(olCount1$regionGroupID, c(1, 1, 2, 3))
+    
+    # only expect one overlap: chr2
+    olCount2 = calcOLCount(coordDT2, dtToGr(data.table(chr=c("chr1", "chr1", "chr2"),
+                                           start = c(1, 250, 170),
+                                           end = c(150, 300, 180))))
+    olCount2=as.data.frame(olCount2)
+    expectedOut = data.frame(regionID=3, chr="chr2", start=170, end=180, withinGroupID=3, regionGroupID=1, N=1, stringsAsFactors = FALSE)
+    expect_equal(olCount2, expectedOut)
+})
+
+
+
 
 # "featureDistanceDistribution" function is now named "calcFeatureDist"
 # reset test data in case it was changed by another unit test section
