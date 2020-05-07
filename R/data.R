@@ -44,7 +44,7 @@ NULL
 #' chromatin regions across all cell types defined by ENCODE, columns are 
 #' individual cell types and values are normalized open chromatin signal values.
 #' @source \url{http://big.databio.org/open_chromatin_matrix/openSignalMatrix_hg19_quantileNormalized_round4.txt.gz}
-#' @name exampleopenSignalMatrix_hg19
+#' @name exampleOpenSignalMatrix_hg19
 NULL
 
 
