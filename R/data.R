@@ -1,119 +1,69 @@
-#' Chromosome sizes
+#' hg19 chromosome sizes
 #'
-#' A dataset containing chromosome sizes for common reference genome assemblies
+#' A dataset containing chromosome sizes for Homo Sapiens hg38 genome assembly
 #'
 #' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
+#' @source BSgenome.Hsapiens.UCSC.hg19 package
 #' @name chromSizes_hg19
 NULL
 
-#' Chromosome sizes
+
+#' hg19 TSS locations
 #'
-#' A dataset containing chromosome sizes for common reference genome assemblies
+#' A dataset containing chromosome sizes for Homo Sapiens hg38 genome assembly
 #'
 #' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name chromSizes_hg38
-NULL
-
-#' Chromosome sizes
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name chromSizes_mm9
-NULL
-
-#' Chromosome sizes
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name chromSizes_mm10
-NULL
-
-
-#' TSS locations
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
+#' @source EnsDb.Hsapiens.v75 package
 #' @name TSS_hg19
 NULL
 
-#' TSS locations
+#' hg38 gene models
 #'
-#' A dataset containing chromosome sizes for common reference genome assemblies
+#' A dataset containing gene models for Homo Sapiens hg38 genome assembly. 
 #'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name TSS_hg38
-NULL
-
-#' TSS locations
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name TSS_mm10
-NULL
-
-#' TSS locations
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name TSS_mm9
-NULL
-
-
-#' Gene models
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
+#' @format A list of two GRanges objects, with genes and exons locations
+#' @source EnsDb.Hsapiens.v75 package
 #' @name geneModels_hg19
 NULL
 
-#' Gene models
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name geneModels_hg38
-NULL
 
-#' Gene models
+#’ Example hg19 open signal matrix 
+#' 
+#' A dataset containing a subset of open chromatin regions across all cell types defined by ENCODE for Homo Sapiens hg38
 #'
-#' A dataset containing chromosome sizes for common reference genome assemblies
+#' Preparation steps:
+#' \enumerate{
+#'    \item{made a universe of regions by merging regions across cell types defined as opened in ENCODE}
+#'    \item{took bigwig files from ENCODE for individual cell types, merged replicates, filtered out blacklisted sites}
+#'    \item{evaluated the signal above regions defined by previous step}
+#'    \item{performed quantile normalization}
+#'    \item{subsetted it}
+#' }
 #'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name geneModels_mm10
-NULL
-
-#' Gene models
-#'
-#' A dataset containing chromosome sizes for common reference genome assemblies
-#'
-#' @format A named vectors of lengths with one item per chromosome
-#' @source BSGenome package
-#' @name geneModels_mm9
+#' @format data.frame, rows represent whole selection of open 
+#' chromatin regions across all cell types defined by ENCODE, columns are 
+#' individual cell types and values are normalized open chromatin signal values.
+#' @source \url{http://big.databio.org/open_chromatin_matrix/openSignalMatrix_hg19_quantileNormalized_round4.txt.gz}
+#' @name openSignalMatrix_hg19
 NULL
 
 
-#' Cell type metadata
+#’ Example BED file
+#' 
+#' Example BED file read with rtracklayer::import
 #'
-#' A dataset containing metadat for coloring cell specific open chromatin 
-#' signal plot
-#'
-#' @format A data table with tissue and group assigned to cell type
-#' @name cellTypeMetadata
+#' @format GRanges
+#' @source 
+#' @name vistaEnhancers
 NULL
+
+
+#’ Example BED file
+#' 
+#' Example BED file read with rtracklayer::import
+#'
+#' @format GRanges
+#' @source 
+#' @name setB_100
+NULL
+
