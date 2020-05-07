@@ -138,14 +138,14 @@ Genomic partition distribution plots show you how your regions are distributed a
 
 The most basic partition plot just provies a barplot of raw region counts. You can produce one or two-set plots like so:
 
-```{r raw-partition-plot}
+```{r raw-partition-plot, fig.cap="Partition distribution plot. Raw distribution of query regions across genomic features", fig.small=TRUE}
 gp = calcPartitionsRef(query, "hg19")
 plotPartitions(gp)
 ```
 
 Can you do 2 at a time? Yep:
 
-```{r multiple-raw-partition-plot}
+```{r multiple-raw-partition-plot, fig.cap="Partition distribution plots for multiple query region sets.", fig.small=TRUE}
 gp2 = calcPartitionsRef(queryList, "hg19")
 plotPartitions(gp2)
 ```
@@ -154,13 +154,13 @@ plotPartitions(gp2)
  
 A more useful variation of this plot corrects the values for the expected genome distribution. This accounts for the fact that the distribution of intergenic vs promoter space in the genome is not uniform. Here, we produce one or two-set plots showing the log~10~($\frac{observed}{expected}$) of the distribution of your regions across genomic partitions:
 
-```{r an corrected-partition-plot}
+```{r corrected-partition-plot, fig.cap="Expected partition distribution plot. Distribution of query regions across genomic features relative to the expected distribution of those features.", fig.small=TRUE}
 ep = calcExpectedPartitionsRef(query, "hg19")
 plotExpectedPartitions(ep)
 ```
 
 And can you do 2 at a time? Indeed:
-```{r multiple-corrected-partition-plot}
+```{r multiple-corrected-partition-plot, fig.cap="Expected partition distribution plots for multiple query region sets.", fig.small=TRUE}
 ep2 = calcExpectedPartitionsRef(queryList, "hg19")
 plotExpectedPartitions(ep2)
 ```
@@ -172,13 +172,13 @@ These plots would show all values aligning at 0 if your given regions perfectly 
 The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of reads relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
 
 Now, we'll plot single and multiple cumulative distributions of regions in genomic partitions:
-```{r cumulative-partition-plot}
+```{r cumulative-partition-plot, fig.cap="Cumulative partition distribution plot. Cumulative distribution of query regions across genomic features.", fig.small=TRUE}
 cp = calcCumulativePartitionsRef(query, "hg19")
 plotCumulativePartitions(cp)
 ```
 
 Can you plot 2 of these? You can:
-```{r multiple-cumulative-partition-plot}
+```{r multiple-cumulative-partition-plot, fig.cap="Cumulative partition distribution plots for multiple query region sets.", fig.small=TRUE}
 cp2 = calcCumulativePartitionsRef(queryList, "hg19")
 plotCumulativePartitions(cp2)
 ```
