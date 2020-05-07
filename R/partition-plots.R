@@ -634,7 +634,7 @@ calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
 
 #' Plot the percentage overlap of GRanges objects against defined partitions.
 #' 
-#' @param percList A named list of percentage overlap of regions to genomic
+#' @param percentList A named list of percentage overlap of regions to genomic
 #'    partitions. Produced by \code{calcPartitionPercents}
 #' @return A ggplot object using a barplot to show either percentage overlap
 #'         or genomic background corrected overlap data
