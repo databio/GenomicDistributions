@@ -60,10 +60,19 @@ annoData[1:2]
 Let's retrieve a local path to an example bed file and use BiocFileCache to download it here if we don't already have it locally:
 
 ```{r}
-path <- getwd()
-bfc <- BiocFileCache::BiocFileCache(getwd())
-url = "http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2423312_ENCFF155HVK_peaks_GRCh38.bed.gz"
-bedpath = BiocFileCache::bfcrpath(BiocFileCache::BiocFileCache(getwd()), url)
+setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
+path = getwd()
+bfc = BiocFileCache::BiocFileCache(getwd())
+rpath = function(url, bfc) {
+	message("Downloading ", url)
+	BiocFileCache::bfcrpath(bfc, url)
+}
+urls = c(
+	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2423312_ENCFF155HVK_peaks_GRCh38.bed.gz", 
+	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2423313_ENCFF722AOG_peaks_GRCh38.bed.gz",
+	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2827349_ENCFF196DNQ_peaks_GRCh38.bed.gz",
+	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2827350_ENCFF928JXU_peaks_GRCh38.bed.gz")
+bedpaths = lapply(urls, rpath, bfc)
 ```
 
 Read this file in and build a GenomicRanges object:

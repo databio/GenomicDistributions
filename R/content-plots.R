@@ -21,6 +21,7 @@ calcGCContent = function(query, ref) {
         x = lapply(query, calcGCContent, ref)
         return(x)
     }
+    seqlevels(query, pruning.mode="coarse") = seqlevels(ref)
     v = IRanges::Views(ref, query)
     gcvec = apply(Biostrings::alphabetFrequency(v)[,c("C","G")],1, sum)/width(v)
     return(gcvec)

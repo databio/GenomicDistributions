@@ -7,7 +7,7 @@
 plotPartitionPercents(percentList)
 }
 \arguments{
-\item{percList}{A named list of percentage overlap of regions to genomic
+\item{percentList}{A named list of percentage overlap of regions to genomic
 partitions. Produced by \code{calcPartitionPercents}}
 }
 \value{
