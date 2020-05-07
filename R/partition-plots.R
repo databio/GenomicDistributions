@@ -699,7 +699,10 @@ plotPartitionPercents = function(percentList) {
     }
 }
 
-#' Internal helper function for \code(plotPartitionPercents)
+#' Internal helper function
+#' 
+#' Used for \code{plotPartitionPercents}
+#' 
 #' @param percentList A list with either percentages or background
 #'        corrected values
 #' @param percentdf A character vector pointing to the appropriate

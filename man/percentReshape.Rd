@@ -2,7 +2,7 @@
 % Please edit documentation in R/partition-plots.R
 \name{percentReshape}
 \alias{percentReshape}
-\title{Internal helper function for \code(plotPartitionPercents)}
+\title{Internal helper function}
 \usage{
 percentReshape(percentList, percentdf)
 }
@@ -17,5 +17,5 @@ data frame inside percentList}
 A ggplot object
 }
 \description{
-Internal helper function for \code(plotPartitionPercents)
+Used for \code{plotPartitionPercents}
 }
