@@ -32,7 +32,7 @@ if (!requireNamespace("ensembldb", quietly=TRUE)) {
 
 storedObjectName = "geneModels_hg19"
 message(paste("building", storedObjectName, "using Ensembl"))
-EnsDb = loadEnsDb(refAssembly)
+EnsDb = loadEnsDb("hg19")
 codingFilter = AnnotationFilter::AnnotationFilter(
     ~ gene_biotype == "protein_coding")
 geneFeats = ensembldb::genes(EnsDb, filter = codingFilter, columns=NULL)
@@ -59,3 +59,4 @@ geneModels = list(genesGR=geneFeats, exonsGR=exonFeats,
                   threeUTRGR=UTR3Feats, fiveUTRGR=UTR5Feats)
 assign(storedObjectName, geneModels)
 do.call("use_data", list(as.name(storedObjectName), overwrite = TRUE))
+
