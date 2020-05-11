@@ -23,7 +23,10 @@ calcPartitionsRef = function(query, refAssembly,
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
-    partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+    partitionList = genomePartitionList(geneModels$genesGR, 
+                                        geneModels$exonsGR,
+                                        geneModels$threeUTRGR, 
+                                        geneModels$fiveUTRGR)
     if (is.null(metric)) {
         message("Calculating overlaps...")
         return(calcPartitions(query, partitionList))
@@ -59,7 +62,10 @@ calcExpectedPartitionsRef = function(query, refAssembly) {
     geneModels = getGeneModels(refAssembly)
     chromSizes = getChromSizes(refAssembly)
     genomeSize = sum(chromSizes)
-    partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+    partitionList = genomePartitionList(geneModels$genesGR, 
+                                        geneModels$exonsGR,
+                                        geneModels$threeUTRGR,
+                                        geneModels$fiveUTRGR)
     return(calcExpectedPartitions(query, partitionList, genomeSize))
 }
 
@@ -82,7 +88,10 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
-    partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+    partitionList = genomePartitionList(geneModels$genesGR, 
+                                        geneModels$exonsGR,
+                                        geneModels$threeUTRGR,
+                                        geneModels$fiveUTRGR)
     return(calcCumulativePartitions(query, partitionList))
 }
 
@@ -103,10 +112,15 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #'     introns. 
 #' @export
 #' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
-genomePartitionList = function(genesGR, exonsGR) {
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+#'                                     geneModels_hg19$exonsGR,
+#'                                     geneModels_hg19$threeUTRGR, 
+#'                                     geneModels_hg19$fiveUTRGR)
+genomePartitionList = function(genesGR, exonsGR, threeUTRGR, fiveUTRGR) {
     .validateInputs(list(exonsGR=c("GRanges", "GRangesList"), 
-                         genesGR="GRanges"))
+                         genesGR="GRanges", 
+                         threeUTRGR=c("GRanges", "GRangesList"), 
+                         fiveUTRGR=c("GRanges", "GRangesList")))
     # Discard warnings (prompted from notifications to trim, which I do)
     withCallingHandlers({
         promCore = trim(promoters(genesGR, upstream=100, downstream=0))
@@ -118,7 +132,9 @@ genomePartitionList = function(genesGR, exonsGR) {
     partitionList = list(promoterCore=promCore,
                          promoterProx=promProx,
                          exon=exonsGR,
-                         intron=genesGR)
+                         intron=genesGR,
+                         threeUTR=threeUTRGR, 
+                         fiveUTR=fiveUTRGR)
     return(partitionList)
 }
 
@@ -143,7 +159,10 @@ genomePartitionList = function(genesGR, exonsGR) {
 #'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+#'                                     geneModels_hg19$exonsGR,
+#'                                     geneModels_hg19$threeUTRGR, 
+#'                                     geneModels_hg19$fiveUTRGR)
 #' calcPartitions(vistaEnhancers, partitionList)
 calcPartitions = function(query, partitionList, remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
@@ -199,7 +218,9 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #' @export
 #' @examples 
 #' partitionList = genomePartitionList(geneModels_hg19$genesGR,
-#'                                     geneModels_hg19$exonsGR)
+#'                                     geneModels_hg19$exonsGR,
+#'                                     geneModels_hg19$threeUTRGR, 
+#'                                     geneModels_hg19$fiveUTRGR)
 #' chromSizes = getChromSizes('hg19')
 #' genomeSize = sum(chromSizes)
 #' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
@@ -287,7 +308,10 @@ calcExpectedPartitions = function(query, partitionList,
 #'     partition from a previously provided partitionList.
 #' @export
 #' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+#'                                     geneModels_hg19$exonsGR,
+#'                                     geneModels_hg19$threeUTRGR, 
+#'                                     geneModels_hg19$fiveUTRGR)
 #' calcCumulativePartitions(vistaEnhancers, partitionList)
 calcCumulativePartitions = function(query, partitionList, remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
@@ -622,7 +646,10 @@ plotPartitions = function(assignedPartitions, labels=NULL) {
 #'     partitions.
 #' @export
 #' @examples
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+#'                                     geneModels_hg19$exonsGR,
+#'                                     geneModels_hg19$threeUTRGR, 
+#'                                     geneModels_hg19$fiveUTRGR)
 #' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
 calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
     .validateInputs(list(listGR=c("GRanges","GRangesList"),
@@ -662,7 +689,10 @@ calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
 #'         or genomic background corrected overlap data
 #' @export
 #' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+#'                                     geneModels_hg19$exonsGR,
+#'                                     geneModels_hg19$threeUTRGR, 
+#'                                     geneModels_hg19$fiveUTRGR)
 #' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
 #' p = plotPartitionPercents(partPerc)
 plotPartitionPercents = function(percentList) {
