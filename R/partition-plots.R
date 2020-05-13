@@ -8,8 +8,6 @@
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
 #'     with \code{getTSSs}.
-#' @param metric An optional character vector if needed to calculate 
-#'     percentage overlaps across genomic partitions
 #' @return A data.frame indicating the number of query region overlaps in   
 #'     several genomic partitions.
 #' @export
@@ -598,8 +596,6 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #' 
 #' @param assignedPartitions  A table holding the frequency of assignment to
 #'     each of the partitions. Produced by \code{calcPartitions}
-#' @param labels Character vector with labels for the partitions (optional). By
-#'     default it will use the names from the first argument.
 #' @param numbers logical indicating whether raw overlaps should be plotted instead 
 #' of the default percentages
 #' @return A ggplot object using a barplot to show the distribution of the query 
@@ -609,7 +605,7 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #' p = calcPartitionsRef(vistaEnhancers, "hg19")
 #' partPlot = plotPartitions(p)
 #' partCounts = plotPartitions(p, numbers=TRUE)
-plotPartitions = function(assignedPartitions, labels=NULL, numbers=FALSE) {
+plotPartitions = function(assignedPartitions, numbers=FALSE) {
     # resAll = t(sapply(assignedPartitions, table))
     # resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
     # df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
