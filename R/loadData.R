@@ -36,9 +36,12 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
     return(.requireAndReturn(databasePkgString))
 }
 
-# Returns built-in chrom sizes for a given reference assembly
+#' Returns built-in chrom sizes for a given reference assembly
 #
-# @param refAssembly A string identifier for the reference assembly
+#' @param refAssembly A string identifier for the reference assembly
+#' @export
+#' @examples
+#' getChromSizes("hg19")
 getChromSizes = function(refAssembly) {
 	getReferenceData(refAssembly, tagline="chromSizes_")
 }
@@ -83,7 +86,7 @@ getReferenceData = function(refAssembly, tagline) {
     dataset = .getDataFromPkg(id=datasetId, "GenomicDistributions")
     if(!is.null(dataset))
         return(dataset)
-    if(!"GenomicDistributionsData" %in% installed.packages())
+    if(!"GenomicDistributionsData" %in% utils::installed.packages())
         stop(paste(datasetId, "not available in GenomicDistributions package",
                    "and GenomicDistributionsData package is not installed"))
     dataset = .getDataFromPkg(id=datasetId, "GenomicDistributionsData")

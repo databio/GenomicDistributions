@@ -1,5 +1,5 @@
 Package: GenomicDistributions
-Version: 0.7.1
+Version: 0.8.0
 Date: 2020-05
 Title: Produces Summaries and Plots of Features Distributed Across Genomes
 Description: If you have a set of genomic ranges, this package can help you with
@@ -28,6 +28,7 @@ Imports:
     ggplot2,
     reshape2,
     methods,
+    utils,
     Biostrings,
 Suggests:
     AnnotationFilter,

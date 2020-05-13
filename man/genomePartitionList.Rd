@@ -2,15 +2,19 @@
 % Please edit documentation in R/partition-plots.R
 \name{genomePartitionList}
 \alias{genomePartitionList}
-\title{Create a basic genome partition list of genes, exons, introns, and 
+\title{Create a basic genome partition list of genes, exons, introns, UTRs, and 
 intergenic}
 \usage{
-genomePartitionList(genesGR, exonsGR, threeUTRGR, fiveUTRGR)
+genomePartitionList(genesGR, exonsGR, threeUTRGR = NULL, fiveUTRGR = NULL)
 }
 \arguments{
 \item{genesGR}{a GRanges object of gene coordinates}
 
 \item{exonsGR}{a GRanges object of exons coordinates}
+
+\item{threeUTRGR}{a GRanges object of 3' UTRs}
+
+\item{fiveUTRGR}{a GRanges object of 5' UTRs}
 }
 \value{
 A list of GRanges objects, each corresponding to a partition of the 
