@@ -4,7 +4,7 @@
 \alias{plotNeighborDist}
 \title{Plot the distances between neighboring regions.The distance in the 
 x axis is log10 transformed for ease of comparison between 
-different regionsets to avoid outliers.}
+different regionsets and to account for outliers.}
 \usage{
 plotNeighborDist(dcvec)
 }
@@ -19,7 +19,7 @@ log10 transformed distances.
 \description{
 Plot the distances between neighboring regions.The distance in the 
 x axis is log10 transformed for ease of comparison between 
-different regionsets to avoid outliers.
+different regionsets and to account for outliers.
 }
 \examples{
 numVector = rnorm(400, mean=5, sd=0.1)
