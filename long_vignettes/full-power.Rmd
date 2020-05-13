@@ -68,9 +68,9 @@ rpath = function(url, bfc) {
 	BiocFileCache::bfcrpath(bfc, url)
 }
 urls = c(
-	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2423312_ENCFF155HVK_peaks_GRCh38.bed.gz", 
-	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2423313_ENCFF722AOG_peaks_GRCh38.bed.gz",
-	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2827349_ENCFF196DNQ_peaks_GRCh38.bed.gz",
+	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF316ASR_peaks_GRCh38.bed.gz", 
+	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE105977_ENCFF617QGK_optimal_idr_thresholded_peaks_GRCh38.bed.gz",
+	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF319TPR_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
 	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2827350_ENCFF928JXU_peaks_GRCh38.bed.gz")
 bedpaths = lapply(urls, rpath, bfc)
 ```
@@ -78,15 +78,33 @@ bedpaths = lapply(urls, rpath, bfc)
 Read this file in and build a GenomicRanges object:
 
 ```{r}
-df = data.table::fread(bedpath)
-gr1 = GenomicDistributions:::dtToGr(df, chr="V1", start="V2", end="V3")
-gr1
+
+df = lapply(bedpaths, data.table::fread)
+gr1 = GenomicDistributions:::dtToGr(df[[1]], chr="V1", start="V2", end="V3")
+
+grs = lapply(df, GenomicDistributions:::dtToGr, chr="V1", start="V2", end="V3")
+grs = lapply(grs, sort)
+queryList = GRangesList(grs)
 ```
 
-Set up benchmarking functions to compare:
+Set up benchmarking functions:
 
 ```{r}
-TSSdist = calcFeatureDist(sort(gr1), sort(annoData))
-p = plotFeatureDist(TSSdist, featureName="TSS")
+TSSdist = calcFeatureDist(queryList, sort(annoData))
+p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE)
 print(p)
+
+perc2 = calcPartitionsRef(queryList, "hg38", metric = "percent")
+p = plotPartitionPercents(perc2)
+print(p)
+
+
+ep2 = calcExpectedPartitionsRef(queryList, "hg19")
+plotExpectedPartitions(ep2)
+
+gc2 = calcGCContentRef(queryList, "hg38")
+plotGCContent(gc2)
+
 ```
+
+
