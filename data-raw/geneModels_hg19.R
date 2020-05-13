@@ -41,10 +41,22 @@ UTR5Feats = ensembldb::fiveUTRsByTranscript(EnsDb, filter = codingFilter,
                                             columns = NULL)
 UTR3Feats = ensembldb::threeUTRsByTranscript(EnsDb, filter = codingFilter, 
                                              columns = NULL)
-# Smash 
-exonFeats = reduce(exonFeats)
+
 UTR5Feats = unlist(UTR5Feats)
 UTR3Feats = unlist(UTR3Feats)
+
+# Smash 
+geneFeats = reduce(geneFeats)
+exonFeats = reduce(exonFeats)
+UTR5Feats = reduce(UTR5Feats)
+UTR3Feats = reduce(UTR3Feats)
+
+# Keep only standard chromosomes
+geneFeats= keepStandardChromosomes(geneFeats, pruning.mode = "coarse")
+exonFeats = keepStandardChromosomes(exonFeats, pruning.mode = "coarse")
+UTR5Feats = keepStandardChromosomes(UTR5Feats, pruning.mode = "coarse")
+UTR3Feats = keepStandardChromosomes(UTR3Feats, pruning.mode = "coarse")
+
 # Since we're storing this data, we want it to be small.
 elementMetadata(geneFeats) = NULL
 elementMetadata(exonFeats) = NULL
