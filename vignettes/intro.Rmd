@@ -132,57 +132,27 @@ plotFeatureDist(fdd)
 
 ## Partition distribution plots
 
-Genomic partition distribution plots show you how your regions are distributed across genome annotation classes. This is most commonly used to show the distribution over element types, such as promoters, exons, introns, or intergenic regions. GenomicDistributions provides 3 types of partition distribution plots: *raw*, *expected*, and *cumulative*.
+Genomic partition distribution plots show you how your regions are distributed across genome annotation classes. This is most commonly used to show the distribution over element types, such as promoters, exons, introns, or intergenic regions. GenomicDistributions provides 3 types of partition distribution plots: *percentages*, *expected*, and *cumulative*.
 
-### Raw partition distribution plots
+### Percentage partition distribution plots
 
-The most basic partition plot just provides a barplot of raw region counts. You can produce one or two-set plots like so:
+The most basic partition plot just provides a barplot of percentage region overlaps. You can produce one or two-set plots like so:
 
-```{r raw-partition-plot, fig.cap="Partition distribution plot. Raw distribution of query regions across genomic features", fig.small=TRUE}
+```{r percentage-partition-plot, fig.cap="Partition distribution plot. Percentage distribution of query regions across genomic features", fig.small=TRUE}
 gp = calcPartitionsRef(query, "hg19")
 plotPartitions(gp)
 ```
 
-```{r multiple-raw-partition-plot, fig.cap="Partition distribution plots for multiple query region sets.", fig.small=TRUE}
+```{r multiple-percentage-partition-plot, fig.cap="Partition distribution plot for multiple query region sets.", fig.small=TRUE}
 gp2 = calcPartitionsRef(queryList, "hg19")
 plotPartitions(gp2)
 ```
 
-### Percentage partition distribution plots
+If you wish, you can also plot the raw overlaps across a defined set of partitions, simply by setting the logical `numbers` to TRUE:
 
-Additionally, Genomic Distributions offers the alternative of looking at the percentage overlap across a defined set of partitions, simply by setting the metric argument to "percent" as follows:
-
-```{r percentage-partition-plot, fig.cap="Percentage partition distribution plot. Percentage distribution of regions across genomic features", fig.small=TRUE}
-# Calculate the percentage overlaps:
-perc = calcPartitionsRef(query, "hg19", metric = "percent")
-
+```{r multiple-raw-partition-plot, fig.cap="Raw partition distribution plot for multiple regionsets", fig.small=TRUE}
 # Plot the results:
-plotPartitionPercents(perc)
-```
-
-As with the raw overlap partitions, you can plot more than one regionset at a time by passing the appropriate named GRangeslist:
-
-```{r percentage-partition-plot-multi, fig.cap="Percentage partition distribution plot for multiple regionsets", fig.small=TRUE}
-perc2 = calcPartitionsRef(queryList, "hg19", metric="percent")
-plotPartitionPercents(perc2)
-```
-
-When using the "percent" metric, you can also look at the percentage overlap normalized for genomic background. To do this, you need to provide a background GRanges object to the backgroundGR argument:
-
-```{r norm-percentage-partition-plot, fig.cap="Percentage distribution plot corrected for genomic background", fig.small=TRUE}
-# Create a background GRanges object:
-back = GenomicRanges::shift(query, 1e8)
-
-# Pass the background obj to the main calculation function and plot the results:
-pback = calcPartitionsRef(query, "hg19", metric="percent", backgroundGR=back)
-plotPartitionPercents(pback)
-```
-
-You can do this with more than one regionset:
-
-```{r multiple-norm-percentage-partition-plot, fig.cap="Corrected genomic background for multiple regionsets", fig.small=TRUE}
-pback = calcPartitionsRef(queryList, "hg19", metric="percent", backgroundGR=back)
-plotPartitionPercents(pback)
+plotPartitions(gp2, numbers=TRUE)
 ```
 
 
@@ -263,7 +233,7 @@ You can also look at the distances distribution for more than one regionset:
 
 ```{r multiple-neighbor-distance-plots, fig.cap="Neighboring regions distance for multiple regionsets", fig.small=TRUE}
 
-# Create a list of named GRanges objects
+# Create a list of GRanges objects
 s = system.file("extdata", "setB_100.bed.gz", package="GenomicDistributions")
 setB = rtracklayer::import(s)
 queryList2 = GRangesList(vistaEnhancers=query, setB=setB)

@@ -39,7 +39,9 @@ overlap multiple genomic partitions.
 }
 \examples{
 partitionList = genomePartitionList(geneModels_hg19$genesGR,
-                                    geneModels_hg19$exonsGR)
+                                    geneModels_hg19$exonsGR,
+                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$fiveUTRGR)
 chromSizes = getChromSizes('hg19')
 genomeSize = sum(chromSizes)
 calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)

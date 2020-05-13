@@ -5,7 +5,7 @@
 \title{Create a basic genome partition list of genes, exons, introns, and 
 intergenic}
 \usage{
-genomePartitionList(genesGR, exonsGR)
+genomePartitionList(genesGR, exonsGR, threeUTRGR, fiveUTRGR)
 }
 \arguments{
 \item{genesGR}{a GRanges object of gene coordinates}
@@ -26,5 +26,8 @@ annotations; it gives you proximal and core promoters, exons, and introns.
 To be used as a partitionList for \code{calcPartitions}.
 }
 \examples{
-partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+                                    geneModels_hg19$exonsGR,
+                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$fiveUTRGR)
 }
