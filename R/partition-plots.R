@@ -195,6 +195,17 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     }
     partition[partition=="0"] = remainder
     tpartition = table(partition)
+    tpartition = data.frame(tpartition)
+    
+    partitionNamesFull = c(partitionNames, remainder)
+    if (!all(partitionNamesFull %in% tpartition$partition)){
+      notIncluded = partitionNamesFull[!(partitionNamesFull %in% 
+                                           tpartition$partition)]
+      addRows = data.frame(partition = notIncluded, 
+                           Freq = rep(0, length(notIncluded)))
+      tpartition = rbind(tpartition, addRows)
+    }
+    
     return(data.frame(tpartition))
 }
 
