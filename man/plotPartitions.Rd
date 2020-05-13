@@ -5,7 +5,7 @@
 \title{Produces a barplot showing how query regions of interest are distributed
 across a given partition list}
 \usage{
-plotPartitions(assignedPartitions, labels = NULL)
+plotPartitions(assignedPartitions, labels = NULL, numbers = FALSE)
 }
 \arguments{
 \item{assignedPartitions}{A table holding the frequency of assignment to
@@ -13,6 +13,9 @@ each of the partitions. Produced by \code{calcPartitions}}
 
 \item{labels}{Character vector with labels for the partitions (optional). By
 default it will use the names from the first argument.}
+
+\item{numbers}{logical indicating whether raw overlaps should be plotted instead 
+of the default percentages}
 }
 \value{
 A ggplot object using a barplot to show the distribution of the query 
@@ -27,4 +30,5 @@ partition that it overlaps with the highest priority.
 \examples{
 p = calcPartitionsRef(vistaEnhancers, "hg19")
 partPlot = plotPartitions(p)
+partCounts = plotPartitions(p, numbers=TRUE)
 }

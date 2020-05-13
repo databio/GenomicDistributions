@@ -10,16 +10,12 @@
 #'     with \code{getTSSs}.
 #' @param metric An optional character vector if needed to calculate 
 #'     percentage overlaps across genomic partitions
-#' @param backgroundGR An optional GRanges object to correct for genomic 
-#'     background when using the "percent" metric
 #' @return A data.frame indicating the number of query region overlaps in   
 #'     several genomic partitions.
 #' @export
 #' @examples 
 #' calcPartitionsRef(vistaEnhancers, "hg19")
-#' calcPartitionsRef(vistaEnhancers, "hg19", metric="percent")
-calcPartitionsRef = function(query, refAssembly, 
-                              metric=NULL, backgroundGR=NULL) {
+calcPartitionsRef = function(query, refAssembly) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
@@ -27,17 +23,8 @@ calcPartitionsRef = function(query, refAssembly,
                                         geneModels$exonsGR,
                                         geneModels$threeUTRGR, 
                                         geneModels$fiveUTRGR)
-    if (is.null(metric)) {
-        message("Calculating overlaps...")
-        return(calcPartitions(query, partitionList))
-    } else if (metric == "percent") {
-        message("Calculating overlaps and converting to percents...")
-        if (is.null(backgroundGR)) {
-              return(calcPartitionPercents(query, partitionList))
-        } else {
-              return(calcPartitionPercents(query, partitionList, backgroundGR))
-        }
-    }
+    message("Calculating overlaps...")
+    return(calcPartitions(query, partitionList))
 }
 
 
@@ -176,7 +163,8 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
         x = lapply(query, calcPartitions, partitionList, remainder)
         nameList = names(query)
         if(is.null(nameList)) {
-            nameList = 1:length(query) # Fallback to sequential numbers
+            newnames = 1:length(query) # Fallback to sequential numbers
+            nameList = names
         }
         # Append names
         xb = rbindlist(x)
@@ -601,156 +589,60 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #'     each of the partitions. Produced by \code{calcPartitions}
 #' @param labels Character vector with labels for the partitions (optional). By
 #'     default it will use the names from the first argument.
+#' @param numbers logical indicating whether raw overlaps should be plotted instead 
+#' of the default percentages
 #' @return A ggplot object using a barplot to show the distribution of the query 
 #'  regions across a given partition list.  
 #' @export
 #' @examples 
 #' p = calcPartitionsRef(vistaEnhancers, "hg19")
 #' partPlot = plotPartitions(p)
-plotPartitions = function(assignedPartitions, labels=NULL) {
+#' partCounts = plotPartitions(p, numbers=TRUE)
+plotPartitions = function(assignedPartitions, labels=NULL, numbers=FALSE) {
     # resAll = t(sapply(assignedPartitions, table))
     # resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
     # df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
     .validateInputs(list(assignedPartitions="data.frame"))
-    if ("name" %in% names(assignedPartitions)){
-        # It has multiple regions
+    
+    partFreq = assignedPartitions$Freq
+    # For multiple regions
+    if ("name" %in% names(assignedPartitions)) {
+        # percentages are to be set as the default instead of raw overlaps
+        if (numbers == FALSE) {
+            # assigned partitions is a data table
+            partFreq = assignedPartitions[, .(Freq.Perc=(Freq/sum(Freq)) * 100), 
+                                                        by=name]$"Freq.Perc" 
+        }
         g = ggplot(assignedPartitions, 
                    aes(x=partition, y=Freq, fill=factor(name)))
     } else {
+        # not a data table, a single regionset df
+        if (numbers == FALSE) {
+            partFreq = (partFreq / sum(partFreq)) * 100
+        }
         g = ggplot(assignedPartitions, aes(x=partition, y=Freq))
     }
-
+  
     g = g +
-        geom_bar(stat="identity", position="dodge") + 
+        geom_bar(stat="identity", position=position_dodge()) + 
         theme_classic() + 
         theme_blank_facet_label() + # No boxes around labels
         theme(aspect.ratio=1) + 
         xlab("Genomic partition") +
-        ylab("Number of overlaps") +
+        ylab(ifelse(numbers,"Counts","Frequency (%)")) +
         theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + 
         theme(plot.title=element_text(hjust = 0.5)) + # Center title
         ggtitle(paste("Distribution across genomic partitions")) +
-        scale_fill_discrete(name="User set") + 
+        scale_fill_discrete(name="regionSet") + 
         theme(legend.position="bottom")
-
+  
     return(g)
 }
 
 
-#' Calculate the percentage overlap of a list of GRanges object against a 
-#' list of known partitions.
-#'
-#' @param listGR  A list of GRanges objects. Produced by 
-#'     \code{calcPartitionPercents}
-#' @param partitionList A list with GRanges objects corresponding to
-#'     the different partitions.
-#' @param backgroundGR A GRanges object to remove from listGR overlap 
-#'     as background.
-#' @return A named list of the frequency of input regions against provided
-#'     partitions.
-#' @export
-#' @examples
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
-#'                                     geneModels_hg19$exonsGR,
-#'                                     geneModels_hg19$threeUTRGR, 
-#'                                     geneModels_hg19$fiveUTRGR)
-#' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
-calcPartitionPercents = function(listGR, partitionList, backgroundGR=NULL) {
-    .validateInputs(list(listGR=c("GRanges","GRangesList"),
-                         partitionList="list"))
-    if(!(is(listGR, "GRangesList"))){
-        listGR = GRangesList(listGR)
-    }
-    res = lapply(listGR, calcPartitions, partitionList)
-    resAll = Reduce(function(x,y) merge(x, y, by="partition"), res)
-    names(resAll) = c("Partition", names(res))
-    rownames(resAll) = resAll$Partition
-    resAll[, 1] = NULL
-    # should transpose df to sum and calculate percentages
-    tResAll = t(resAll)
-    resAllAve = sweep(tResAll, 1, apply(tResAll, 1, sum), FUN="/")*100
-    resAllAve = as.data.frame(resAllAve)
-    # Normalize if background GRanges object is provided
-    if (!is.null(backgroundGR)) {
-        back = calcPartitions(backgroundGR, partitionList)
-        rownames(back) = back$Partition
-        back[, 1] = NULL
-        backAll = t(back)
-        backAllAve = sweep(backAll, 1, sum(backAll), FUN="/")*100
-        resDiffAveNorm = log10(sweep(resAllAve, 2, backAllAve, FUN="/"))
-        return(nlist(resAllAve, resDiffAveNorm))
-    }
-    return(nlist(resAllAve))
-}
 
 
 
-#' Plot the percentage overlap of GRanges objects against defined partitions.
-#' 
-#' @param percentList A named list of percentage overlap of regions to genomic
-#'    partitions. Produced by \code{calcPartitionPercents}
-#' @return A ggplot object using a barplot to show either percentage overlap
-#'         or genomic background corrected overlap data
-#' @export
-#' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
-#'                                     geneModels_hg19$exonsGR,
-#'                                     geneModels_hg19$threeUTRGR, 
-#'                                     geneModels_hg19$fiveUTRGR)
-#' partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
-#' p = plotPartitionPercents(partPerc)
-plotPartitionPercents = function(percentList) {
-    .validateInputs(list(percentList="list"))
-    #if(is.null(labels)) {
-        #labels = rownames(percentList$resAllAve)
-    #}
-    # need to reshape the data to account for multiple regionsets and norm data
-    percPlot =  percentReshape(percentList, "resAllAve")
-    if (!is.null(percentList$resDiffAveNorm)) {
-        normPlot =  percentReshape(percentList, "resDiffAveNorm")
-        normPlot = normPlot + 
-          ylab(expression(log[10]*(over("user overlap", background))))
-        return(normPlot)
-    } else {
-        return(percPlot)
-    }
-}
 
-#' Internal helper function
-#' 
-#' Used for \code{plotPartitionPercents}
-#' 
-#' @param percentList A list with either percentages or background
-#'        corrected values
-#' @param percentdf A character vector pointing to the appropriate
-#'        data frame inside percentList
-#' @return A ggplot object
-percentReshape = function(percentList, percentdf){
-    percData = as.matrix(t(percentList[[percentdf]]))
-    percReshaped = reshape2::melt(percData, value.name="Percent")
-    colnames(percReshaped)[colnames(percReshaped) == "Var2"] = "regionSet"
- 
-    # If multiple regionsets are provided
-    if (length(rownames(percentList[[percentdf]])) > 1) { 
-        g = ggplot2::ggplot(percReshaped, 
-                            aes(x=Var1, y=Percent, fill=regionSet)) +
-            geom_bar(stat="identity", position = position_dodge()) +
-            theme_classic() +
-            theme(legend.position = "bottom") 
-    } else {
-        # If a single regionset provided, no need to include legend
-        g = ggplot2::ggplot(percReshaped, aes(x=Var1, y=Percent)) + 
-            geom_bar(stat="identity", fill=c("gray35"), 
-                     position = position_dodge()) +
-            theme_classic() +
-            theme(legend.position = "none") 
-    }
-    g = g + 
-        xlab("Genomic Partition") +
-        theme_blank_facet_label() +
-        theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
-        theme(plot.title=element_text(hjust = 0.5)) +
-        theme(aspect.ratio=1) +
-        ggtitle("Distribution across genomic partitions")
-}
+
 

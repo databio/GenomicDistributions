@@ -19,6 +19,13 @@ calcGCContent = function(query, ref) {
     if (is(query, "GRangesList")) {
         # Recurse over each GRanges object
         x = lapply(query, calcGCContent, ref)
+        namelist = names(query)
+        if (is.null(namelist)) {
+            newnames = 1:length(query)
+            namelist = newnames
+            # Append names
+            names(x) = namelist
+        }
         return(x)
     }
     seqlevels(query, pruning.mode="coarse") = seqlevels(ref)
