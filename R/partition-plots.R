@@ -618,7 +618,7 @@ plotPartitions = function(assignedPartitions, labels=NULL, numbers=FALSE) {
     } else {
         # not a data table, a single regionset df
         if (numbers == FALSE) {
-            partFreq = (partFreq / sum(part$Freq)) * 100
+            partFreq = (partFreq / sum(partFreq)) * 100
         }
         g = ggplot(assignedPartitions, aes(x=partition, y=Freq))
     }
