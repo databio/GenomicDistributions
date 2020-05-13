@@ -173,10 +173,10 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     partitionNames = names(partitionList)
     partition = rep(0, length(query))  
     for (pi in 1:length(partitionList)) {
-        cat(partitionNames[pi],":")
+        #message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
-        message("\tfound ", sum(ol>0))
+        #message("\tfound ", sum(ol>0))
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     partition[partition=="0"] = remainder
@@ -260,7 +260,7 @@ calcExpectedPartitions = function(query, partitionList,
     partitionCounts = partitionCounts[order(partitionCounts$partition)]
     partition = rep(0, length(query))
     for (pi in 1:length(partitionList)) {
-        cat(partitionNames[pi],":")
+        #message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
         message("\tfound ", sum(ol>0))
@@ -268,7 +268,7 @@ calcExpectedPartitions = function(query, partitionList,
     }
     # Remove remainder
     if (!is.null(genomeSize)) {
-        cat(remainder,":")
+        #message(remainder,":")
         count = length(partition[partition=="0"])
         partition[partition=="0"] = remainder
         message("\tfound ", count)
@@ -341,7 +341,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
                                   cumsize=as.numeric(),
                                   frif=as.numeric())
     for (pi in 1:length(partitionList)) {
-        cat(partitionNames[pi],":")
+        #message(partitionNames[pi],":")
         # Find overlaps
         hits  = suppressWarnings(findOverlaps(query, partitionList[[pi]]))
         olap  = suppressWarnings(pintersect(query[queryHits(hits)],
@@ -372,7 +372,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         frif = rbind(frif, x)
     }
     # Create remainder...
-    cat(remainder,":")
+    #message(remainder,":")
     x = data.table::data.table(partition=remainder,
                                size=as.numeric(width(query)))
     message("\tfound ", length(query))
@@ -611,23 +611,22 @@ plotPartitions = function(assignedPartitions, numbers=FALSE) {
     # df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
     .validateInputs(list(assignedPartitions="data.frame"))
     
-    partFreq = assignedPartitions$Freq
+    df = assignedPartitions 
     # For multiple regions
     if ("name" %in% names(assignedPartitions)) {
         # percentages are to be set as the default instead of raw overlaps
         if (numbers == FALSE) {
             # assigned partitions is a data table
-            partFreq = assignedPartitions[, .(Freq.Perc=(Freq/sum(Freq)) * 100), 
+            df$Freq = assignedPartitions[, .(Freq.Perc=(Freq/sum(Freq)) * 100), 
                                                         by=name]$"Freq.Perc" 
         }
-        g = ggplot(assignedPartitions, 
-                   aes(x=partition, y=Freq, fill=factor(name)))
+        g = ggplot(df, aes(x=partition, y=Freq, fill=factor(name)))
     } else {
         # not a data table, a single regionset df
         if (numbers == FALSE) {
-            partFreq = (partFreq / sum(partFreq)) * 100
+            df$Freq = (df$Freq / sum(df$Freq)) * 100
         }
-        g = ggplot(assignedPartitions, aes(x=partition, y=Freq))
+        g = ggplot(df, aes(x=partition, y=Freq))
     }
   
     g = g +
