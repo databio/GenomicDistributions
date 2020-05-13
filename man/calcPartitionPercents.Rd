@@ -26,6 +26,9 @@ Calculate the percentage overlap of a list of GRanges object against a
 list of known partitions.
 }
 \examples{
-partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+                                    geneModels_hg19$exonsGR,
+                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$fiveUTRGR)
 partPerc = calcPartitionPercents(vistaEnhancers, partitionList)
 }

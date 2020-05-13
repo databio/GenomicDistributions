@@ -30,6 +30,9 @@ There will be a priority order to these, to account for regions that may
 overlap multiple genomic partitions.
 }
 \examples{
-partitionList = genomePartitionList(geneModels_hg19$genesGR, geneModels_hg19$exonsGR)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+                                    geneModels_hg19$exonsGR,
+                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$fiveUTRGR)
 calcCumulativePartitions(vistaEnhancers, partitionList)
 }
