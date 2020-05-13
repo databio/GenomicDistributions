@@ -96,7 +96,7 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 }
 
 
-#' Create a basic genome partition list of genes, exons, introns, and 
+#' Create a basic genome partition list of genes, exons, introns, UTRs, and 
 #' intergenic
 #' 
 #' Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
@@ -107,6 +107,8 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #' 
 #' @param genesGR a GRanges object of gene coordinates
 #' @param exonsGR a GRanges object of exons coordinates
+#' @param threeUTRGR a GRanges object of 3' UTRs
+#' @param fiveUTRGR a GRanges object of 5' UTRs
 #' @return A list of GRanges objects, each corresponding to a partition of the 
 #'     genome. Partitions include proximal and core promoters, exons and 
 #'     introns. 
@@ -116,11 +118,11 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #'                                     geneModels_hg19$exonsGR,
 #'                                     geneModels_hg19$threeUTRGR, 
 #'                                     geneModels_hg19$fiveUTRGR)
-genomePartitionList = function(genesGR, exonsGR, threeUTRGR, fiveUTRGR) {
+genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL, fiveUTRGR=NULL) {
     .validateInputs(list(exonsGR=c("GRanges", "GRangesList"), 
                          genesGR="GRanges", 
-                         threeUTRGR=c("GRanges", "GRangesList"), 
-                         fiveUTRGR=c("GRanges", "GRangesList")))
+                         threeUTRGR=c("GRanges", "GRangesList", "NULL"), 
+                         fiveUTRGR=c("GRanges", "GRangesList", "NULL")))
     # Discard warnings (prompted from notifications to trim, which I do)
     withCallingHandlers({
         promCore = trim(promoters(genesGR, upstream=100, downstream=0))
@@ -135,7 +137,9 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR, fiveUTRGR) {
                          intron=genesGR,
                          threeUTR=threeUTRGR, 
                          fiveUTR=fiveUTRGR)
-    return(partitionList)
+
+    
+    return(Filter(Negate(is.null), partitionList))
 }
 
 
