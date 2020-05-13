@@ -13,9 +13,6 @@ calcPartitionsRef(query, refAssembly)
 \item{refAssembly}{A character vector specifying the reference genome
 assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
 with \code{getTSSs}.}
-
-\item{metric}{An optional character vector if needed to calculate 
-percentage overlaps across genomic partitions}
 }
 \value{
 A data.frame indicating the number of query region overlaps in   
