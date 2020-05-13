@@ -21,7 +21,7 @@ test_that("calcPartitionsRef returns a result of a proper class", {
 
 test_that("calcPartitionsRef returns a result of a proper length", {
     expect_length(calcPartitionsRef(query, "hg19"), 2)
-    expect_equal(NROW(calcPartitionsRef(query, "hg19")), 5)
+    expect_equal(NROW(calcPartitionsRef(query, "hg19")), 7)
 })
 
 test_that("calcPartitionsRef returns different results for different queries", {
