@@ -17,6 +17,13 @@ calcNeighborDist =  function(query) {
     # lapply if a GRangeslist is provided
     if (is(query, "GRangesList")) {
         dist = lapply(query, calcNeighborDist)
+        namelist = names(query)
+        if (is.null(namelist)) {
+            newnames = 1:length(query)
+            namelist = newnames
+            # Append names
+            names(dist) = namelist
+        }
         return(dist)
     }
     querydt = grToDt(sort(query))
@@ -50,7 +57,7 @@ neighbordt = function(querydt)  {
 
 #' Plot the distances between neighboring regions.The distance in the 
 #' x axis is log10 transformed for ease of comparison between 
-#' different regionsets to avoid outliers. 
+#' different regionsets and to account for outliers. 
 #' 
 #' @param dcvec A numeric vector or list with vectors containing distances 
 #' between neighbor regions. Produced by \code{calcNeighborDist}
