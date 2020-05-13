@@ -24,6 +24,7 @@
 #' @importFrom IRanges IRanges Views
 #' @importFrom Biostrings alphabetFrequency
 #' @importFrom methods is
+#' @importFrom utils installed.packages getAnywhere data globalVariables
 
 NULL
 

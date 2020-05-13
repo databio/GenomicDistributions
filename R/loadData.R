@@ -86,7 +86,7 @@ getReferenceData = function(refAssembly, tagline) {
     dataset = .getDataFromPkg(id=datasetId, "GenomicDistributions")
     if(!is.null(dataset))
         return(dataset)
-    if(!"GenomicDistributionsData" %in% installed.packages())
+    if(!"GenomicDistributionsData" %in% utils::installed.packages())
         stop(paste(datasetId, "not available in GenomicDistributions package",
                    "and GenomicDistributionsData package is not installed"))
     dataset = .getDataFromPkg(id=datasetId, "GenomicDistributionsData")
