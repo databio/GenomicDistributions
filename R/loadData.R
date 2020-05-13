@@ -36,9 +36,12 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
     return(.requireAndReturn(databasePkgString))
 }
 
-# Returns built-in chrom sizes for a given reference assembly
+#' Returns built-in chrom sizes for a given reference assembly
 #
-# @param refAssembly A string identifier for the reference assembly
+#' @param refAssembly A string identifier for the reference assembly
+#' @export
+#' @examples
+#' getChromSizes("hg19")
 getChromSizes = function(refAssembly) {
 	getReferenceData(refAssembly, tagline="chromSizes_")
 }
