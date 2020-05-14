@@ -362,9 +362,9 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         # Isolate hits
         hits = unique(hits, by="yid")
         # Link to positional data for feature of interest
-        x = data.table::data.table(partition=partitionNames[pi],
+        x = suppressWarnings(data.table::data.table(partition=partitionNames[pi],
                                    size=hits$size,
-                                   count=hits$count)
+                                   count=hits$count))
         x = x[order(x$count, x$size),]
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
@@ -373,8 +373,8 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
     }
     # Create remainder...
     #message(remainder,":")
-    x = data.table::data.table(partition=remainder,
-                               size=as.numeric(width(query)))
+    x = suppressWarnings(data.table::data.table(partition=remainder,
+                               size=as.numeric(width(query))))
     message("\tfound ", length(query))
     x = x[order(x$size),]
     x$count   = x$size
@@ -508,7 +508,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
         p = ggplot()
     }
 
-    return(p)
+    return(suppressWarnings(print(p)))
 }
 
 
