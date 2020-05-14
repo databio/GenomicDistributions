@@ -107,9 +107,11 @@ binChroms = function(binCount, chromSizes) {
 
 #' Calculates the distribution of a query set over the genome
 #' 
-#' Returns a data.table showing counts of regions in GR, in the bins
+#' Returns a data.table showing counts of regions from the query that overlap
+#' with each bin.
 #' In other words, where on which chromosomes are the ranges distributed?
-#' You must provide binned regions.
+#' You must provide binned regions. Only the midpoint of each query region is
+#' used to test for overlap with the bin regions.
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param bins Pre-computed bins (as a GRangesList object) to aggregate

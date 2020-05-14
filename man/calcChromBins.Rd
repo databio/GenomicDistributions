@@ -16,7 +16,9 @@ over; for example, these could be genome bins}
 A data.table showing where on which chromosomes ranges are distributed.
 }
 \description{
-Returns a data.table showing counts of regions in GR, in the bins
+Returns a data.table showing counts of regions from the query that overlap
+with each bin.
 In other words, where on which chromosomes are the ranges distributed?
-You must provide binned regions.
+You must provide binned regions. Only the midpoint of each query region is
+used to test for overlap with the bin regions.
 }
