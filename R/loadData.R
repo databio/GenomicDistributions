@@ -36,6 +36,33 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
     return(.requireAndReturn(databasePkgString))
 }
 
+#' Load selected EnsDb library
+#'
+#' @param genomeBuild string, genome identifier
+#'
+#' @return loaded library
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' loadEnsDb("hg19")
+#' }
+loadEnsDb = function(genomeBuild) {
+    databasePkgString = switch (genomeBuild,
+                                grch38 = "EnsDb.Hsapiens.v86",
+                                hg38 = "EnsDb.Hsapiens.v86",
+                                hg19 = "EnsDb.Hsapiens.v75",
+                                mm10 = "EnsDb.Mmusculus.v79",
+                                bogus = "bogus" # a bogus (uninstalled) db for unit tests
+    )
+    
+    if (is.null(databasePkgString)) {
+        stop("I don't know how to map the string ", genomeBuild,
+             " to a EnsDb")
+    }
+    return(.requireAndReturn(databasePkgString))
+}
+
 #' Returns built-in chrom sizes for a given reference assembly
 #
 #' @param refAssembly A string identifier for the reference assembly
@@ -70,7 +97,8 @@ getGeneModels = function(refAssembly) {
 #' Get reference data for a specified assembly
 #' 
 #' This is a generic getter function that will return a data object requested,
-#' if it is included in the built-in data with the package. Data objects can 
+#' if it is included in the built-in data with the GenomicDistributions package 
+#' or GenomicDistributionsData package (if installed). Data objects can 
 #' be requested for different reference assemblies and data types (specified by
 #' a tagline, which is a unique string identifying the data type).
 #' 

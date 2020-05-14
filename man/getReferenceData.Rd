@@ -19,7 +19,8 @@ A requested and included package data object.
 }
 \description{
 This is a generic getter function that will return a data object requested,
-if it is included in the built-in data with the package. Data objects can 
+if it is included in the built-in data with the GenomicDistributions package 
+or GenomicDistributionsData package (if installed). Data objects can 
 be requested for different reference assemblies and data types (specified by
 a tagline, which is a unique string identifying the data type).
 }

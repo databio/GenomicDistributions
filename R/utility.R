@@ -25,20 +25,6 @@
     }
 }
 
-# Checks to make sure a BSgenome object is installed,
-# and if so, returns it. If the genome is not installed, it issues a warning
-# and returns NULL.
-#
-# @param BSgenomeString A BSgenome compatible genome string.
-# @return A BSgenome object if installed.
-.requireAndReturn = function(BSgenomeString) {
-	if (requireNamespace(BSgenomeString))
-		return(utils::getAnywhere(BSgenomeString)$objs[[1]])
-	else
-		warning(BSgenomeString, " is not installed")
-		return(NULL)
-}
-
 
 # Efficiently split a data.table by a column in the table
 # 

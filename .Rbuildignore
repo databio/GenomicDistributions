@@ -2,3 +2,5 @@
 _pkgdown.yaml
 long_vignettes
 data-raw
+^.*\.Rproj$
+^\.Rproj\.user$
