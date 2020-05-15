@@ -7,7 +7,7 @@
 BSdtToGRanges(dtList)
 }
 \arguments{
-\item{A}{list of data.tables}
+\item{dtList}{A list of data.tables}
 }
 \value{
 A GRangesList object.
