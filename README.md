@@ -14,11 +14,8 @@ devtools::install_github("databio/GenomicDistributions")
 
 ### Data package
 
-Includes full data files, too large to include in GenomicDistributions
+[GenomicDistributuionsData](https://github.com/databio/GenomicDistributionsData): includes full data files, too large to include in GenomicDistributions
 
-```r
-install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
-```
 
 ## Quick start
 
