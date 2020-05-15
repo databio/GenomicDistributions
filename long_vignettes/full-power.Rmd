@@ -42,6 +42,9 @@ BiocManager::install("ChIPpeakAnno")
 # BiocManager::install("EnsDb.Hsapiens.v75") # hg19
 BiocManager::install("EnsDb.Hsapiens.v86") # hg38
 devtools::install_github("databio/GenomicDistributions")
+devtools::install_github("databio/GenomicDistributionsData")
+install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
+install.packages("~/code/GenomicDistributionsData", repos=NULL)
 ```
 
 
@@ -57,7 +60,7 @@ annoData <- toGRanges(EnsDb.Hsapiens.v86, feature="gene")
 annoData[1:2]
 ```
 
-Let's retrieve a local path to an example bed file and use BiocFileCache to download it here if we don't already have it locally:
+Let's retrieve a variety of ENCODE BED files and use BiocFileCache to download them here:
 
 ```{r}
 setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
@@ -67,15 +70,25 @@ rpath = function(url, bfc) {
 	message("Downloading ", url)
 	BiocFileCache::bfcrpath(bfc, url)
 }
+
 urls = c(
-	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF316ASR_peaks_GRCh38.bed.gz", 
-	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE105977_ENCFF617QGK_optimal_idr_thresholded_peaks_GRCh38.bed.gz",
-	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF319TPR_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
-	"http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSM2827350_ENCFF928JXU_peaks_GRCh38.bed.gz")
+	H1_REST="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE101nnn/GSE101251/suppl/GSE101251_ENCFF235EJG_peaks_GRCh38.bed.gz",
+	MCF7_CTCF="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE123nnn/GSE123219/suppl/GSE123219_ENCFF047HAG_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
+	K562_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96303/suppl/GSE96303_ENCFF616DLO_replicated_peaks_GRCh38.bed.gz",
+	GM12878_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95899/suppl/GSE95899_ENCFF188SZS_replicated_peaks_GRCh38.bed.gz",
+	K562_ZEB2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF316ASR_peaks_GRCh38.bed.gz", 
+	HEK293_GLI2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE105977_ENCFF617QGK_optimal_idr_thresholded_peaks_GRCh38.bed.gz",
+	K562_ZEB2_TOP="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF319TPR_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
+	GLIAL_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95927/suppl/GSE95927_ENCFF724DGK_replicated_peaks_GRCh38.bed.gz",
+	A673_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96349/suppl/GSE96349_ENCFF412EXZ_peaks_GRCh38.bed.gz",
+	A673_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96332/suppl/GSE96332_ENCFF529ISR_peaks_GRCh38.bed.gz",
+	A673_H3K4me1="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96216/suppl/GSE96216_ENCFF328DBS_peaks_GRCh38.bed.gz",
+	A549_JUN="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2437nnn/GSM2437721/suppl/GSM2437721_ENCFF064QGH_peaks_GRCh38.bed.gz",
+	A549_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2421nnn/GSM2421593/suppl/GSM2421593_ENCFF715EXP_peaks_GRCh38.bed.gz")
 bedpaths = lapply(urls, rpath, bfc)
 ```
 
-Read this file in and build a GenomicRanges object:
+Read these  file in and build a GenomicRanges object:
 
 ```{r}
 
@@ -94,16 +107,40 @@ TSSdist = calcFeatureDist(queryList, sort(annoData))
 p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE)
 print(p)
 
-perc2 = calcPartitionsRef(queryList, "hg38", metric = "percent")
-p = plotPartitionPercents(perc2)
+perc2 = calcPartitionsRef(queryList, "hg38")
+p = plotPartitions(perc2)
 print(p)
 
 
-ep2 = calcExpectedPartitionsRef(queryList, "hg19")
+ep2 = calcExpectedPartitionsRef(queryList, "hg38")
 plotExpectedPartitions(ep2)
 
 gc2 = calcGCContentRef(queryList, "hg38")
 plotGCContent(gc2)
+
+chromBins = calcChromBinsRef(queryList, "hg38")
+
+
+
+# Then, plot the result:
+plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
+
+
+cp2 = calcCumulativePartitionsRef(queryList, "hg38")
+plotCumulativePartitions(cp2)
+
+op = calcOpenSignal(query, cellMatrix)
+plotOpenSignal(op)
+
+
+
+nd = calcNeighborDist(queryList)
+
+# Plot the distribution
+plotNeighborDist(nd)
+
+qt2 = calcWidth(queryList)
+plotQTHist(qt2, bins=15)
 
 ```
 

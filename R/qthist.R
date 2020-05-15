@@ -19,12 +19,12 @@ calcWidth = function(query) {
 
 #' Plot quantile-trimmed histogram
 #' 
-#' Given the results from \code{calcWidth}, plots a histogram of x.
+#' Given the results from \code{calcWidth}, plots a histogram with outliers trimmed.
 #' 
 #' x-axis breaks for the frequency calculations are based on the "divisions" 
 #' results from helper function \code{calcDivisions}.
 #' 
-#' @param x Results from \code{calcWidths}
+#' @param x Data values to plot
 #' @param EndBarColor Color for the quantile bars on both ends of the graph
 #'     (optional)
 #' @param MiddleBarColor Color for the bars in the middle of the graph
@@ -36,13 +36,15 @@ calcWidth = function(query) {
 #' @param indep logical value which returns a list of plots that have had their
 #'     bins calculated independently; the normal version will plot them on the 
 #'     same x and y axis.
+#' @param numbers a logical indicating whether the raw numbers should be 
+#'     displayed, rather than percentages (optional).
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
 #' plotQTHist(runif(500)*1000)
 #' plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
 plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
-    quantile=NULL, bins=NULL, indep=FALSE) {
+    quantile=NULL, bins=NULL, indep=FALSE, numbers=FALSE) {
     if (indep) {
         if (is(x, "list") | is(x, "List")) {
             x = lapply(x, plotQTHist)
@@ -78,8 +80,11 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
 
     df = cutDists(x, divisions=output[["divisions"]])
     if ("name" %in% names(df)){
+        if (!numbers)
+            df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), by = name]$"Freq.Per"
+
         g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
-            facet_grid(. ~name)
+            facet_wrap(. ~name)
     } else {
         g = ggplot(df, aes(x=cuts, y=Freq))
     }

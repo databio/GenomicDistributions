@@ -437,7 +437,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
         # It has multiple regions
         p = ggplot(assignedPartitions, aes(x=log10(cumsize), y=frif,
                    group=partition, color=partition)) +
-            facet_grid(. ~name)
+            facet_wrap(. ~name)
         plot_labels = setLabels(splitDataTable(assignedPartitions, "name"))
         partition_sizes = assignedPartitions[, .N, by=.(partition, name)]
         plot_labels[, label:=sprintf(" %s:%s", plot_labels$partition,
