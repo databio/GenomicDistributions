@@ -37,7 +37,7 @@ Welcome to the GenomicDistributions benchmarking.
 
 Here's what you need to have installed:
 
-```{r, eval=FALSE}
+```{r, install, eval=FALSE}
 BiocManager::install("ChIPpeakAnno")
 # BiocManager::install("EnsDb.Hsapiens.v75") # hg19
 BiocManager::install("EnsDb.Hsapiens.v86") # hg38
@@ -48,7 +48,7 @@ install.packages("~/code/GenomicDistributionsData", repos=NULL)
 ```
 
 
-```{r}
+```{r, initialize}
 library(microbenchmark)
 library(GenomicDistributions)
 library(ChIPpeakAnno)
@@ -62,10 +62,10 @@ annoData[1:2]
 
 Let's retrieve a variety of ENCODE BED files and use BiocFileCache to download them here:
 
-```{r}
-message(getwd())
-# setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
+```{r, download-data}
+if (interactive()) setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
 path = getwd()
+message(getwd())
 bfc = BiocFileCache::BiocFileCache(getwd())
 rpath = function(url, bfc) {
 	message("Downloading ", url)
@@ -103,36 +103,43 @@ queryList = GRangesList(grs)
 
 Set up benchmarking functions:
 
-```{r}
+```{r feature-plots}
 TSSdist = calcFeatureDist(queryList, sort(annoData))
 p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE)
 print(p)
+```
 
+```{r partition-plots}
 perc2 = calcPartitionsRef(queryList, "hg38")
 p = plotPartitions(perc2)
 print(p)
 
-
 ep2 = calcExpectedPartitionsRef(queryList, "hg38")
 plotExpectedPartitions(ep2)
 
-gc2 = calcGCContentRef(queryList, "hg38")
-plotGCContent(gc2)
-
-chromBins = calcChromBinsRef(queryList, "hg38")
-
-
-
-# Then, plot the result:
-plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
-
-
 cp2 = calcCumulativePartitionsRef(queryList, "hg38")
 plotCumulativePartitions(cp2)
+```
 
-op = calcOpenSignal(query, cellMatrix)
-plotOpenSignal(op)
+```{r}
+# gc2 = calcGCContentRef(queryList, "hg38")
+# plotGCContent(gc2)
 
+chromBins = calcChromBinsRef(queryList, "hg38")
+# Then, plot the result:
+plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
+```
+
+```{r}
+
+library(GenomicDistributionsData)
+data(openSignalMatrix_hg38)
+
+openSignalMatrix_hg38
+
+op = calcOpenSignal(queryList, openSignalMatrix_hg38)
+opp = plotOpenSignal(op)
+op
 
 
 nd = calcNeighborDist(queryList)
@@ -142,6 +149,7 @@ plotNeighborDist(nd)
 
 qt2 = calcWidth(queryList)
 plotQTHist(qt2, bins=15)
+
 
 ```
 

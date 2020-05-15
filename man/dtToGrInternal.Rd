@@ -29,5 +29,5 @@ A GRanges object.
 Two utility functions for converting data.tables into GRanges objects
 }
 \examples{
-genes = dtToGR(gModels, "chr", "txStart", "txEnd", "strand", "geneId")
+genes = dtToGr(gModels, "chr", "txStart", "txEnd", "strand", "geneId")
 }
