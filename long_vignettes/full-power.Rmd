@@ -63,7 +63,8 @@ annoData[1:2]
 Let's retrieve a variety of ENCODE BED files and use BiocFileCache to download them here:
 
 ```{r}
-setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
+message(getwd())
+# setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
 path = getwd()
 bfc = BiocFileCache::BiocFileCache(getwd())
 rpath = function(url, bfc) {
@@ -90,7 +91,7 @@ bedpaths = lapply(urls, rpath, bfc)
 
 Read these  file in and build a GenomicRanges object:
 
-```{r}
+```{r load-data-to-granges}
 
 df = lapply(bedpaths, data.table::fread)
 gr1 = GenomicDistributions:::dtToGr(df[[1]], chr="V1", start="V2", end="V3")

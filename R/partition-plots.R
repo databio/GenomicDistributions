@@ -263,7 +263,7 @@ calcExpectedPartitions = function(query, partitionList,
         #message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
-        message("\tfound ", sum(ol>0))
+        #message("\tfound ", sum(ol>0))
         partition[partition==0][ol > 0] = partitionNames[pi]
     }
     # Remove remainder
@@ -271,7 +271,7 @@ calcExpectedPartitions = function(query, partitionList,
         #message(remainder,":")
         count = length(partition[partition=="0"])
         partition[partition=="0"] = remainder
-        message("\tfound ", count)
+        #message("\tfound ", count)
         partitionNames = c(partitionNames, remainder)
     } else {
         partition = partition[!partition=="0"]
@@ -355,7 +355,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         hits[, size:=width(pHits)]
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
-        message("\tfound ", nrow(hits))
+        #message("\tfound ", nrow(hits))
 
         # Make mutually exclusive; remove hits from query
         query = query[-hits$xid]
@@ -375,7 +375,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
     #message(remainder,":")
     x = data.table::data.table(partition=remainder,
                                size=as.numeric(width(query)))
-    message("\tfound ", length(query))
+    #message("\tfound ", length(query))
     x = x[order(x$size),]
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
