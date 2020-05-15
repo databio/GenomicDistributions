@@ -166,10 +166,10 @@ test_that("Partitions", {
     # GenomePartitionList
     partList = list(promoterCore=trim(promoters(testGR2, upstream=100, downstream=0)),
                     promoterProx=trim(promoters(testGR2, upstream=2000, downstream=0)), 
-                    exon=testGR3, 
-                    intron=testGR2,
-                    threeUTR=testGR4,
-                    fiveUTR=testGR5)
+                    threeUTR=testGR4, 
+                    fiveUTR=testGR5,
+                    exon=testGR3,
+                    intron=testGR2)
   
     gp = genomePartitionList(testGR2, testGR3, testGR4, testGR5)
     expect_equal(gp, partList)
@@ -183,8 +183,8 @@ test_that("Partitions", {
     partition[partition=="0"] = "intergenic"
     testPartitions = data.frame(table(partition))
     
-    testPartitionNames = c("promoterCore", "promoterProx", "exon", "intron", 
-                       "threeUTR", "fiveUTR", "intergenic")
+    testPartitionNames = c("promoterCore", "promoterProx", "threeUTR", "fiveUTR",
+                           "exon", "intron", "intergenic")
     if (!all(testPartitionNames %in% testPartitions$partition)){
       notIncluded = testPartitionNames[!(testPartitionNames %in% 
                                            testPartitions$partition)]
