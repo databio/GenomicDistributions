@@ -47,10 +47,10 @@
 #' @param splitFactor Column to split, which can be a character vector
 #'	or an integer.
 #' @return	List of data.table objects, split by column
-#' @examples
-#' DT = data.table::data.table(letters, grp = rep(c("group1", "group2"), 13))
-#' splitDataTable(DT, "grp")
-#' splitDataTable(DT, 2)
+# @examples
+# DT = data.table::data.table(letters, grp = rep(c("group1", "group2"), 13))
+# splitDataTable(DT, "grp")
+# splitDataTable(DT, 2)
 splitDataTable = function(DT, split_factor) {
     factor_order = unique(DT[, get(split_factor)])
 	if (is.numeric(split_factor)) {
@@ -206,8 +206,8 @@ theme_blank_facet_label = function() {
 #' @param collapse Character to separate the labels
 #' @param infBins use >/< as labels on the edge bins
 #' @return A vector of histogram axis labels.
-#' @examples 
-#' labelCuts(seq(0,100,by=20))
+# @examples 
+# labelCuts(seq(0,100,by=20))
 labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-", infBins=FALSE) {
       roundedLabels = signif(round(
       	cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)

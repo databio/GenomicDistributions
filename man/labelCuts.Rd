@@ -36,6 +36,3 @@ your histogram plot.
 \code{labelCuts} will take a cut group, (e.g., a quantile division of 
 some signal), and give you clean labels (similar to the cut method).
 }
-\examples{
-labelCuts(seq(0,100,by=20))
-}
