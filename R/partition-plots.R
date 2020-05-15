@@ -118,10 +118,10 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL, fiveUTRGR=NULL
     })
     partitionList = list(promoterCore=promCore,
                          promoterProx=promProx,
-                         exon=exonsGR,
-                         intron=genesGR,
                          threeUTR=threeUTRGR, 
-                         fiveUTR=fiveUTRGR)
+                         fiveUTR=fiveUTRGR,
+                         exon=exonsGR,
+                         intron=genesGR)
 
     
     return(Filter(Negate(is.null), partitionList))
