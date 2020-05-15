@@ -44,7 +44,7 @@
 #' Efficiently split a data.table by a column in the table
 #' 
 #' @param DT Data.table to split
-#' @param splitFactor Column to split, which can be a character vector
+#' @param split_factor Column to split, which can be a character vector
 #'	or an integer.
 #' @return	List of data.table objects, split by column
 # @examples
@@ -145,7 +145,7 @@ dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA,
 
 #' Convert a GenomicRanges into a data.table.
 #'
-#' @param A Granges object
+#' @param GR A Granges object
 #' @return A data.table object.
 grToDt = function(GR) {
 	DF=as.data.frame(elementMetadata(GR))
@@ -160,7 +160,7 @@ grToDt = function(GR) {
 
 #' Converts a list of data.tables (From BSreadbeds) into GRanges.
 #'
-#' @param A list of data.tables
+#' @param dtList A list of data.tables
 #' @return A GRangesList object.
 BSdtToGRanges = function(dtList) {
 	gList = list()
