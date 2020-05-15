@@ -73,8 +73,6 @@ splitDataTable = function(DT, split_factor) {
 #' @param metaCols A string representing the name of the metadata column(s)
 #'     to include in the returned GRanges object.
 #' @return A GRanges object.
-#' @examples
-#' genes = dtToGr(gModels, "chr", "txStart", "txEnd", "strand", "geneId")
 dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=NA) {
 	if (is.na(end)) {
 		if ("end" %in% colnames(DT)) {
