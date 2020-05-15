@@ -9,7 +9,7 @@ splitDataTable(DT, split_factor)
 \arguments{
 \item{DT}{Data.table to split}
 
-\item{splitFactor}{Column to split, which can be a character vector
+\item{split_factor}{Column to split, which can be a character vector
 or an integer.}
 }
 \value{
