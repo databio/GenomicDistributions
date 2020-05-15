@@ -20,7 +20,7 @@ Authors@R: c(
     person("Jason", "Smith", role="ctb"),
     person("Kristyna", "Kupkova", role="ctb"))
 Depends:
-    R (>= 3.0),
+    R (>= 3.5),
     IRanges,
     GenomicRanges
 Imports:
