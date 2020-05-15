@@ -28,6 +28,3 @@ A GRanges object.
 \description{
 Two utility functions for converting data.tables into GRanges objects
 }
-\examples{
-genes = dtToGr(gModels, "chr", "txStart", "txEnd", "strand", "geneId")
-}
