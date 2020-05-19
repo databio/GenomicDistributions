@@ -11,6 +11,9 @@
 list(varname=c("data.frame", "numeric")). 
 Multiuple strings in the vector are treated as OR.}
 }
+\value{
+A warning if the wrong input class is provided.
+}
 \description{
 Checks class of the list of variables. To be used in functions
 }

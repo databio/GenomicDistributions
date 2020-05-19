@@ -7,6 +7,7 @@
 #' 
 #' @param genomeBuild	One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
 #' @param masked	Should we used the masked version? Default:TRUE
+#' @return A BSgenome object corresponding to the provided genome build.
 #' @export
 #' @examples
 #' \dontrun{
@@ -66,6 +67,8 @@ loadEnsDb = function(genomeBuild) {
 #' Returns built-in chrom sizes for a given reference assembly
 #
 #' @param refAssembly A string identifier for the reference assembly
+#' @return A vector with the chromosome sizes corresponding to a 
+#' specific genome assembly.
 #' @export
 #' @examples
 #' getChromSizes("hg19")
@@ -87,6 +90,8 @@ getTSSs = function(refAssembly) {
 #' Some functions require gene models, which can obtained from any source.
 #' This function allows you to retrieve a few common built-in ones.
 #' @param refAssembly A string identifier for the reference assembly
+#' @return A list containing the gene models corresponding to a
+#' specific reference assembly.
 #' @export
 #' @examples
 #' getGeneModels("hg19")

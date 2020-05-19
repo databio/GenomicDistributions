@@ -23,3 +23,6 @@ from each query feature to the closest TSS. It is a wrapper of
 \code{calcFeatureDist} that uses built-in TSS features for a reference
 assembly
 }
+\examples{
+calcFeatureDistRefTSS(vistaEnhancers, "hg19")
+}

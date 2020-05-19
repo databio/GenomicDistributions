@@ -3,7 +3,7 @@
 #' @param checkList list of object to check, e.g. 
 #' list(varname=c("data.frame", "numeric")). 
 #' Multiuple strings in the vector are treated as OR.
-#' 
+#' @return A warning if the wrong input class is provided.
 #' @examples
 #' x <- function(var1) {
 #'     cl = list(var1=c("numeric","character"))
@@ -122,6 +122,13 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
 #'     to include in the returned GRanges object.
 #' @return A GRanges object.
 #' @export
+#' @examples 
+#' start1 = c(seq(from=1, to = 2001, by = 1000), 800)
+#' chrString1 = c(rep("chr1", 3), "chr2")
+#' dt = data.table::data.table(chr=chrString1,
+#'                             start=start1,
+#'                             end=start1 + 250)
+#' newGR = dtToGr(dt)                
 dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA,
                   splitFactor=NA, metaCols=NA) {
 	if(is.na(splitFactor)) {

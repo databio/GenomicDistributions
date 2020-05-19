@@ -9,6 +9,10 @@ getChromSizes(refAssembly)
 \arguments{
 \item{refAssembly}{A string identifier for the reference assembly}
 }
+\value{
+A vector with the chromosome sizes corresponding to a 
+specific genome assembly.
+}
 \description{
 Returns built-in chrom sizes for a given reference assembly
 }

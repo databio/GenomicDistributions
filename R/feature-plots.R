@@ -59,6 +59,9 @@ calcFeatureDistBioc = function(query, features) {
 #' @return A vector of genomic distances for each query region relative to its 
 #'     closest feature.
 #' @export
+#' @examples 
+#' vistaSftd = GenomicRanges::shift(vistaEnhancers, 100000)
+#' calcFeatureDist(vistaEnhancers, vistaSftd) 
 calcFeatureDist = function(query, features) {
     .validateInputs(list(query=c("GRangesList","GRanges")))
 	if (is(query, "GRangesList")) {
@@ -112,6 +115,8 @@ DTNearest = function(DT1, DT2) {
 #'     \code{getTSSs}.
 #' @return A vector of distances for each query region relative to TSSs.
 #' @export
+#' @examples 
+#' calcFeatureDistRefTSS(vistaEnhancers, "hg19")
 calcFeatureDistRefTSS = function(query, refAssembly) {
 	features = getTSSs(refAssembly)
 	return(calcFeatureDist(query, features))
@@ -154,7 +159,7 @@ genomeLabel = function(x) {
 #' @export
 #' @examples
 #' TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
-#' plotFeatureDist(TSSdist, featureName="TSS")
+#' f = plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
                            numbers=FALSE, nbins=50, size=100000, infBins=FALSE, tile=FALSE) {
 	df = cutDists(dists, divisions=NULL, nbins, size, infBins)

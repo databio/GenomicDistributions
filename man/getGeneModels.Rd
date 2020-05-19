@@ -9,6 +9,10 @@ getGeneModels(refAssembly)
 \arguments{
 \item{refAssembly}{A string identifier for the reference assembly}
 }
+\value{
+A list containing the gene models corresponding to a
+specific reference assembly.
+}
 \description{
 Some functions require gene models, which can obtained from any source.
 This function allows you to retrieve a few common built-in ones.

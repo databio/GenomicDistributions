@@ -43,5 +43,5 @@ distances surrounding the features of interest
 }
 \examples{
 TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
-plotFeatureDist(TSSdist, featureName="TSS")
+f = plotFeatureDist(TSSdist, featureName="TSS")
 }

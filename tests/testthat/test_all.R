@@ -14,7 +14,7 @@ start2 = c(seq(from=126, to = 2126, by = 1000), 100, 2500)
 chrString1 = c(rep("chr1", 3), "chr2")
 chrString2 = c(chrString1, "chr3")
 
-origCoordDT1 <- data.table(chr=chrString1,
+origCoordDT1 = data.table(chr=chrString1,
                            start = start1,
                            end = start1 + 250)
 origCoordDT2 = data.table(chr=chrString2,

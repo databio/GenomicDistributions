@@ -26,3 +26,7 @@ This function is similar to the bioconductor distanceToNearest function, but
 returns negative values for downstream distances instead of absolute values.
 This allows you to assess the relative location.
 }
+\examples{
+vistaSftd = GenomicRanges::shift(vistaEnhancers, 100000)
+calcFeatureDist(vistaEnhancers, vistaSftd) 
+}

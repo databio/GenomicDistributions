@@ -35,7 +35,7 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     
     # convert query regions to just the midpoint
     if ("end" %in% colnames(queryRegionDT)) {
-        # assign to "start" because BSdtToGRanges only keeps the start coord
+        # assign to "start" since BSdtToGRanges keeps the start coord
         queryRegionDT$start = round((queryRegionDT$start + queryRegionDT$end)/2) 
     }
     
@@ -65,18 +65,19 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     fo = findOverlaps(bsgr[[1]], regionsGR)
     
     setkey(queryRegionDT, chr, start)
-    # Gut check:
-    # stopifnot(all(elementMetadata(bsgr[[1]])$readCount == queryRegionDT$readCount))
+    
     
     message("Setting regionIDs...")
-    queryRegionDT = queryRegionDT[queryHits(fo),] #restrict the table to CpGs in any region.
+    #restr to CpGs in any region.
+    queryRegionDT = queryRegionDT[queryHits(fo),] 
     
     if (NROW(queryRegionDT) < 1) {
-        warning("No overlapping regions in the given region list; please expand your regionsGRL")
+        warning("No overlapping regions in the given region list; 
+                please expand your regionsGRL")
         return(NULL)
     }
-    
-    queryRegionDT[,regionID:=subjectHits(fo)] #record which region they overlapped.
+    #record which region they overlapped.
+    queryRegionDT[,regionID:=subjectHits(fo)] 
     #queryRegionDT[queryHits(fo),regionID:=subjectHits(fo)]
     #if (!keep.na) {
     #	queryRegionDT = queryRegionDT[queryHits(fo),]
@@ -87,7 +88,8 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     
     # Now actually do the aggregate:
     message("Combining...")
-    bsCombined = queryRegionDT[,eval(parse(text=jExpr)), by=eval(parse(text=byString))]
+    bsCombined = queryRegionDT[,eval(parse(text=jExpr)), 
+                               by=eval(parse(text=byString))]
     setkey(bsCombined, regionID)
     
     e = region2group[bsCombined,]

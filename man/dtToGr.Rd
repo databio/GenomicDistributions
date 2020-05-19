@@ -44,3 +44,11 @@ Converts a data.table (DT) object to a GenomicRanges (GR) object. Tries to be
 intelligent, guessing chr and start, but you have to supply end or other
 columns if you want them to be carried into the GR.
 }
+\examples{
+start1 = c(seq(from=1, to = 2001, by = 1000), 800)
+chrString1 = c(rep("chr1", 3), "chr2")
+dt = data.table::data.table(chr=chrString1,
+                            start=start1,
+                            end=start1 + 250)
+newGR = dtToGr(dt)                
+}
