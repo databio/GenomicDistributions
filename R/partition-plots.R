@@ -355,7 +355,9 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         hits[, size:=width(pHits)]
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
-        #message("\tfound ", nrow(hits))
+        h = nrow(hits)
+        message("\tfound ", h)
+      
 
         # Make mutually exclusive; remove hits from query
         query = query[-hits$xid]
@@ -363,8 +365,8 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         hits = unique(hits, by="yid")
         # Link to positional data for feature of interest
         x = data.table::data.table(partition=partitionNames[pi],
-                                   size=hits$size,
-                                   count=hits$count)
+                                   size=if (h!=0) size=hits$size else size=0,
+                                   count=if (h!=0) count=hits$count else count=0)
         x = x[order(x$count, x$size),]
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
@@ -375,7 +377,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
     #message(remainder,":")
     x = data.table::data.table(partition=remainder,
                                size=as.numeric(width(query)))
-    #message("\tfound ", length(query))
+    message("\tfound ", length(query))
     x = x[order(x$size),]
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
