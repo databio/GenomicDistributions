@@ -356,7 +356,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
         h = nrow(hits)
-        message("\tfound ", h)
+        #message("\tfound ", h)
       
 
         # Make mutually exclusive; remove hits from query
@@ -377,7 +377,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
     #message(remainder,":")
     x = data.table::data.table(partition=remainder,
                                size=as.numeric(width(query)))
-    message("\tfound ", length(query))
+    #message("\tfound ", length(query))
     x = x[order(x$size),]
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
