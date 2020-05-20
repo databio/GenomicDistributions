@@ -26,7 +26,7 @@ The point of this vignette is to demonstrate the seamless usage of out compation
 
 To use `GenomicDistributions` with other reference genomes you need to install our companion package with more full-size data: `GenomicDistributionsData`. It's currently hosted on our server.
 
-```{r}
+```{r, eval=FALSE}
 install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
 ```
 
