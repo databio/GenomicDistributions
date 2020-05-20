@@ -11,14 +11,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, echo=FALSE}
-# These settings make the vignette prettier
-knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
-#refreshPackage("GenomicDistributions")
-#devtools::build_vignettes("code/GenomicDistributions")
-#devtools::test("code/GenomicDistributions")
-```
-
 # Full power GenomicDistributions
 
 This vignette shows how to use GenomicDistributions of full-size data. It is pre-computed. 
