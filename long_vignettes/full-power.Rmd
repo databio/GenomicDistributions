@@ -63,7 +63,7 @@ annoData[1:2]
 Let's retrieve a variety of ENCODE BED files and use BiocFileCache to download them here:
 
 ```{r, download-data}
-if (interactive()) setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
+if (basename(getwd()) != "long_vignettes") setwd("long_vignettes")  # run this from GenomicDistributions/long_vignettes
 path = getwd()
 message(getwd())
 bfc = BiocFileCache::BiocFileCache(getwd())
