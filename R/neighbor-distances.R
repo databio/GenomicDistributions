@@ -19,7 +19,7 @@ calcNeighborDist =  function(query) {
         dist = lapply(query, calcNeighborDist)
         namelist = names(query)
         if (is.null(namelist)) {
-            newnames = 1:length(query)
+            newnames = seq_along(query)
             namelist = newnames
             # Append names
             names(dist) = namelist

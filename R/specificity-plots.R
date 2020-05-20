@@ -57,7 +57,7 @@ calcOpenSignal = function(query, cellMatrix){
   
   # select just the fist three columns and give them name chr, start, end
   # create a 4th column with peak name in following format: chr_start_end
-  query = query[, 1:3]
+  query = query[, c(1, 2, 3)]
   colnames(query) = c("chr", "start", "end")
   query[, peakName := paste(query[,chr], query[,start], query[,end], 
                             sep = "_")]

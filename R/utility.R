@@ -57,7 +57,7 @@ splitDataTable = function(DT, split_factor) {
 		split_factor = colnames(DT)[split_factor]
 		message("Integer split_factor, changed to: ", split_factor)
 	}
-	l = lapply( split(1:nrow(DT), DT[, get(split_factor)]), function(x) DT[x])
+	l = lapply( split(seq_len(nrow(DT)), DT[, get(split_factor)]), function(x) DT[x])
     return(l[factor_order])
 }
 
@@ -95,7 +95,7 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
 	if (! is.na(name) ) {
 		names(gr) = DT[[`name`]]
 	} else {
-		names(gr) = 1:length(gr)
+		names(gr) = seq_along(gr)
 	}
 	if(! is.na(metaCols)) {
 		for(x in metaCols) {
@@ -141,7 +141,7 @@ dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA,
 		}
 	}
 
-	lapply(split(1:nrow(DT), splitFactor), function(x) { 
+	lapply(split(seq_len(nrow(DT)), splitFactor), function(x) { 
 			dtToGrInternal(DT[x,], chr, start, end, strand, name,metaCols)
 		}
 	)
@@ -171,7 +171,7 @@ grToDt = function(GR) {
 #' @return A GRangesList object.
 BSdtToGRanges = function(dtList) {
 	gList = list()
-	for (i in 1:length(dtList)) {
+	for (i in seq_along(dtList)) {
 		#dt = dtList[[i]]
 		setkey(dtList[[i]], chr, start)
 		#convert the data into granges object

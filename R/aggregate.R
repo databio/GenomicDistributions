@@ -52,12 +52,12 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     
     # Build a table to keep track of which regions belong to which group
     region2group = data.table(
-        regionID=1:length(regionsGR), 
+        regionID=seq_along(regionsGR), 
         chr=as.vector(seqnames(regionsGR)), 
         start=as.vector(start(regionsGR)), 
         end=as.vector(end(regionsGR)),
         withinGroupID= as.vector(unlist(sapply(regionsGRL.length, seq))),
-        regionGroupID=rep(1:length(regionsGRL), regionsGRL.length))
+        regionGroupID=rep(seq_along(regionsGRL), regionsGRL.length))
     setkey(region2group, regionID)
     
     

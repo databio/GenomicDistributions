@@ -271,7 +271,7 @@ cutDists = function(dists, divisions=NULL, nbins=50, size=100000, infBins=TRUE) 
 		# column to distinguish them.
 		nameList = names(dists)
 		if(is.null(nameList)) {
-			nameList = 1:length(dists) # Fallback to sequential numbers
+			nameList = seq_along(dists) # Fallback to sequential numbers
 		}
 
 		# Append names

@@ -47,9 +47,9 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 
 	dataTable = data.table(start=breaks[-endpoints]+1, 
 					end=breaks[-startpoints],
-					id=rep((1:length(start)), binCountByChrom),
+					id=rep((seq_along(start)), binCountByChrom),
 					binID=unlist(lapply(binCountByChrom, function(x) seq(from=1, to=x))),
-					ubinID=1:length(breaks[-startpoints]),
+					ubinID=seq_along(breaks[-startpoints]),
 					key="id")
 
 	if (!is.null(indicator)){
@@ -132,7 +132,7 @@ calcChromBins = function(query, bins) {
 		# column to distinguish them.
 		nameList = names(query)
 		if(is.null(nameList)) {
-			nameList = 1:length(query) # Fallback to sequential numbers
+			nameList = seq_along(query) # Fallback to sequential numbers
 		}
 		# Append names
 		xb = rbindlist(x)

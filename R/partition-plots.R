@@ -161,7 +161,7 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
         x = lapply(query, calcPartitions, partitionList, remainder)
         nameList = names(query)
         if(is.null(nameList)) {
-            newnames = 1:length(query) # Fallback to sequential numbers
+            newnames = seq_along(query) # Fallback to sequential numbers
             nameList = names
         }
         # Append names
@@ -172,7 +172,7 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     #Overlap each of the partition list.
     partitionNames = names(partitionList)
     partition = rep(0, length(query))  
-    for (pi in 1:length(partitionList)) {
+    for (pi in seq_along(partitionList)) {
         #message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
@@ -235,7 +235,7 @@ calcExpectedPartitions = function(query, partitionList,
                    genomeSize, remainder)
         nameList = names(query)
         if(is.null(nameList)) {
-            nameList = 1:length(query) # Fallback to sequential numbers
+            nameList = seq_along(query) # Fallback to sequential numbers
         }
         # Append names
         xb = data.table::rbindlist(x)
@@ -259,7 +259,7 @@ calcExpectedPartitions = function(query, partitionList,
     }
     partitionCounts = partitionCounts[order(partitionCounts$partition)]
     partition = rep(0, length(query))
-    for (pi in 1:length(partitionList)) {
+    for (pi in seq_along(partitionList)) {
         #message(partitionNames[pi],":")
         ol = suppressWarnings(
             countOverlaps(query[partition==0], partitionList[[pi]]))
@@ -322,7 +322,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         x = lapply(query, calcCumulativePartitions, partitionList, remainder)
         nameList = names(query)
         if(is.null(nameList)) {
-            nameList = 1:length(query) # Fallback to sequential numbers
+            nameList = seq_along(query) # Fallback to sequential numbers
         }
         # Append names
         xb = data.table::rbindlist(x)
@@ -340,7 +340,7 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
                                   cumsum=as.numeric(),
                                   cumsize=as.numeric(),
                                   frif=as.numeric())
-    for (pi in 1:length(partitionList)) {
+    for (pi in seq_along(partitionList)) {
         #message(partitionNames[pi],":")
         # Find overlaps
         hits  = suppressWarnings(findOverlaps(query, partitionList[[pi]]))
@@ -397,7 +397,7 @@ setLabels = function(assignedPartitions) {
         x = lapply(assignedPartitions, setLabels)
         nameList = names(assignedPartitions)
         if(is.null(nameList)) {
-            nameList = 1:length(assignedPartitions) # Fallback to sequential numbers
+            nameList = seq_along(assignedPartitions) # Fallback to sequential numbers
         }
         # Append names
         xb = data.table::rbindlist(x)
@@ -464,16 +464,16 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
                                each=partition_sizes$num_feats)]
         } else {
             if (!"partition" %in% colnames(plot_labels)) {
-                plot_labels[,partition:=seq(1:nrow(partition_sizes))]
+                plot_labels[,partition:=seq_len(nrow(partition_sizes))]
                 assignedPartitions[,
-                    partition:=rep(seq(1:nrow(partition_sizes)),
+                    partition:=rep(seq_len(nrow(partition_sizes)),
                                    partition_sizes$num_feats)]
             }
         }
     } else {
         if (!"partition" %in% colnames(plot_labels)) {
-            plot_labels[,partition:=seq(1:nrow(partition_sizes))]
-            assignedPartitions[,partition:=rep(seq(1:nrow(partition_sizes)),
+            plot_labels[,partition:=seq_len(nrow(partition_sizes))]
+            assignedPartitions[,partition:=rep(seq_len(nrow(partition_sizes)),
                                partition_sizes$num_feats)]
         }
     }
@@ -546,7 +546,7 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
             expectedPartitions[,partition:=feature_names]
         } else {
             if (!"partition" %in% colnames(plot_labels)) {
-                expectedPartitions[,partition:=seq(1:nrow(expectedPartitions))]
+                expectedPartitions[,partition:=seq_len(nrow(expectedPartitions))]
             }
         }
     }

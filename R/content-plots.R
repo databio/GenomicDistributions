@@ -21,7 +21,7 @@ calcGCContent = function(query, ref) {
         x = lapply(query, calcGCContent, ref)
         namelist = names(query)
         if (is.null(namelist)) {
-            newnames = 1:length(query)
+            newnames = seq_along(query)
             namelist = newnames
             # Append names
             names(x) = namelist
