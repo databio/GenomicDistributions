@@ -223,10 +223,10 @@ ease comparison between different regionsets and account for outliers.
 ```{r neighbor-distance-plots, fig.cap="Distances between neighboring intervals of a regionset", fig.small=TRUE}
 
 # Calculate the distances 
-dist = calcNeighborDist(query)
+nd = calcNeighborDist(query)
 
 # Plot the distribution
-plotNeighborDist(dist)
+plotNeighborDist(nd)
 ```
 
 You can also look at the distances distribution for more than one regionset:

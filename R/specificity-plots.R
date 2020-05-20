@@ -139,11 +139,11 @@ plotOpenSignal = function(signalMatrix,
                             variable.name = "cellType", value.name = "signal")
   }
   data.table::setDT(plotSignalMatrix)
-  setkey(plotSignalMatrix, cellType)
-  setkey(cellTypeMetadata, cellType)
+  data.table::setkey(plotSignalMatrix, cellType)
+  data.table::setkey(cellTypeMetadata, cellType)
   plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
   plotSignalMatrix[, lowerCaseTissue := tolower(tissue)]
-  setorder(plotSignalMatrix, lowerCaseTissue, cellType)
+  data.table::setorder(plotSignalMatrix, lowerCaseTissue, cellType)
   plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissue], 
                                        plotSignalMatrix[,cellType], sep = "_")]
   
