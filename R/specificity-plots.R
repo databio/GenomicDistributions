@@ -15,9 +15,7 @@
 #' 
 #' @export
 #' @examples
-#' \dontrun{
 #' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
-#' }
 calcOpenSignal = function(query, cellMatrix){
   .validateInputs(list(query=c("GRanges","GRangesList")))
   if (is(query, "GRangesList")) {

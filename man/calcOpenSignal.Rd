@@ -31,7 +31,5 @@ region (if overlap was found), each column is a cell type, and the value
 is a normalized ATAC-seq signal.
 }
 \examples{
-\dontrun{
 signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
-}
 }

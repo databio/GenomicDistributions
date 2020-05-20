@@ -118,6 +118,10 @@ binChroms = function(binCount, chromSizes) {
 #'     over; for example, these could be genome bins
 #' @return A data.table showing where on which chromosomes ranges are distributed.
 #' @export
+#' @examples
+#' vistaSftd = GenomicRanges::shift(vistaEnhancers, 100000)
+#' vistaSftd2 = GenomicRanges::shift(vistaEnhancers, 200000)
+#' calcChromBins(vistaEnhancers, GRangesList(vistaSftd, vistaSftd2))
 calcChromBins = function(query, bins) {
     .validateInputs(list(bins=c("GRanges","GRangesList"),
                          query=c("GRanges","GRangesList")))
