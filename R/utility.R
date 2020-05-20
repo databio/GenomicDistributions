@@ -223,7 +223,7 @@ labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-",
     roundedLabels = signif(round(
         cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)
     # set the Inf values to NA so formatC can add commas
-    is.na(roundedLabels) = sapply(roundedLabels, is.infinite) 
+    is.na(roundedLabels) = vapply(roundedLabels, is.infinite, logical(1)) 
     labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
     labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
     if (infBins) {
