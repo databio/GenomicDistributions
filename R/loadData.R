@@ -5,8 +5,8 @@
 #' more complex annotation for a complete BSgenome object (e.g.
 #' BSgenome.Hsapiens.UCSC.hg38.masked)
 #' 
-#' @param genomeBuild	One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
-#' @param masked	Should we used the masked version? Default:TRUE
+#' @param genomeBuild One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'
+#' @param masked Should we used the masked version? Default:TRUE
 #' @return A BSgenome object corresponding to the provided genome build.
 #' @export
 #' @examples
@@ -73,7 +73,7 @@ loadEnsDb = function(genomeBuild) {
 #' @examples
 #' getChromSizes("hg19")
 getChromSizes = function(refAssembly) {
-	getReferenceData(refAssembly, tagline="chromSizes_")
+    getReferenceData(refAssembly, tagline="chromSizes_")
 }
 
 
@@ -81,7 +81,7 @@ getChromSizes = function(refAssembly) {
 #
 # @param refAssembly A string identifier for the reference assembly
 getTSSs = function(refAssembly) { 
-	getReferenceData(refAssembly, tagline="TSS_")
+    getReferenceData(refAssembly, tagline="TSS_")
 }
 
 
@@ -96,7 +96,7 @@ getTSSs = function(refAssembly) {
 #' @examples
 #' getGeneModels("hg19")
 getGeneModels = function(refAssembly) { 
-	getReferenceData(refAssembly, tagline="geneModels_")
+    getReferenceData(refAssembly, tagline="geneModels_")
 }
 
 #' Get reference data for a specified assembly
@@ -114,7 +114,7 @@ getGeneModels = function(refAssembly) {
 #'     can load different data types).
 #' @return A requested and included package data object.
 getReferenceData = function(refAssembly, tagline) {
-	# query available datasets and convert the packageIQR object into a vector
+    # query available datasets and convert the packageIQR object into a vector
     datasetId = paste0(tagline, refAssembly)
     dataset = .getDataFromPkg(id=datasetId, "GenomicDistributions")
     if(!is.null(dataset))

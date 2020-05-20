@@ -45,19 +45,19 @@
 #' 
 #' @param DT Data.table to split
 #' @param split_factor Column to split, which can be a character vector
-#'	or an integer.
-#' @return	List of data.table objects, split by column
+#'        or an integer.
+#' @return List of data.table objects, split by column
 # @examples
 # DT = data.table::data.table(letters, grp = rep(c("group1", "group2"), 13))
 # splitDataTable(DT, "grp")
 # splitDataTable(DT, 2)
 splitDataTable = function(DT, split_factor) {
     factor_order = unique(DT[, get(split_factor)])
-	if (is.numeric(split_factor)) {
-		split_factor = colnames(DT)[split_factor]
-		message("Integer split_factor, changed to: ", split_factor)
-	}
-	l = lapply( split(seq_len(nrow(DT)), DT[, get(split_factor)]), function(x) DT[x])
+    if (is.numeric(split_factor)) {
+        split_factor = colnames(DT)[split_factor]
+        message("Integer split_factor, changed to: ", split_factor)
+    }
+    l = lapply( split(seq_len(nrow(DT)), DT[, get(split_factor)]), function(x) DT[x])
     return(l[factor_order])
 }
 
@@ -74,35 +74,35 @@ splitDataTable = function(DT, split_factor) {
 #'     to include in the returned GRanges object.
 #' @return A GRanges object.
 dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=NA) {
-	if (is.na(end)) {
-		if ("end" %in% colnames(DT)) {
-			end = "end"
-		} else {
-			end = start
-		}
-	}
-	if (is.na(strand)) {
-		gr=GRanges(seqnames=DT[[`chr`]], ranges=IRanges(start=DT[[`start`]], end=DT[[`end`]]), strand="*")
-	} else {
-		# GRanges can only handle '*' for no strand, so replace any non-accepted
-		# characters with '*'
-		DT[,strand:=as.character(strand)]
-		DT[strand=="1", strand:="+"]
-		DT[strand=="-1", strand:="-"]
-		DT[[`strand`]] =  gsub("[^+-]", "*", DT[[`strand`]])
-		gr=GRanges(seqnames=DT[[`chr`]], ranges=IRanges(start=DT[[`start`]], end=DT[[`end`]]), strand=DT[[`strand`]])
-	}
-	if (! is.na(name) ) {
-		names(gr) = DT[[`name`]]
-	} else {
-		names(gr) = seq_along(gr)
-	}
-	if(! is.na(metaCols)) {
-		for(x in metaCols) {
-			elementMetadata(gr)[[`x`]]=DT[[`x`]]
-		}
-	}
-	gr
+    if (is.na(end)) {
+        if ("end" %in% colnames(DT)) {
+            end = "end"
+        } else {
+            end = start
+        }
+    }
+    if (is.na(strand)) {
+        gr=GRanges(seqnames=DT[[`chr`]], ranges=IRanges(start=DT[[`start`]], end=DT[[`end`]]), strand="*")
+    } else {
+        # GRanges can only handle '*' for no strand, so replace any non-accepted
+        # characters with '*'
+        DT[,strand:=as.character(strand)]
+        DT[strand=="1", strand:="+"]
+        DT[strand=="-1", strand:="-"]
+        DT[[`strand`]] =  gsub("[^+-]", "*", DT[[`strand`]])
+        gr=GRanges(seqnames=DT[[`chr`]], ranges=IRanges(start=DT[[`start`]], end=DT[[`end`]]), strand=DT[[`strand`]])
+    }
+    if (! is.na(name) ) {
+        names(gr) = DT[[`name`]]
+    } else {
+        names(gr) = seq_along(gr)
+    }
+    if(! is.na(metaCols)) {
+        for(x in metaCols) {
+            elementMetadata(gr)[[`x`]]=DT[[`x`]]
+        }
+    }
+    gr
 }
 
 
@@ -131,20 +131,20 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
 #' newGR = dtToGr(dt)                
 dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA,
                   splitFactor=NA, metaCols=NA) {
-	if(is.na(splitFactor)) {
-		return(dtToGrInternal(DT, chr, start, end, strand, name,metaCols))
-	}
+    if(is.na(splitFactor)) {
+        return(dtToGrInternal(DT, chr, start, end, strand, name, metaCols))
+    }
 
-	if ( length(splitFactor) == 1 ) { 
-		if( splitFactor %in% colnames(DT) ) {
-			splitFactor = DT[, get(splitFactor)]
-		}
-	}
+    if ( length(splitFactor) == 1 ) { 
+        if( splitFactor %in% colnames(DT) ) {
+            splitFactor = DT[, get(splitFactor)]
+        }
+    }
 
-	lapply(split(seq_len(nrow(DT)), splitFactor), function(x) { 
-			dtToGrInternal(DT[x,], chr, start, end, strand, name,metaCols)
-		}
-	)
+    lapply(split(seq_len(nrow(DT)), splitFactor), function(x) { 
+        dtToGrInternal(DT[x,], chr, start, end, strand, name, metaCols)
+    }
+    )
 
 
 }
@@ -155,13 +155,13 @@ dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA,
 #' @param GR A Granges object
 #' @return A data.table object.
 grToDt = function(GR) {
-	DF=as.data.frame(elementMetadata(GR))
-	if( ncol(DF) > 0) {
-		DT = data.table(chr=as.vector(seqnames(GR)), start=start(GR), end=end(GR), DF)
-	} else {
-		DT = data.table(chr=as.vector(seqnames(GR)), start=start(GR), end=end(GR))
-	}
-	return(DT)
+    DF=as.data.frame(elementMetadata(GR))
+    if( ncol(DF) > 0) {
+        DT = data.table(chr=as.vector(seqnames(GR)), start=start(GR), end=end(GR), DF)
+    } else {
+        DT = data.table(chr=as.vector(seqnames(GR)), start=start(GR), end=end(GR))
+    }
+    return(DT)
 }
 
 
@@ -170,15 +170,19 @@ grToDt = function(GR) {
 #' @param dtList A list of data.tables
 #' @return A GRangesList object.
 BSdtToGRanges = function(dtList) {
-	gList = list()
-	for (i in seq_along(dtList)) {
-		#dt = dtList[[i]]
-		setkey(dtList[[i]], chr, start)
-		#convert the data into granges object
-		gList[[i]] = GRanges(seqnames=dtList[[i]]$chr, ranges=IRanges(start=dtList[[i]]$start, end=dtList[[i]]$start), strand=rep("*", nrow(dtList[[i]])), hitCount=dtList[[i]]$hitCount, readCount=dtList[[i]]$readCount)
-#I used to use end=start+1, but this targets CG instead of just a C, and it's causing edge-effects problems when I assign Cs to tiled windows using (within). Aug 2014 I'm changing to start/end at the same coordinate.
-	}
-	return(gList)
+    gList = list()
+    for (i in seq_along(dtList)) {
+        #dt = dtList[[i]]
+        setkey(dtList[[i]], chr, start)
+        #convert the data into granges object
+        gList[[i]] = GRanges(seqnames=dtList[[i]]$chr, ranges=IRanges(start=dtList[[i]]$start, 
+                                end=dtList[[i]]$start), strand=rep("*", nrow(dtList[[i]])), 
+                                hitCount=dtList[[i]]$hitCount, readCount=dtList[[i]]$readCount)
+        # I used to use end=start+1, but this targets CG instead of just a C, 
+        # and it's causing edge-effects problems when I assign Cs to tiled windows 
+        # using (within). Aug 2014 I'm changing to start/end at the same coordinate.
+    }
+    return(gList)
 }
 
 
@@ -189,12 +193,12 @@ BSdtToGRanges = function(dtList) {
 #'
 #' @return A ggplot theme
 theme_blank_facet_label = function() {
-	return(theme(
-		panel.grid.major = element_blank(),
-		panel.grid.minor = element_blank(),
-		strip.background = element_blank()
-		)
-	)
+    return(theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank()
+        )
+    )
 }
 
 
@@ -216,17 +220,17 @@ theme_blank_facet_label = function() {
 # @examples 
 # labelCuts(seq(0,100,by=20))
 labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-", infBins=FALSE) {
-      roundedLabels = signif(round(
-      	cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)
-      # set the Inf values to NA so formatC can add commas
-      is.na(roundedLabels) = sapply(roundedLabels, is.infinite) 
-      labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
-      labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
-      if (infBins) {
+    roundedLabels = signif(round(
+        cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)
+    # set the Inf values to NA so formatC can add commas
+    is.na(roundedLabels) = sapply(roundedLabels, is.infinite) 
+    labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
+    labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
+    if (infBins) {
         labels[1] = paste0("<=", formatC(breakPoints[2], format="d", big.mark=","))
         labels[length(labels)] = paste0(">", formatC(breakPoints[length(breakPoints)-1], format="d", big.mark=","))
-      }
-      return(labels)
+    }
+    return(labels)
 }
 
 #' Nathan's magical named list function.
@@ -237,7 +241,7 @@ labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-",
 #' not overwriting specified names while naming any unnamed parameters.
 #' Took me awhile to figure this out.
 #'
-#' @param ...	arguments passed to list()
+#' @param ... arguments passed to list()
 #' @return A named list object.
 #' @export
 #' @examples
@@ -257,14 +261,3 @@ nlist = function(...) {
 }
 
 
-# labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
-# 	labels = 
-# 	apply(round(cbind( breakPoints[-length(breakPoints)],	
-# 		breakPoints[-1]),digits), 1, paste0, collapse=collapse) 
-
-# 	if (infBins) {
-# 		labels[1] = paste0("<", breakPoints[2])
-# 		labels[length(labels)] = paste0(">", breakPoints[length(breakPoints)-1])
-# 	}
-# 	return(labels)
-# }

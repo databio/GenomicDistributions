@@ -33,30 +33,30 @@
 binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
     .validateInputs(list(start="numeric", end="numeric"))
     if (is.null(binSize) & is.null(binCount)) {
-		stop("You must provide either binSize or binCount")
-	}
-	if (is.null(binSize)) {
-		binSize = round(sum(end-start)/binCount)
-	}
-	binCountByChrom = round((end-start)/binSize)
-	binCountByChrom[binCountByChrom==0]=1
-	binSizeByChrom = (end-start)/(binCountByChrom)
-	breaks = round(unlist(lapply(binCountByChrom, function(x) seq(from=0, to=x))) * rep(binSizeByChrom, (binCountByChrom+1)))
-	endpoints = cumsum(binCountByChrom + 1) 
-	startpoints = c(1, endpoints[-length(endpoints)]+1)
+        stop("You must provide either binSize or binCount")
+    }
+    if (is.null(binSize)) {
+        binSize = round(sum(end-start)/binCount)
+    }
+    binCountByChrom = round((end-start)/binSize)
+    binCountByChrom[binCountByChrom==0]=1
+    binSizeByChrom = (end-start)/(binCountByChrom)
+    breaks = round(unlist(lapply(binCountByChrom, function(x) seq(from=0, to=x))) * rep(binSizeByChrom, (binCountByChrom+1)))
+    endpoints = cumsum(binCountByChrom + 1) 
+    startpoints = c(1, endpoints[-length(endpoints)]+1)
 
-	dataTable = data.table(start=breaks[-endpoints]+1, 
-					end=breaks[-startpoints],
-					id=rep((seq_along(start)), binCountByChrom),
-					binID=unlist(lapply(binCountByChrom, function(x) seq(from=1, to=x))),
-					ubinID=seq_along(breaks[-startpoints]),
-					key="id")
+    dataTable = data.table(start=breaks[-endpoints]+1, 
+            end=breaks[-startpoints],
+            id=rep((seq_along(start)), binCountByChrom),
+            binID=unlist(lapply(binCountByChrom, function(x) seq(from=1, to=x))),
+            ubinID=seq_along(breaks[-startpoints]),
+            key="id")
 
-	if (!is.null(indicator)){
-		idCol = rep(indicator, binCountByChrom)
-		dataTable = data.table(idCol, dataTable)
-	}
-	return(dataTable)
+    if (!is.null(indicator)){
+        idCol = rep(indicator, binCountByChrom)
+        dataTable = data.table(idCol, dataTable)
+    }
+    return(dataTable)
 }
 
 #' Bins a BSgenome object.
@@ -76,9 +76,9 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 #' }
 binBSGenome = function(genome, binCount) {
     .validateInputs(list(genome="character", binCount="numeric"))
-	BSG = loadBSgenome(genome)
-	chromSizes = seqlengths(BSG)
-	return(binChroms(binCount, chromSizes))
+    BSG = loadBSgenome(genome)
+    chromSizes = seqlengths(BSG)
+    return(binChroms(binCount, chromSizes))
 }
 
 #' Naively splits a chromosome into bins
@@ -98,10 +98,10 @@ binBSGenome = function(genome, binCount) {
 binChroms = function(binCount, chromSizes) {
     .validateInputs(list(chromSizes="numeric", binCount="numeric"))
     seqnamesColName="chr"
-	rangeDT = data.table(chr=names(chromSizes), start=1, end=chromSizes)
-	binnedDT = rangeDT[, binRegion(start, end, binCount=binCount,
-							indicator=get(seqnamesColName))]
-	return(binnedDT)
+    rangeDT = data.table(chr=names(chromSizes), start=1, end=chromSizes)
+    binnedDT = rangeDT[, binRegion(start, end, binCount=binCount,
+            indicator=get(seqnamesColName))]
+    return(binnedDT)
 }
 
 
@@ -126,28 +126,28 @@ calcChromBins = function(query, bins) {
     .validateInputs(list(bins=c("GRanges","GRangesList"),
                          query=c("GRanges","GRangesList")))
     if (is(query, "GRangesList"))  {
-		# Recurse over each GRanges object
-		x = lapply(query, calcChromBins, bins)
-		# To accommodate multiple regions, we'll need to introduce a new 'name'
-		# column to distinguish them.
-		nameList = names(query)
-		if(is.null(nameList)) {
-			nameList = seq_along(query) # Fallback to sequential numbers
-		}
-		# Append names
-		xb = rbindlist(x)
-		xb$name = rep(nameList, vapply(x, nrow, integer(1)))
-		return(xb)
-	}
+        # Recurse over each GRanges object
+        x = lapply(query, calcChromBins, bins)
+        # To accommodate multiple regions, we'll need to introduce a new 'name'
+        # column to distinguish them.
+        nameList = names(query)
+    if(is.null(nameList)) {
+        nameList = seq_along(query) # Fallback to sequential numbers
+    }
+    # Append names
+    xb = rbindlist(x)
+    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+    return(xb)
+    }
 
-	queryDT = grToDt(query)
-	
-	# This function will just count the number of regions.
-	res = calcOLCount(queryDT, bins)
+    queryDT = grToDt(query)
+    
+    # This function will just count the number of regions.
+    res = calcOLCount(queryDT, bins)
 
-	# order chromosomes by current order.
-	res[, chr:=factor(chr, levels=unique(res$chr))]
-	return(res)
+    # order chromosomes by current order.
+    res[, chr:=factor(chr, levels=unique(res$chr))]
+    return(res)
 }
 
 #' Returns the distribution of query over a reference assembly
@@ -171,12 +171,12 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
     .validateInputs(list(refAssembly="character", 
                          query=c("GRanges","GRangesList")))
     # Bin the genome
-	chromSizes = getChromSizes(refAssembly)
-	binnedDT = binChroms(binCount, chromSizes)
-	splitBinnedDT = splitDataTable(binnedDT, "id")
-	listGR = lapply(splitBinnedDT, dtToGr, chr="idCol")
-	genomeBins =  GRangesList(listGR)
-	return(calcChromBins(query, genomeBins))
+    chromSizes = getChromSizes(refAssembly)
+    binnedDT = binChroms(binCount, chromSizes)
+    splitBinnedDT = splitDataTable(binnedDT, "id")
+    listGR = lapply(splitBinnedDT, dtToGr, chr="idCol")
+    genomeBins =  GRangesList(listGR)
+    return(calcChromBins(query, genomeBins))
 }
 
 #' Plot distribution over chromosomes
@@ -197,28 +197,28 @@ plotChromBins = function(genomeAggregate, binCount=10000,
                          plotTitle="Distribution over chromosomes") {
     .validateInputs(list(genomeAggregate=c("data.table","data.frame")))
     if ("name" %in% names(genomeAggregate)){
-		# It has multiple regions
-		g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N, 
-		                                fill=name, color=name))
-	} else {
-		# It's a single region
-		g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N))
-	}
-	g = g +
-		xlab("Genome") + 
-	    ylab("Number of regions") +
-		geom_bar(stat="identity") + # Spread out to max width
-		facet_grid(chr ~ .) + # Place chromosomes one on top of another
-		theme_classic() + # Clean up cruft
-		theme_blank_facet_label() + # No boxes around labels
-		theme(panel.spacing=unit(0, "lines")) + # Reduce whitespace
-		theme(strip.text.y=element_text(size=12, angle=0)) + # Rotate labels
-		geom_hline(yintercept=0, color="#EEEEEE") + # Light chrom lines
-		scale_y_continuous(breaks=c(max(genomeAggregate$N)), 
-		                   limits=c(0, max(genomeAggregate$N))) +
-		scale_x_continuous(breaks=c(0, binCount), labels=c("Start", "End")) +
-		theme(plot.title=element_text(hjust=0.5)) + # Center title
-		ggtitle(plotTitle) +
-		theme(legend.position="bottom")
-	return(g)
+        # It has multiple regions
+        g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N, 
+                                        fill=name, color=name))
+    } else {
+        # It's a single region
+        g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N))
+    }
+    g = g +
+        xlab("Genome") + 
+        ylab("Number of regions") +
+        geom_bar(stat="identity") + # Spread out to max width
+        facet_grid(chr ~ .) + # Place chromosomes one on top of another
+        theme_classic() + # Clean up cruft
+        theme_blank_facet_label() + # No boxes around labels
+        theme(panel.spacing=unit(0, "lines")) + # Reduce whitespace
+        theme(strip.text.y=element_text(size=12, angle=0)) + # Rotate labels
+        geom_hline(yintercept=0, color="#EEEEEE") + # Light chrom lines
+        scale_y_continuous(breaks=c(max(genomeAggregate$N)), 
+                            limits=c(0, max(genomeAggregate$N))) +
+    scale_x_continuous(breaks=c(0, binCount), labels=c("Start", "End")) +
+    theme(plot.title=element_text(hjust=0.5)) + # Center title
+    ggtitle(plotTitle) +
+    theme(legend.position="bottom")
+    return(g)
 }

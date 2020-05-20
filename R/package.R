@@ -46,18 +46,18 @@ NULL
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c(
     "cuts", "mid", "J", "chr", "N", "regionID", "x", "name", "BSFilter", 
-	"start", "end", "findOverlaps", "queryHits", "subjectHits", "buildJ",
-	"seqlengths", "IRanges", "seqlengths", "reduce", "seqlevels", "follow",
-	"trim", "error", "nlist", "aggregate", "median",  "bgDists", "Freq", "bgX",
-	"bgFreq", "value", "regionSet", "Group.1", "cellType", "spaceLabel", "signal",
-	"group", "medianBar", "partition", "Freq", "Freq", "cumsize", "frif", 
-	"aggregate", "withinGroupID", "lowerCaseTissue", "boxplot.stats", "median",
-	"barplot", "legend", "promoters", "seqlevels", "width", "precede",
-	"elementMetadata", ".N", ".SD", "colorRampPalette", "count", "countOverlaps",
-	"distance", "elementMetadata<-", "elementNROWS", "expected", "log10OE",
-	"pintersect", "plot_labels", "query", "regionGroupID", "seqlevels<-", "size",
-	"tableCount", "V1", "queryPeak", "xid", "yid", "na.omit", "peakName",
-	"mixedVar", "tissue", ".", "Percent", "Var1"))
+    "start", "end", "findOverlaps", "queryHits", "subjectHits", "buildJ",
+    "seqlengths", "IRanges", "seqlengths", "reduce", "seqlevels", "follow",
+    "trim", "error", "nlist", "aggregate", "median",  "bgDists", "Freq", "bgX",
+    "bgFreq", "value", "regionSet", "Group.1", "cellType", "spaceLabel", "signal",
+    "group", "medianBar", "partition", "Freq", "Freq", "cumsize", "frif", 
+    "aggregate", "withinGroupID", "lowerCaseTissue", "boxplot.stats", "median",
+    "barplot", "legend", "promoters", "seqlevels", "width", "precede",
+    "elementMetadata", ".N", ".SD", "colorRampPalette", "count", "countOverlaps",
+    "distance", "elementMetadata<-", "elementNROWS", "expected", "log10OE",
+    "pintersect", "plot_labels", "query", "regionGroupID", "seqlevels<-", "size",
+    "tableCount", "V1", "queryPeak", "xid", "yid", "na.omit", "peakName",
+    "mixedVar", "tissue", ".", "Percent", "Var1"))
 }
 
 

@@ -80,7 +80,7 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     queryRegionDT[,regionID:=subjectHits(fo)] 
     #queryRegionDT[queryHits(fo),regionID:=subjectHits(fo)]
     #if (!keep.na) {
-    #	queryRegionDT = queryRegionDT[queryHits(fo),]
+    #queryRegionDT = queryRegionDT[queryHits(fo),]
     #}
     
     # Build the by string

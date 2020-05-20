@@ -18,28 +18,28 @@
 #         closest feature.
 calcFeatureDistBioc = function(query, features) {
     .validateInputs(list(query=x("GRangesList","GRanges")))
-	if (is(query, "GRangesList")) {
-		# Recurse over each GRanges object
-		x = lapply(query, calcFeatureDist, features)
-		return(x)
-	}
+    if (is(query, "GRangesList")) {
+        # Recurse over each GRanges object
+        x = lapply(query, calcFeatureDist, features)
+        return(x)
+    }
 
-	precedeInd = precede(query, features)
-	preIndNA = is.na(precedeInd)
-	followInd = follow(query, features)
-	folIndNA = is.na(followInd)
-	preDist = rep(NA, length(query))
+    precedeInd = precede(query, features)
+    preIndNA = is.na(precedeInd)
+    followInd = follow(query, features)
+    folIndNA = is.na(followInd)
+    preDist = rep(NA, length(query))
 
-	preDist[!preIndNA] = -distance(query[!preIndNA], features[precedeInd[!preIndNA]])
+    preDist[!preIndNA] = -distance(query[!preIndNA], features[precedeInd[!preIndNA]])
 
-	postDist = rep(NA, length(query))
-	postDist[!folIndNA] = distance(query[!folIndNA], features[followInd[!folIndNA]])
+    postDist = rep(NA, length(query))
+    postDist[!folIndNA] = distance(query[!folIndNA], features[followInd[!folIndNA]])
 
-	postHits = -preDist > postDist
-	postHitsNA = is.na(postHits)
-	dists = preDist
-	dists[postHits[!postHitsNA]] = postDist[postHits[!postHitsNA]]
-	return(dists)
+    postHits = -preDist > postDist
+    postHitsNA = is.na(postHits)
+    dists = preDist
+    dists[postHits[!postHitsNA]] = postDist[postHits[!postHitsNA]]
+    return(dists)
 }
 
 #' Find the distance to the nearest genomic feature
@@ -64,16 +64,16 @@ calcFeatureDistBioc = function(query, features) {
 #' calcFeatureDist(vistaEnhancers, vistaSftd) 
 calcFeatureDist = function(query, features) {
     .validateInputs(list(query=c("GRangesList","GRanges")))
-	if (is(query, "GRangesList")) {
-		# Recurse over each GRanges object
-		x = lapply(query, calcFeatureDist, features)
-		return(x)
-	}
-	queryDT = grToDt(query)
-	featureDT = grToDt(features)
-	queryDTs = splitDataTable(queryDT, "chr")
-	featureDTs = splitDataTable(featureDT, "chr")
-	as.vector(unlist(mapply(queryDTs, featureDTs[names(queryDTs)], FUN=DTNearest)))
+    if (is(query, "GRangesList")) {
+        # Recurse over each GRanges object
+        x = lapply(query, calcFeatureDist, features)
+        return(x)
+    }
+    queryDT = grToDt(query)
+    featureDT = grToDt(features)
+    queryDTs = splitDataTable(queryDT, "chr")
+    featureDTs = splitDataTable(featureDT, "chr")
+   as.vector(unlist(mapply(queryDTs, featureDTs[names(queryDTs)], FUN=DTNearest)))
 }
 
 # Function uses data.table rolling join to identify the nearest features
@@ -84,20 +84,20 @@ calcFeatureDist = function(query, features) {
 #
 # @return A rolling joined data.table object.
 DTNearest = function(DT1, DT2) {
-	#data.table::set(DT1, j=mid, value=start + round((end-start)/2))
-	#data.table::set(DT2, j=mid, value=start + round((end-start)/2))
-	if (is.null(DT1)) {
-		return(NULL)
-	}
-	if (is.null(DT2)) {
-		return(rep(NA, nrow(DT1)))
-	}
-	DT1[, mid:=start + round((end-start)/2)]
-	DT2[, mid:=start + round((end-start)/2)]
-	data.table::setattr(DT1, "sorted", "mid")
-	data.table::setattr(DT2, "sorted", "mid")
-	DT2[J(DT1), roll="nearest"]
-	DT2[J(DT1), start+round((end-start)/2)-mid, roll="nearest"]
+    #data.table::set(DT1, j=mid, value=start + round((end-start)/2))
+    #data.table::set(DT2, j=mid, value=start + round((end-start)/2))
+    if (is.null(DT1)) {
+        return(NULL)
+    }
+    if (is.null(DT2)) {
+        return(rep(NA, nrow(DT1)))
+    }
+    DT1[, mid:=start + round((end-start)/2)]
+    DT2[, mid:=start + round((end-start)/2)]
+    data.table::setattr(DT1, "sorted", "mid")
+    data.table::setattr(DT2, "sorted", "mid")
+    DT2[J(DT1), roll="nearest"]
+    DT2[J(DT1), start+round((end-start)/2)-mid, roll="nearest"]
 }
 
 
@@ -118,8 +118,8 @@ DTNearest = function(DT1, DT2) {
 #' @examples 
 #' calcFeatureDistRefTSS(vistaEnhancers, "hg19")
 calcFeatureDistRefTSS = function(query, refAssembly) {
-	features = getTSSs(refAssembly)
-	return(calcFeatureDist(query, features))
+    features = getTSSs(refAssembly)
+    return(calcFeatureDist(query, features))
 }
 
 
@@ -128,15 +128,14 @@ calcFeatureDistRefTSS = function(query, refAssembly) {
 # @return A label with 'kb' or 'mb' appended if appropriate
 genomeLabel = function(x) {
     .validateInputs(list(x="numeric"))
-	lab = x
-	if (abs(x) > 1e6){
-
-		lab = paste0(round(x/1e6), " mb")
-	}
-	else if (abs(x) > 1e3){
-		lab = paste0(round(x/1e3), " kb")
-	}
-	return(lab)
+    lab = x
+    if (abs(x) > 1e6){
+        lab = paste0(round(x/1e6), " mb")
+    }
+    else if (abs(x) > 1e3){
+        lab = paste0(round(x/1e3), " kb")
+    }
+    return(lab)
 }
 
 
@@ -162,89 +161,89 @@ genomeLabel = function(x) {
 #' f = plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
                            numbers=FALSE, nbins=50, size=100000, infBins=FALSE, tile=FALSE) {
-	df = cutDists(dists, divisions=NULL, nbins, size, infBins)
-	
-	# We could scale
-	# df$Freq = scale(df$Freq, center=FALSE)
-	if(is.list(dists)){
-		nplots = length(dists)
-	} else {
-		nplots = 1
-	}
+    df = cutDists(dists, divisions=NULL, nbins, size, infBins)
+    
+    # We could scale
+    # df$Freq = scale(df$Freq, center=FALSE)
+    if(is.list(dists)){
+        nplots = length(dists)
+    } else {
+        nplots = 1
+    }
 
-	if (!is.null(bgdists)) {
-		bgDistsDF = cutDists(bgDists, divisions=NULL, nbins, size, infBins)
-		# bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
-		bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
-		df$bgFreq = rep(bgDistsDF$Freq, nplots)
-		df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
-	}
+    if (!is.null(bgdists)) {
+        bgDistsDF = cutDists(bgDists, divisions=NULL, nbins, size, infBins)
+        # bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
+        bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
+        df$bgFreq = rep(bgDistsDF$Freq, nplots)
+        df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
+    }
 
-	if ("name" %in% names(df)){
-	    if (!numbers)
-	        df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), by = name]$"Freq.Per"
-		# It has multiple regions
-		g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
-			facet_grid(. ~name)
-	} else {
-	    if (!numbers) 
-	        df$Freq = (df$Freq / sum(df$Freq)) * 100
-		g = ggplot(df, aes(x=cuts, y=Freq))
-	}
+    if ("name" %in% names(df)){
+        if (!numbers)
+            df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), by = name]$"Freq.Per"
+            # It has multiple regions
+            g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
+           facet_grid(. ~name)
+    } else {
+        if (!numbers) 
+            df$Freq = (df$Freq / sum(df$Freq)) * 100
+            g = ggplot(df, aes(x=cuts, y=Freq))
+    }
 
-	if (!is.null(bgdists)) {
+    if (!is.null(bgdists)) {
 
-		# bgtrack = scale(smooth(bgDistsDF$Freq), center=FALSE)
-		g = g + 
-			geom_line(stat="identity", aes(x=bgX,y=bgFreq), color="gray", alpha=1, size=1.5) + 
-			geom_bar(stat="identity", aes(x=cuts,y=bgFreq), fill="gray", alpha=0.8)
-	}
+    # bgtrack = scale(smooth(bgDistsDF$Freq), center=FALSE)
+    g = g + 
+        geom_line(stat="identity", aes(x=bgX,y=bgFreq), color="gray", alpha=1, size=1.5) + 
+        geom_bar(stat="identity", aes(x=cuts,y=bgFreq), fill="gray", alpha=0.8)
+    }
 
-	# find midpoint
-	midx = nrow(df)/2/nplots
-	barcount = nrow(df)/nplots
-	minlabel = genomeLabel(-size)
-	maxlabel = genomeLabel(size)
-	edgeLabels = c(minlabel, rep("", barcount-2), maxlabel)
+    # find midpoint
+    midx = nrow(df)/2/nplots
+    barcount = nrow(df)/nplots
+    minlabel = genomeLabel(-size)
+    maxlabel = genomeLabel(size)
+    edgeLabels = c(minlabel, rep("", barcount-2), maxlabel)
 
-	if (tile) {
-		if (!"name"  %in% names(df)) {
-			df$name = "Region set"
-		}
+    if (tile) {
+        if (!"name"  %in% names(df)) {
+            df$name = "Region set"
+    }
 
-		ncuts = length(unique(df$cuts))
-		xs = rep(seq_len(ncuts), nplots)
-		g = ggplot(df) + 
-			geom_raster(aes(x=xs, y=name, fill=Freq)) +
-			scale_fill_gradient(low="navy", high="orange") +
-			geom_point(aes(x=midx, y=0.5), color="black", size=2, shape=17, alpha=0.8) + 
-			theme_classic() + 
-			labs(fill=ifelse(numbers,"Counts","Frequency (%)")) +
-			theme(legend.position="bottom") + 
-			xlab(paste("Distance to", featureName)) +
-			theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) +
-			scale_x_continuous(breaks=c(1, ncuts), labels=c(minlabel, maxlabel))
-		return(g)
-	}
+    ncuts = length(unique(df$cuts))
+    xs = rep(seq_len(ncuts), nplots)
+    g = ggplot(df) + 
+        geom_raster(aes(x=xs, y=name, fill=Freq)) +
+        scale_fill_gradient(low="navy", high="orange") +
+        geom_point(aes(x=midx, y=0.5), color="black", size=2, shape=17, alpha=0.8) + 
+        theme_classic() + 
+        labs(fill=ifelse(numbers,"Counts","Frequency (%)")) +
+        theme(legend.position="bottom") + 
+        xlab(paste("Distance to", featureName)) +
+        theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) +
+        scale_x_continuous(breaks=c(1, ncuts), labels=c(minlabel, maxlabel))
+        return(g)
+    }
 
-	g = g +
-		geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
-		geom_point(aes(x=midx, y=0), color="tan2", size=2, shape=17, alpha=0.8) +
-		guides(fill=FALSE) + # remove legend for geom_point
-		theme_classic() + 
-		theme(aspect.ratio=1) + 
-		theme_blank_facet_label() + 
-		xlab(paste("Distance to", featureName)) +
-		ylab(ifelse(numbers,"Counts","Frequency (%)")) +
-		# theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
-		theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) + # vlab()
-		theme(plot.title = element_text(hjust = 0.5)) + # Center title
-		ggtitle(paste("Distribution relative to", featureName)) +
-		theme(legend.position="bottom") + 
-		theme(panel.spacing.x=unit(1, "lines")) + scale_x_discrete(labels=edgeLabels) +
-		scale_x_discrete(labels=edgeLabels, expand=expansion(mult=0.035))
+    g = g +
+        geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
+        geom_point(aes(x=midx, y=0), color="tan2", size=2, shape=17, alpha=0.8) +
+        guides(fill=FALSE) + # remove legend for geom_point
+        theme_classic() + 
+        theme(aspect.ratio=1) + 
+        theme_blank_facet_label() + 
+        xlab(paste("Distance to", featureName)) +
+        ylab(ifelse(numbers,"Counts","Frequency (%)")) +
+        # theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
+       theme(axis.text.x=element_text(angle = 0, hjust = 0.5, vjust=0.5)) + # vlab()
+       theme(plot.title = element_text(hjust = 0.5)) + # Center title
+       ggtitle(paste("Distribution relative to", featureName)) +
+       theme(legend.position="bottom") + 
+       theme(panel.spacing.x=unit(1, "lines")) + scale_x_discrete(labels=edgeLabels) +
+       scale_x_discrete(labels=edgeLabels, expand=expansion(mult=0.035))
 
-	return(g)
+    return(g)
 }
 
 
@@ -257,32 +256,32 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 # @param infBins Include catch-all bins on the sides?
 # @return A data.frame of the table of the frequency of dists in divisions.
 cutDists = function(dists, divisions=NULL, nbins=50, size=100000, infBins=TRUE) {
-	if (is.null(divisions)) {
-		poscuts = seq(0, size, by=size/nbins)
-		divisions = sort(unique(c(-poscuts, poscuts)))
-		if (infBins) {
-			divisions = c(-Inf, divisions, Inf)
-		}
-	}
-	if (is.list(dists)) {
-		x = lapply(dists, cutDists, divisions)
+    if (is.null(divisions)) {
+        poscuts = seq(0, size, by=size/nbins)
+        divisions = sort(unique(c(-poscuts, poscuts)))
+        if (infBins) {
+            divisions = c(-Inf, divisions, Inf)
+        }
+    }
+    if (is.list(dists)) {
+        x = lapply(dists, cutDists, divisions)
 
-		# To accommodate multiple lists, we'll need to introduce a new 'name'
-		# column to distinguish them.
-		nameList = names(dists)
-		if(is.null(nameList)) {
-			nameList = seq_along(dists) # Fallback to sequential numbers
-		}
+        # To accommodate multiple lists, we'll need to introduce a new 'name'
+        # column to distinguish them.
+        nameList = names(dists)
+        if(is.null(nameList)) {
+            nameList = seq_along(dists) # Fallback to sequential numbers
+        }
 
-		# Append names
-		xb = rbindlist(x)
-		xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+    # Append names
+    xb = rbindlist(x)
+    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
 
-		return(xb)
-	}
+    return(xb)
+    }
 
-	labels = labelCuts(sort(divisions), collapse=" to ", infBins=infBins)
-	cuts = cut(dists, divisions, labels)
-	df = as.data.frame(table(cuts))
-	return(df)
+    labels = labelCuts(sort(divisions), collapse=" to ", infBins=infBins)
+    cuts = cut(dists, divisions, labels)
+    df = as.data.frame(table(cuts))
+    return(df)
 }
