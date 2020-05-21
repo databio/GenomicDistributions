@@ -11,11 +11,13 @@ plotPartitions(assignedPartitions, numbers = FALSE)
 \item{assignedPartitions}{A table holding the frequency of assignment to
 each of the partitions. Produced by \code{calcPartitions}}
 
-\item{numbers}{logical indicating whether raw overlaps should be plotted instead 
+\item{numbers}{logical indicating whether raw overlaps should be 
+    plotted instead 
 of the default percentages}
 }
 \value{
-A ggplot object using a barplot to show the distribution of the query 
+A ggplot object using a barplot to show the distribution 
+    of the query 
  regions across a given partition list.
 }
 \description{

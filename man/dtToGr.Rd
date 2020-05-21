@@ -2,8 +2,9 @@
 % Please edit documentation in R/utility.R
 \name{dtToGr}
 \alias{dtToGr}
-\title{Converts a data.table (DT) object to a GenomicRanges (GR) object. Tries to be
-intelligent, guessing chr and start, but you have to supply end or other
+\title{Converts a data.table (DT) object to a GenomicRanges 
+(GR) object. Tries to be intelligent, guessing chr 
+and start, but you have to supply end or other
 columns if you want them to be carried into the GR.}
 \usage{
 dtToGr(
@@ -40,8 +41,9 @@ to include in the returned GRanges object.}
 A GRanges object.
 }
 \description{
-Converts a data.table (DT) object to a GenomicRanges (GR) object. Tries to be
-intelligent, guessing chr and start, but you have to supply end or other
+Converts a data.table (DT) object to a GenomicRanges 
+(GR) object. Tries to be intelligent, guessing chr 
+and start, but you have to supply end or other
 columns if you want them to be carried into the GR.
 }
 \examples{

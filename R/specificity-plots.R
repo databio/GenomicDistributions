@@ -1,7 +1,9 @@
-#' The function calcOpenSignal takes the input BED file(s) in form of GRanges 
-#' or GRangesList object, overlaps it with all defined open chromatin regions 
-#' across cell types and returns a matrix, where each row is the input genomic
-#' region (if overlap was found), each column is a cell type, and the value 
+#' The function calcOpenSignal takes the input BED file(s) 
+#' in form of GRanges or GRangesList object, overlaps 
+#' it with all defined open chromatin regions across 
+#' cell types and returns a matrix, where each row is 
+#' the input genomic region (if overlap was found), 
+#' each column is a cell type, and the value 
 #' is a normalized ATAC-seq signal.
 #
 #' @param query Genomic regions to be analyzed. Can be GRanges or GRangesList 
@@ -108,18 +110,22 @@ calcOpenSignal = function(query, cellMatrix){
 #' \dontrun{
 #' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 #' plotSignal = plotOpenSignal(signalMatrix)
-#' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
+#' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", 
+#' cellGroup = "blood")
 #' }
 plotOpenSignal = function(signalMatrix, 
                           plotType = "barPlot", 
                           cellGroup = NA,
                           cellTypeMetadata = NA, 
-                          colorScheme = c("#E31A1C","#666666","#B3DE69",
-                                          "#A65628","#33A02C","#E6AB02",
-                                          "#F0027F", "#FDC086","#FFFF99",
-                                          "#B3E2CD", "#B3CDE3","#66A61E",
-                                          "#F4CAE4","#80B1D3","#FFED6F",
-                                          "#B15928","#999999")){
+                          colorScheme = c("#E31A1C","#666666",
+                                          "#B3DE69","#A65628",
+                                          "#33A02C","#E6AB02",
+                                          "#F0027F", "#FDC086",
+                                          "#FFFF99", "#B3E2CD", 
+                                          "#B3CDE3","#66A61E",
+                                          "#F4CAE4","#80B1D3",
+                                          "#FFED6F", "#B15928",
+                                          "#999999")){
   
   if(is.na(cellTypeMetadata)){
     # upload metadata for coloring
@@ -130,7 +136,8 @@ plotOpenSignal = function(signalMatrix,
   # attach the metadata for coloring
   # sort table alphabetically by tissue-cellType
   if ("name" %in% names(signalMatrix)){
-    plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = c("queryPeak", "name"), 
+    plotSignalMatrix = reshape2::melt(signalMatrix, 
+                            id.vars = c("queryPeak", "name"), 
                             variable.name = "cellType", value.name = "signal")
   } else {
     plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = "queryPeak", 
@@ -214,7 +221,8 @@ plotOpenSignal = function(signalMatrix,
     if ("name" %in% names(plotSignalMatrix)){
       p = p + facet_grid(name ~ .)
     }
-    boxPlot = p + geom_boxplot(outlier.colour = NA, aes(fill = tissue), alpha = 0.9) +
+    boxPlot = p + geom_boxplot(outlier.colour = NA, 
+                               aes(fill = tissue), alpha = 0.9) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
             text = element_text(size=10)) +
@@ -226,7 +234,9 @@ plotOpenSignal = function(signalMatrix,
       ylim(minBoxLimit, maxBoxLimit)
     return(boxPlot)
   } else if (plotType == "barPlot") {
-    barPlot = ggplot(barPlotStats, aes(x = mixedVar, y = medianBar, fill = tissue))
+    barPlot = ggplot(barPlotStats, aes(x = mixedVar, 
+                                       y = medianBar, 
+                                       fill = tissue))
     
     if ("name" %in% names(barPlotStats)){
       barPlot = barPlot + facet_grid(name ~ .)

@@ -13,7 +13,8 @@ calcChromBins(query, bins)
 over; for example, these could be genome bins}
 }
 \value{
-A data.table showing where on which chromosomes ranges are distributed.
+A data.table showing where on which chromosomes 
+   ranges are distributed.
 }
 \description{
 Returns a data.table showing counts of regions from the query that overlap

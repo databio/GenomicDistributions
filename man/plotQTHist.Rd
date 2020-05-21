@@ -40,7 +40,8 @@ displayed, rather than percentages (optional).}
 A ggplot2 plot object
 }
 \description{
-Given the results from \code{calcWidth}, plots a histogram with outliers trimmed.
+Given the results from \code{calcWidth}, plots a histogram with 
+outliers trimmed.
 }
 \details{
 x-axis breaks for the frequency calculations are based on the "divisions" 

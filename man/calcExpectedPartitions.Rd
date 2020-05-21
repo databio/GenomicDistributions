@@ -2,8 +2,8 @@
 % Please edit documentation in R/partition-plots.R
 \name{calcExpectedPartitions}
 \alias{calcExpectedPartitions}
-\title{Calculates the distribution of overlaps between query and arbitrary genomic
-partitions}
+\title{Calculates the distribution of overlaps between 
+query and arbitrary genomic partitions}
 \usage{
 calcExpectedPartitions(
   query,

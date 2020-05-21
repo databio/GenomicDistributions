@@ -57,7 +57,8 @@ splitDataTable = function(DT, split_factor) {
         split_factor = colnames(DT)[split_factor]
         message("Integer split_factor, changed to: ", split_factor)
     }
-    l = lapply( split(seq_len(nrow(DT)), DT[, get(split_factor)]), function(x) DT[x])
+    l = lapply(split(seq_len(nrow(DT)), DT[, get(split_factor)]), 
+                function(x) DT[x])
     return(l[factor_order])
 }
 
@@ -73,7 +74,8 @@ splitDataTable = function(DT, split_factor) {
 #' @param metaCols A string representing the name of the metadata column(s)
 #'     to include in the returned GRanges object.
 #' @return A GRanges object.
-dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=NA) {
+dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, 
+                          name=NA, metaCols=NA) {
     if (is.na(end)) {
         if ("end" %in% colnames(DT)) {
             end = "end"
@@ -82,7 +84,9 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
         }
     }
     if (is.na(strand)) {
-        gr=GRanges(seqnames=DT[[`chr`]], ranges=IRanges(start=DT[[`start`]], end=DT[[`end`]]), strand="*")
+        gr=GRanges(seqnames=DT[[`chr`]], 
+                   ranges=IRanges(start=DT[[`start`]], 
+                                  end=DT[[`end`]]), strand="*")
     } else {
         # GRanges can only handle '*' for no strand, so replace any non-accepted
         # characters with '*'
@@ -90,7 +94,9 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
         DT[strand=="1", strand:="+"]
         DT[strand=="-1", strand:="-"]
         DT[[`strand`]] =  gsub("[^+-]", "*", DT[[`strand`]])
-        gr=GRanges(seqnames=DT[[`chr`]], ranges=IRanges(start=DT[[`start`]], end=DT[[`end`]]), strand=DT[[`strand`]])
+        gr=GRanges(seqnames=DT[[`chr`]], ranges=IRanges(start=DT[[`start`]], 
+                                                        end=DT[[`end`]]), 
+                                                        strand=DT[[`strand`]])
     }
     if (! is.na(name) ) {
         names(gr) = DT[[`name`]]
@@ -106,8 +112,9 @@ dtToGrInternal = function(DT, chr, start, end=NA, strand=NA, name=NA, metaCols=N
 }
 
 
-#' Converts a data.table (DT) object to a GenomicRanges (GR) object. Tries to be
-#' intelligent, guessing chr and start, but you have to supply end or other
+#' Converts a data.table (DT) object to a GenomicRanges 
+#' (GR) object. Tries to be intelligent, guessing chr 
+#' and start, but you have to supply end or other
 #' columns if you want them to be carried into the GR.
 #'
 #' @param DT A data.table representing genomic regions.
@@ -157,9 +164,11 @@ dtToGr = function(DT, chr="chr", start="start", end=NA, strand=NA, name=NA,
 grToDt = function(GR) {
     DF=as.data.frame(elementMetadata(GR))
     if( ncol(DF) > 0) {
-        DT = data.table(chr=as.vector(seqnames(GR)), start=start(GR), end=end(GR), DF)
+        DT = data.table(chr=as.vector(seqnames(GR)), 
+                        start=start(GR), end=end(GR), DF)
     } else {
-        DT = data.table(chr=as.vector(seqnames(GR)), start=start(GR), end=end(GR))
+        DT = data.table(chr=as.vector(seqnames(GR)), 
+                        start=start(GR), end=end(GR))
     }
     return(DT)
 }
@@ -175,12 +184,17 @@ BSdtToGRanges = function(dtList) {
         #dt = dtList[[i]]
         setkey(dtList[[i]], chr, start)
         #convert the data into granges object
-        gList[[i]] = GRanges(seqnames=dtList[[i]]$chr, ranges=IRanges(start=dtList[[i]]$start, 
-                                end=dtList[[i]]$start), strand=rep("*", nrow(dtList[[i]])), 
-                                hitCount=dtList[[i]]$hitCount, readCount=dtList[[i]]$readCount)
-        # I used to use end=start+1, but this targets CG instead of just a C, 
-        # and it's causing edge-effects problems when I assign Cs to tiled windows 
-        # using (within). Aug 2014 I'm changing to start/end at the same coordinate.
+        gList[[i]] = GRanges(seqnames=dtList[[i]]$chr, 
+                            ranges=IRanges(start=dtList[[i]]$start, 
+                            end=dtList[[i]]$start), 
+                            strand=rep("*", nrow(dtList[[i]])), 
+                            hitCount=dtList[[i]]$hitCount, 
+                            readCount=dtList[[i]]$readCount)
+        # I used to use end=start+1, but this targets 
+        # CG instead of just a C, and it's causing edge-effects 
+        # problems when I assign Cs to tiled windows 
+        # using (within). Aug 2014 I'm changing to 
+        # start/end at the same coordinate.
     }
     return(gList)
 }
@@ -219,16 +233,22 @@ theme_blank_facet_label = function() {
 #' @return A vector of histogram axis labels.
 # @examples 
 # labelCuts(seq(0,100,by=20))
-labelCuts = function(breakPoints, round_digits=1, signif_digits=3, collapse="-", infBins=FALSE) {
+labelCuts = function(breakPoints, round_digits=1, 
+                     signif_digits=3, collapse="-", infBins=FALSE) {
     roundedLabels = signif(round(
-        cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), round_digits), signif_digits)
+        cbind( breakPoints[-length(breakPoints)],breakPoints[-1]), 
+        round_digits), signif_digits)
     # set the Inf values to NA so formatC can add commas
     is.na(roundedLabels) = vapply(roundedLabels, is.infinite, logical(1)) 
-    labelsWithCommas = formatC(roundedLabels, format="d", big.mark=",")
+    labelsWithCommas = formatC(roundedLabels, format="d", 
+                               big.mark=",")
     labels = apply(labelsWithCommas, 1, paste0, collapse=collapse) 
     if (infBins) {
-        labels[1] = paste0("<=", formatC(breakPoints[2], format="d", big.mark=","))
-        labels[length(labels)] = paste0(">", formatC(breakPoints[length(breakPoints)-1], format="d", big.mark=","))
+        labels[1] = paste0("<=", formatC(breakPoints[2], format="d", 
+                                         big.mark=","))
+        labels[length(labels)] = paste0(">", 
+                                    formatC(breakPoints[length(breakPoints)-1], 
+                                            format="d", big.mark=","))
     }
     return(labels)
 }

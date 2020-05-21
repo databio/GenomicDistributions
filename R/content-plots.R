@@ -6,7 +6,8 @@
 #' 
 #' @param query  A GenomicRanges or GenomicRangesList object with query regions.
 #' @param ref Reference genome BSgenome object.
-#' @return A numeric vector of list of vectors with the GC percentage of the query regions.
+#' @return A numeric vector of list of vectors with the GC percentage of 
+#'     the query regions.
 #' @export
 #' @examples
 #' \dontrun{
@@ -45,7 +46,8 @@ calcGCContent = function(query, ref) {
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
-#' @return A numeric vector or list of vectors with the GC percentage of the query regions.
+#' @return A numeric vector or list of vectors with the GC percentage of 
+#'     the query regions.
 #' @export
 #' @examples
 #' \dontrun{
@@ -69,7 +71,8 @@ calcGCContentRef = function(query, refAssembly) {
 #' @examples
 #' numVector = rnorm(400, mean=0.5, sd=0.1)
 #' GCplot = plotGCContent(numVector)
-#' vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), example2 = rnorm(600, mean=0.5, sd=0.1))
+#' vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), 
+#'             example2 = rnorm(600, mean=0.5, sd=0.1))
 #' GCplot = plotGCContent(numVector)
 #' 
 plotGCContent = function(gcvectors) {
@@ -80,7 +83,8 @@ plotGCContent = function(gcvectors) {
     colnames(gcdfReshaped)[colnames(gcdfReshaped) == "L1"] = "regionSet"
     # plot multiple regionsets if gcvectors is a list
     if (is(gcvectors, "list")) {
-        meansdf = aggregate(gcdfReshaped$value, list(gcdfReshaped$regionSet), mean)
+        meansdf = aggregate(gcdfReshaped$value, 
+                            list(gcdfReshaped$regionSet), mean)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=regionSet)) +
         geom_density() +
         geom_vline(data=meansdf, aes(xintercept=x, colour=Group.1),

@@ -38,12 +38,15 @@ NULL
 
 #’ Example hg19 open signal matrix 
 #' 
-#' A dataset containing a subset of open chromatin regions across all cell types defined by ENCODE for Homo Sapiens hg19
+#' A dataset containing a subset of open chromatin regions across all 
+#' cell types defined by ENCODE for Homo Sapiens hg19
 #'
 #' Preparation steps:
 #' \enumerate{
-#'    \item{made a universe of regions by merging regions across cell types defined as opened in ENCODE}
-#'    \item{took bigwig files from ENCODE for individual cell types, merged replicates, filtered out blacklisted sites}
+#'    \item{made a universe of regions by merging regions across 
+#'        cell types defined as opened in ENCODE}
+#'    \item{took bigwig files from ENCODE for individual cell types, 
+#'        merged replicates, filtered out blacklisted sites}
 #'    \item{evaluated the signal above regions defined by previous step}
 #'    \item{performed quantile normalization}
 #'    \item{subsetted it}
@@ -88,7 +91,8 @@ NULL
 #' 
 #' Table the maps cell types to tissues and groups
 #'
-#' @format data.table with 3 columns (cellType, tissue and group) and 74 rows (one per cellType)
+#' @format data.table with 3 columns (cellType, tissue and group) 
+#'     and 74 rows (one per cellType)
 #' @source self-curated dataset
 #' @name cellTypeMetadata
 #' @docType data

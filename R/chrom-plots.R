@@ -41,14 +41,17 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
     binCountByChrom = round((end-start)/binSize)
     binCountByChrom[binCountByChrom==0]=1
     binSizeByChrom = (end-start)/(binCountByChrom)
-    breaks = round(unlist(lapply(binCountByChrom, function(x) seq(from=0, to=x))) * rep(binSizeByChrom, (binCountByChrom+1)))
+    breaks = round(unlist(lapply(binCountByChrom, 
+                            function(x) seq(from=0, to=x))) * 
+                            rep(binSizeByChrom, (binCountByChrom+1)))
     endpoints = cumsum(binCountByChrom + 1) 
     startpoints = c(1, endpoints[-length(endpoints)]+1)
 
     dataTable = data.table(start=breaks[-endpoints]+1, 
             end=breaks[-startpoints],
             id=rep((seq_along(start)), binCountByChrom),
-            binID=unlist(lapply(binCountByChrom, function(x) seq(from=1, to=x))),
+            binID=unlist(lapply(binCountByChrom, 
+                            function(x) seq(from=1, to=x))),
             ubinID=seq_along(breaks[-startpoints]),
             key="id")
 
@@ -67,7 +70,8 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 #' 
 #' @param genome A UCSC-style string denoting reference assembly (e.g. 'hg38')
 #' @param binCount number of bins per chromosome
-#' @return A data.table object showing the region and bin IDs of the reference genome.
+#' @return A data.table object showing the region and bin IDs 
+#'         of the reference genome.
 #' @export
 #' @examples
 #' \dontrun{
@@ -115,8 +119,9 @@ binChroms = function(binCount, chromSizes) {
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param bins Pre-computed bins (as a GRangesList object) to aggregate
-#'     over; for example, these could be genome bins
-#' @return A data.table showing where on which chromosomes ranges are distributed.
+#'    over; for example, these could be genome bins
+#' @return A data.table showing where on which chromosomes 
+#'    ranges are distributed.
 #' @export
 #' @examples
 #' vistaSftd = GenomicRanges::shift(vistaEnhancers, 100000)
@@ -186,11 +191,13 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 #' @param binCount Number of bins (should match the call to
 #'     \code{genomicDistribution})
 #' @param plotTitle Title for plot.
-#' @return A ggplot object showing the distribution of the query regions over bins of
+#' @return A ggplot object showing the distribution of the query 
+#'     regions over bins of
 #' the reference genome.
 #' @export
 #' @examples
-#' agg = data.frame("regionID"=1:5, "chr"=rep(c("chr1"), 5), "withinGroupID"=1:5, "N"=c(1,3,5,7,9))  
+#' agg = data.frame("regionID"=1:5, "chr"=rep(c("chr1"), 5), 
+#'                 "withinGroupID"=1:5, "N"=c(1,3,5,7,9))  
 #' ChromBins = plotChromBins(agg)
 #' 
 plotChromBins = function(genomeAggregate, binCount=10000, 

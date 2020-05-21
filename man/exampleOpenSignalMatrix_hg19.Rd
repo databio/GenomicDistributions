@@ -3,7 +3,8 @@
 \docType{data}
 \name{exampleOpenSignalMatrix_hg19}
 \alias{exampleOpenSignalMatrix_hg19}
-\title{A dataset containing a subset of open chromatin regions across all cell types defined by ENCODE for Homo Sapiens hg19}
+\title{A dataset containing a subset of open chromatin regions across all 
+cell types defined by ENCODE for Homo Sapiens hg19}
 \format{
 data.frame, rows represent whole selection of open 
 chromatin regions across all cell types defined by ENCODE, columns are 
@@ -18,8 +19,10 @@ data(exampleOpenSignalMatrix_hg19)
 \description{
 Preparation steps:
 \enumerate{
-   \item{made a universe of regions by merging regions across cell types defined as opened in ENCODE}
-   \item{took bigwig files from ENCODE for individual cell types, merged replicates, filtered out blacklisted sites}
+   \item{made a universe of regions by merging regions across 
+       cell types defined as opened in ENCODE}
+   \item{took bigwig files from ENCODE for individual cell types, 
+       merged replicates, filtered out blacklisted sites}
    \item{evaluated the signal above regions defined by previous step}
    \item{performed quantile normalization}
    \item{subsetted it}

@@ -13,7 +13,8 @@ calcWidth(query)
 A vector of the widths (end-start coordinates) of GRanges objects.
 }
 \description{
-The length of a genomic region (the distance between the start and end) is called the width
+The length of a genomic region (the distance between the start and end) 
+is called the width
 When given a query set of genomic regions, this function returns the width
 }
 \examples{

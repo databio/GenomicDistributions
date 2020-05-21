@@ -5,7 +5,8 @@
 \alias{cellTypeMetadata}
 \title{Table the maps cell types to tissues and groups}
 \format{
-data.table with 3 columns (cellType, tissue and group) and 74 rows (one per cellType)
+data.table with 3 columns (cellType, tissue and group) 
+    and 74 rows (one per cellType)
 }
 \source{
 self-curated dataset

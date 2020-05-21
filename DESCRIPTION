@@ -45,7 +45,8 @@ Enhances:
 LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
-biocViews: Software, GenomeAnnotation, GenomeAssembly, DataRepresentation, FunctionalGenomics, Visualization
+biocViews: Software, GenomeAnnotation, GenomeAssembly, DataRepresentation, Sequencing, 
+            Coverage, FunctionalGenomics, Visualization
 RoxygenNote: 7.1.0
 URL: http://code.databio.org/GenomicDistributions
 BugReports: http://github.com/databio/GenomicDistributions

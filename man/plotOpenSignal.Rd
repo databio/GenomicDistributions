@@ -52,6 +52,7 @@ calcOpenSignal.
 \dontrun{
 signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 plotSignal = plotOpenSignal(signalMatrix)
-plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
+plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", 
+cellGroup = "blood")
 }
 }

@@ -2,7 +2,8 @@
 % Please edit documentation in R/neighbor-distances.R
 \name{neighbordt}
 \alias{neighbordt}
-\title{Internal helper function to calculate distance between neighboring regions.}
+\title{Internal helper function to calculate distance 
+between neighboring regions.}
 \usage{
 neighbordt(querydt)
 }
@@ -14,5 +15,6 @@ chromosome.}
 A numeric vector with the distances in bp
 }
 \description{
-Internal helper function to calculate distance between neighboring regions.
+Internal helper function to calculate distance 
+between neighboring regions.
 }

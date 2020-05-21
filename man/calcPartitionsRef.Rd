@@ -19,7 +19,8 @@ A data.frame indicating the number of query region overlaps in
     several genomic partitions.
 }
 \description{
-This function is a wrapper for \code{calcPartitions} and \code{calcPartitionPercents} that uses built-in
+This function is a wrapper for \code{calcPartitions} 
+and \code{calcPartitionPercents} that uses built-in
 partitions for a given reference genome assembly.
 }
 \examples{

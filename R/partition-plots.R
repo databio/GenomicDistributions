@@ -1,7 +1,8 @@
 #' Calculates the distribution of overlaps for a query set to a reference 
 #' assembly
 #'
-#' This function is a wrapper for \code{calcPartitions} and \code{calcPartitionPercents} that uses built-in
+#' This function is a wrapper for \code{calcPartitions} 
+#' and \code{calcPartitionPercents} that uses built-in
 #' partitions for a given reference genome assembly.
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
@@ -103,7 +104,8 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #'                                     geneModels_hg19$exonsGR,
 #'                                     geneModels_hg19$threeUTRGR, 
 #'                                     geneModels_hg19$fiveUTRGR)
-genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL, fiveUTRGR=NULL) {
+genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL, 
+                               fiveUTRGR=NULL) {
     .validateInputs(list(exonsGR=c("GRanges", "GRangesList"), 
                          genesGR="GRanges", 
                          threeUTRGR=c("GRanges", "GRangesList", "NULL"), 
@@ -128,8 +130,8 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL, fiveUTRGR=NULL
 }
 
 
-#' Calculates the distribution of overlaps between query and arbitrary genomic
-#' partitions
+#' Calculates the distribution of overlaps between 
+#' query and arbitrary genomic partitions
 #' 
 #' Takes a GRanges object, then assigns each element to a partition from the
 #' provided partitionList, and then tallies the number of regions assigned to
@@ -196,8 +198,8 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 }
 
 
-#' Calculates the distribution of overlaps between query and arbitrary genomic
-#' partitions
+#' Calculates the distribution of overlaps between 
+#' query and arbitrary genomic partitions
 #' 
 #' Takes a GRanges object, then assigns each element to a partition from the
 #' provided partitionList, and then tallies the number of regions assigned to
@@ -314,7 +316,8 @@ calcExpectedPartitions = function(query, partitionList,
 #'                                     geneModels_hg19$threeUTRGR, 
 #'                                     geneModels_hg19$fiveUTRGR)
 #' calcCumulativePartitions(vistaEnhancers, partitionList)
-calcCumulativePartitions = function(query, partitionList, remainder="intergenic") {
+calcCumulativePartitions = function(query, partitionList, 
+                                    remainder="intergenic") {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          partitionList="list"))
     if (methods::is(query, c("GRangesList"))) {
@@ -365,8 +368,8 @@ calcCumulativePartitions = function(query, partitionList, remainder="intergenic"
         hits = unique(hits, by="yid")
         # Link to positional data for feature of interest
         x = data.table::data.table(partition=partitionNames[pi],
-                                   size=if (h!=0) size=hits$size else size=0,
-                                   count=if (h!=0) count=hits$count else count=0)
+                                size=if (h!=0) size=hits$size else size=0,
+                                count=if (h!=0) count=hits$count else count=0)
         x = x[order(x$count, x$size),]
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
@@ -397,7 +400,8 @@ setLabels = function(assignedPartitions) {
         x = lapply(assignedPartitions, setLabels)
         nameList = names(assignedPartitions)
         if(is.null(nameList)) {
-            nameList = seq_along(assignedPartitions) # Fallback to sequential numbers
+            # Fallback to sequential numbers
+            nameList = seq_along(assignedPartitions) 
         }
         # Append names
         xb = data.table::rbindlist(x)
@@ -546,7 +550,8 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
             expectedPartitions[,partition:=feature_names]
         } else {
             if (!"partition" %in% colnames(plot_labels)) {
-                expectedPartitions[,partition:=seq_len(nrow(expectedPartitions))]
+                expectedPartitions[,
+                    partition:=seq_len(nrow(expectedPartitions))]
             }
         }
     }
@@ -598,9 +603,11 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #' 
 #' @param assignedPartitions  A table holding the frequency of assignment to
 #'     each of the partitions. Produced by \code{calcPartitions}
-#' @param numbers logical indicating whether raw overlaps should be plotted instead 
+#' @param numbers logical indicating whether raw overlaps should be 
+#'     plotted instead 
 #' of the default percentages
-#' @return A ggplot object using a barplot to show the distribution of the query 
+#' @return A ggplot object using a barplot to show the distribution 
+#'     of the query 
 #'  regions across a given partition list.  
 #' @export
 #' @examples 

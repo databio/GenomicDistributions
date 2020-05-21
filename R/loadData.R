@@ -24,7 +24,7 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
                                 hg19 = "BSgenome.Hsapiens.UCSC.hg19",
                                 mm10 = "BSgenome.Mmusculus.UCSC.mm10",
                                 mm9 = "BSgenome.Mmusculus.UCSC.mm9",
-                                bogus = "bogus" # a bogus (uninstalled) genome for unit tests
+                                bogus = "bogus" # a bogus genome for tests
     )
     if (masked) {
         databasePkgString = paste0(databasePkgString, ".masked")
@@ -54,7 +54,7 @@ loadEnsDb = function(genomeBuild) {
                                 hg38 = "EnsDb.Hsapiens.v86",
                                 hg19 = "EnsDb.Hsapiens.v75",
                                 mm10 = "EnsDb.Mmusculus.v79",
-                                bogus = "bogus" # a bogus (uninstalled) db for unit tests
+                                bogus = "bogus" # a bogus db for unit tests
     )
     
     if (is.null(databasePkgString)) {

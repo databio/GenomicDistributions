@@ -36,7 +36,8 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     # convert query regions to just the midpoint
     if ("end" %in% colnames(queryRegionDT)) {
         # assign to "start" since BSdtToGRanges keeps the start coord
-        queryRegionDT$start = round((queryRegionDT$start + queryRegionDT$end)/2) 
+        queryRegionDT$start = round((queryRegionDT$start + 
+                                       queryRegionDT$end)/2) 
     }
     
     # only keeps start column

@@ -36,7 +36,8 @@ calcNeighborDist =  function(query) {
     return(dcvec)
 }
   
-#' Internal helper function to calculate distance between neighboring regions.
+#' Internal helper function to calculate distance 
+#' between neighboring regions.
 #'
 #' @param querydt A data table with regions grouped according to
 #' chromosome.
@@ -74,7 +75,9 @@ plotNeighborDist = function(dcvec) {
     distReshaped = reshape2::melt(distdf, id.vars=NULL)
     colnames(distReshaped)[colnames(distReshaped) == "L1"] = "regionSet"
     if (is(dcvec, "list")) {
-        g = ggplot2::ggplot(distReshaped, aes(x=value, fill=regionSet, colour=regionSet)) +
+        g = ggplot2::ggplot(distReshaped, aes(x=value, 
+                                              fill=regionSet, 
+                                              colour=regionSet)) +
           geom_density(alpha=0.5) +
           theme_classic() +
           theme(legend.position = "bottom")

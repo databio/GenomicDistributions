@@ -1,6 +1,7 @@
 #' Calculate the widths of regions
 #' 
-#' The length of a genomic region (the distance between the start and end) is called the width
+#' The length of a genomic region (the distance between the start and end) 
+#' is called the width
 #' When given a query set of genomic regions, this function returns the width
 #' @param query A GRanges or GRangesList object with query sets
 #' @return A vector of the widths (end-start coordinates) of GRanges objects.
@@ -19,7 +20,8 @@ calcWidth = function(query) {
 
 #' Plot quantile-trimmed histogram
 #' 
-#' Given the results from \code{calcWidth}, plots a histogram with outliers trimmed.
+#' Given the results from \code{calcWidth}, plots a histogram with 
+#' outliers trimmed.
 #' 
 #' x-axis breaks for the frequency calculations are based on the "divisions" 
 #' results from helper function \code{calcDivisions}.
@@ -62,7 +64,8 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
     divisionCheck = output[["divisions"]]
     if (length(divisionCheck) > length(unique(divisionCheck))){
       if (length(unique(divisionCheck)) == 3){
-        output[["divisions"]] = c(-Inf, divisionCheck[2], divisionCheck[2]+1, Inf)
+        output[["divisions"]] = c(-Inf, divisionCheck[2], 
+                                  divisionCheck[2]+1, Inf)
         output[["bins"]] = 1
       } else {
         output[["divisions"]] = unique(divisionCheck)
@@ -81,7 +84,8 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
     df = cutDists(x, divisions=output[["divisions"]])
     if ("name" %in% names(df)){
         if (!numbers)
-            df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), by = name]$"Freq.Per"
+            df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
+                         by = name]$"Freq.Per"
 
         g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
             facet_wrap(. ~name)
