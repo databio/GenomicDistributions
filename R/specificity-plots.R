@@ -195,8 +195,9 @@ plotOpenSignal = function(signalMatrix,
   barPlotStats = merge(barPlotStats, tableToMerge, all = FALSE)
   
   # do the plotting
-  p = ggplot(plotSignalMatrix,
-             aes(x = mixedVar, y = signal))
+  p = ggplot(plotSignalMatrix, aes(x = mixedVar, y = signal)) +
+    theme_blank_facet_label() +
+    theme(strip.text.y.right = element_text(angle = 0))
   
   if (plotType == "jitter"){
     
@@ -249,7 +250,9 @@ plotOpenSignal = function(signalMatrix,
       xlab("") +
       ylab("med (normalized signal)") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=colorScheme)
+      scale_fill_manual(values=colorScheme)  +
+      theme_blank_facet_label() +
+      theme(strip.text.y.right = element_text(angle = 0))
     return(barPlot)
   } else {
     stop("Plot type does not match any of the available options. 
