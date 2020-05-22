@@ -15,7 +15,7 @@ vignette: >
 
 
 
-# Introduction
+## Introduction
 
 This vignette shows how to use GenomicDistributions of full-size data. It is pre-computed. Here's what you need to have installed:
 
@@ -33,6 +33,28 @@ library(GenomicDistributions)
 library(GenomicDistributionsData)
 ```
 
+## GenomicDistributionsData
+
+
+This vignette demonstrates the seamless usage of our companion package: `GenomicDistributionsData` as a source of reference data sets that are not included in `GenomicDistributions`. The `GenomicDistributions` package comes with build-in reference data sets to perform calculations for human hg19 genome. To use `GenomicDistributions` with other reference genomes you need to install our companion package with more full-size data: `GenomicDistributionsData`. It's currently hosted on our server. This package provides the following data:
+
+
+```r
+datasetListIQR = utils::data(package="GenomicDistributionsData")
+datasetList = datasetListIQR$results[,"Item"]
+datasetList
+```
+
+```
+## [1] "TSS_hg19"              "TSS_hg38"              "chromSizes_hg19"      
+## [4] "chromSizes_hg38"       "geneModels_hg19"       "geneModels_hg38"      
+## [7] "openSignalMatrix_hg19" "openSignalMatrix_hg38"
+```
+
+With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
+
+## Downloading files
+
 Let's retrieve a variety of ENCODE BED files and use BiocFileCache to download them here:
 
 
@@ -41,25 +63,25 @@ if (basename(getwd()) != "long_vignettes") setwd("long_vignettes")  # run from G
 message(getwd())
 bfc = BiocFileCache::BiocFileCache(getwd())
 rpath = function(url, bfc) {
-    # Utility function so we can lapply the data loading across a list.
-    message("Downloading ", url)
-    BiocFileCache::bfcrpath(bfc, url)
+	# Utility function so we can lapply the data loading across a list.
+	message("Downloading ", url)
+	BiocFileCache::bfcrpath(bfc, url)
 }
 
 urls = c(
-    H1_REST="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE101nnn/GSE101251/suppl/GSE101251_ENCFF235EJG_peaks_GRCh38.bed.gz",
-    MCF7_CTCF="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE123nnn/GSE123219/suppl/GSE123219_ENCFF047HAG_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
-    K562_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96303/suppl/GSE96303_ENCFF616DLO_replicated_peaks_GRCh38.bed.gz",
-    GM12878_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95899/suppl/GSE95899_ENCFF188SZS_replicated_peaks_GRCh38.bed.gz",
-    K562_ZEB2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF316ASR_peaks_GRCh38.bed.gz", 
-    HEK293_GLI2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE105977_ENCFF617QGK_optimal_idr_thresholded_peaks_GRCh38.bed.gz",
-    K562_ZEB2_TOP="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF319TPR_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
-    GLIAL_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95927/suppl/GSE95927_ENCFF724DGK_replicated_peaks_GRCh38.bed.gz",
-    A673_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96349/suppl/GSE96349_ENCFF412EXZ_peaks_GRCh38.bed.gz",
-    A673_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96332/suppl/GSE96332_ENCFF529ISR_peaks_GRCh38.bed.gz",
-    A673_H3K4me1="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96216/suppl/GSE96216_ENCFF328DBS_peaks_GRCh38.bed.gz",
-    A549_JUN="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2437nnn/GSM2437721/suppl/GSM2437721_ENCFF064QGH_peaks_GRCh38.bed.gz",
-    A549_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2421nnn/GSM2421593/suppl/GSM2421593_ENCFF715EXP_peaks_GRCh38.bed.gz")
+	H1_REST="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE101nnn/GSE101251/suppl/GSE101251_ENCFF235EJG_peaks_GRCh38.bed.gz",
+	MCF7_CTCF="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE123nnn/GSE123219/suppl/GSE123219_ENCFF047HAG_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
+	K562_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96303/suppl/GSE96303_ENCFF616DLO_replicated_peaks_GRCh38.bed.gz",
+	GM12878_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95899/suppl/GSE95899_ENCFF188SZS_replicated_peaks_GRCh38.bed.gz",
+	K562_ZEB2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF316ASR_peaks_GRCh38.bed.gz", 
+	HEK293_GLI2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE105977_ENCFF617QGK_optimal_idr_thresholded_peaks_GRCh38.bed.gz",
+	K562_ZEB2_TOP="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF319TPR_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
+	GLIAL_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95927/suppl/GSE95927_ENCFF724DGK_replicated_peaks_GRCh38.bed.gz",
+	A673_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96349/suppl/GSE96349_ENCFF412EXZ_peaks_GRCh38.bed.gz",
+	A673_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96332/suppl/GSE96332_ENCFF529ISR_peaks_GRCh38.bed.gz",
+	A673_H3K4me1="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96216/suppl/GSE96216_ENCFF328DBS_peaks_GRCh38.bed.gz",
+	A549_JUN="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2437nnn/GSM2437721/suppl/GSM2437721_ENCFF064QGH_peaks_GRCh38.bed.gz",
+	A549_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2421nnn/GSM2421593/suppl/GSM2421593_ENCFF715EXP_peaks_GRCh38.bed.gz")
 bedpaths = lapply(urls, rpath, bfc)
 ```
 
@@ -173,7 +195,8 @@ plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
 
 ## Open chromatin signal specificity
 
-Next, we'll explore the chromatin accessibility by cell type:
+Next, we'll explore the chromatin accessibility by cell type. Using the `calcOpenSignal` function requires an open signal matrix that is included with `GenomicDistributionsData`. Now, you just need to load in into the workspace, like this:
+
 
 
 ```r
