@@ -16,13 +16,13 @@ vignette: >
 ```{r, echo=FALSE}
 # These settings make the vignette prettier
 knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
-knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+knitr::opts_chunk$set(fig.width=10, fig.height=7) 
 #refreshPackage("GenomicDistributions")
 #devtools::build_vignettes("code/GenomicDistributions")
 #devtools::test("code/GenomicDistributions")
 ```
 
-# Introduction
+## Introduction
 
 This vignette shows how to use GenomicDistributions of full-size data. It is pre-computed. Here's what you need to have installed:
 
@@ -37,6 +37,21 @@ library(ggplot2)
 library(GenomicDistributions)
 library(GenomicDistributionsData)
 ```
+
+## GenomicDistributionsData
+
+
+This vignette demonstrates the seamless usage of our companion package: `GenomicDistributionsData` as a source of reference data sets that are not included in `GenomicDistributions`. The `GenomicDistributions` package comes with build-in reference data sets to perform calculations for human hg19 genome. To use `GenomicDistributions` with other reference genomes you need to install our companion package with more full-size data: `GenomicDistributionsData`. It's currently hosted on our server. This package provides the following data:
+
+```{r}
+datasetListIQR = utils::data(package="GenomicDistributionsData")
+datasetList = datasetListIQR$results[,"Item"]
+datasetList
+```
+
+With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
+
+## Downloading files
 
 Let's retrieve a variety of ENCODE BED files and use BiocFileCache to download them here:
 
@@ -151,7 +166,8 @@ plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
 
 ## Open chromatin signal specificity
 
-Next, we'll explore the chromatin accessibility by cell type:
+Next, we'll explore the chromatin accessibility by cell type. Using the `calcOpenSignal` function requires an open signal matrix that is included with `GenomicDistributionsData`. Now, you just need to load in into the workspace, like this:
+
 
 ```{r open-signal, fig.height=12}
 
