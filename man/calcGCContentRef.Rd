@@ -14,7 +14,8 @@ assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 \code{getTSSs}.}
 }
 \value{
-A numeric vector or list of vectors with the GC percentage of the query regions.
+A numeric vector or list of vectors with the GC percentage of 
+    the query regions.
 }
 \description{
 Given a reference genome as a BSgenome object and some ranges on that
@@ -23,9 +24,7 @@ granges object, with percent of Cs and Gs.
 }
 \examples{
 \dontrun{
-query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-GRquery = rtracklayer::import(query)
 refAssembly = 'hg19'
-GCcontent = calcGCContentRef(GRquery, refAssembly)
+GCcontent = calcGCContentRef(vistaEnhancers, refAssembly)
 } 
 }

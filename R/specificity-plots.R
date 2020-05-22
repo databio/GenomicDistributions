@@ -1,31 +1,24 @@
-#' The function calcOpenSignal takes the input BED file(s) in form of GRanges 
-#' or GRangesList object, overlaps it with all defined open chromatin regions 
-#' across cell types and returns a matrix, where each row is the input genomic
-#'  region (if overlap was found), each column is a cell type, and the value 
-#'  is a normalized ATAC-seq signal.
+#' The function calcOpenSignal takes the input BED file(s) 
+#' in form of GRanges or GRangesList object, overlaps 
+#' it with all defined open chromatin regions across 
+#' cell types and returns a matrix, where each row is 
+#' the input genomic region (if overlap was found), 
+#' each column is a cell type, and the value 
+#' is a normalized ATAC-seq signal.
 #
-#' @param  query Genomic regions to be analyzed. Can be GRanges or GRangesList 
-#'               object.
+#' @param query Genomic regions to be analyzed. Can be GRanges or GRangesList 
+#'     object.
 #' @param cellMatrix Matrix with open chromatin signal values, rows are genomic
-#'            regions, columns are cell types. First column contains 
-#'            information about the genomic region in following form: 
-#'            chr_start_end. Can be either data.frame or data.table object.
-#' @return 
-#' A data.table with cell specific open chromatin signal values for query 
-#' regions.
+#'     regions, columns are cell types. First column contains 
+#'     information about the genomic region in following form: 
+#'     chr_start_end. Can be either data.frame or data.table object.
+#' @return  A data.table with cell specific open chromatin signal values for 
+#'     query regions.
 #' 
 #' @export
 #' @examples
-#' \dontrun{
-#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' GRquery = rtracklayer::import(query)
-#' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-#' package="GenomicDistributions")
-#' cellMatrix = data.table::fread(exampleCellMatrixFile)
-#' signalMatrix = calcOpenSignal(GRquery, cellMatrix)
-#' }
-calcOpenSignal = function(query,
-                          cellMatrix){
+#' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
+calcOpenSignal = function(query, cellMatrix){
   .validateInputs(list(query=c("GRanges","GRangesList")))
   if (is(query, "GRangesList")) {
     # Recurse over each GRanges object
@@ -66,7 +59,7 @@ calcOpenSignal = function(query,
   
   # select just the fist three columns and give them name chr, start, end
   # create a 4th column with peak name in following format: chr_start_end
-  query = query[, 1:3]
+  query = query[, c(1, 2, 3)]
   colnames(query) = c("chr", "start", "end")
   query[, peakName := paste(query[,chr], query[,start], query[,end], 
                             sep = "_")]
@@ -91,50 +84,48 @@ calcOpenSignal = function(query,
 #' calcOpenSignal.
 #'
 #' @param signalMatrix Output data.table from \code{calcOpenSignal} function.
-#' @param  plotType Options are: jitter - jitter plot with box plot on top / 
-#'           boxPlot - box plot without individual points and outliers / 
-#'           barPlot (default) - bar height represents the median signal value
-#'           for a given cell type.
+#' @param  plotType Options are: jitter - jitter plot with box plot on top
+#'     boxPlot - box plot without individual points and outliers
+#'     barPlot (default) - bar height represents the median signal value
+#'     for a given cell type.
 #' @param cellGroup - This option allows to selcet a group of cells to be 
-#'           plotted, if NA (default) all available cell groups are ploted, 
-#'           available options: {"blood", "bone", "CNS", "embryonic", "eye", 
-#'           "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
-#'           "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
-#'            "skin", "urinarySystem", "vasculature"}, can be passed as a 
-#'            character string or vector of strings.
+#'     plotted, if NA (default) all available cell groups are ploted, 
+#'     available options: {"blood", "bone", "CNS", "embryonic", "eye", 
+#'     "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
+#'     "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
+#'     "skin", "urinarySystem", "vasculature"}, can be passed as a 
+#'     character string or vector of strings.
 #' @param cellTypeMetadata Metadata for cell type - tissue association. This
-#'          option is for users, who provide their own open region signal 
-#'          matrix. The cellTypeMetadata matrix must contain two columns called
-#'          cellType and tissue. cellType column containes the cell type names 
-#'          in the provided signalMatrix column names. The tissue columns 
-#'          provides an information, which tissue the cell type comes from.
+#'     option is for users, who provide their own open region signal 
+#'     matrix. The cellTypeMetadata matrix must contain two columns called
+#'     cellType and tissue. cellType column containes the cell type names 
+#'     in the provided signalMatrix column names. The tissue columns 
+#'     provides an information, which tissue the cell type comes from.
 #' @param colorScheme Provide color values for each tissue if you want to 
-#'         change the default colors.
-#' @return 
-#' A ggplot object.
+#'     change the default colors.
+#' @return A ggplot object.
 #' 
 #' @export
 #' @examples
 #' \dontrun{
-#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-#' GRquery = rtracklayer::import(query)
-#' exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-#' package="GenomicDistributions")
-#' cellMatrix = data.table::fread(exampleCellMatrixFile)
-#' signalMatrix = calcOpenSignal(GRquery, cellMatrix)
+#' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 #' plotSignal = plotOpenSignal(signalMatrix)
-#' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", cellGroup = "blood")
+#' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", 
+#' cellGroup = "blood")
 #' }
 plotOpenSignal = function(signalMatrix, 
                           plotType = "barPlot", 
                           cellGroup = NA,
                           cellTypeMetadata = NA, 
-                          colorScheme = c("#E31A1C","#666666","#B3DE69",
-                                          "#A65628","#33A02C","#E6AB02",
-                                          "#F0027F", "#FDC086","#FFFF99",
-                                          "#B3E2CD", "#B3CDE3","#66A61E",
-                                          "#F4CAE4","#80B1D3","#FFED6F",
-                                          "#B15928","#999999")){
+                          colorScheme = c("#E31A1C","#666666",
+                                          "#B3DE69","#A65628",
+                                          "#33A02C","#E6AB02",
+                                          "#F0027F", "#FDC086",
+                                          "#FFFF99", "#B3E2CD", 
+                                          "#B3CDE3","#66A61E",
+                                          "#F4CAE4","#80B1D3",
+                                          "#FFED6F", "#B15928",
+                                          "#999999")){
   
   if(is.na(cellTypeMetadata)){
     # upload metadata for coloring
@@ -145,18 +136,19 @@ plotOpenSignal = function(signalMatrix,
   # attach the metadata for coloring
   # sort table alphabetically by tissue-cellType
   if ("name" %in% names(signalMatrix)){
-    plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = c("queryPeak", "name"), 
+    plotSignalMatrix = reshape2::melt(signalMatrix, 
+                            id.vars = c("queryPeak", "name"), 
                             variable.name = "cellType", value.name = "signal")
   } else {
     plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = "queryPeak", 
                             variable.name = "cellType", value.name = "signal")
   }
   data.table::setDT(plotSignalMatrix)
-  setkey(plotSignalMatrix, cellType)
-  setkey(cellTypeMetadata, cellType)
+  data.table::setkey(plotSignalMatrix, cellType)
+  data.table::setkey(cellTypeMetadata, cellType)
   plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
   plotSignalMatrix[, lowerCaseTissue := tolower(tissue)]
-  setorder(plotSignalMatrix, lowerCaseTissue, cellType)
+  data.table::setorder(plotSignalMatrix, lowerCaseTissue, cellType)
   plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissue], 
                                        plotSignalMatrix[,cellType], sep = "_")]
   
@@ -203,8 +195,9 @@ plotOpenSignal = function(signalMatrix,
   barPlotStats = merge(barPlotStats, tableToMerge, all = FALSE)
   
   # do the plotting
-  p = ggplot(plotSignalMatrix,
-             aes(x = mixedVar, y = signal))
+  p = ggplot(plotSignalMatrix, aes(x = mixedVar, y = signal)) +
+    theme_blank_facet_label() +
+    theme(strip.text.y.right = element_text(angle = 0))
   
   if (plotType == "jitter"){
     
@@ -229,7 +222,8 @@ plotOpenSignal = function(signalMatrix,
     if ("name" %in% names(plotSignalMatrix)){
       p = p + facet_grid(name ~ .)
     }
-    boxPlot = p + geom_boxplot(outlier.colour = NA, aes(fill = tissue), alpha = 0.9) +
+    boxPlot = p + geom_boxplot(outlier.colour = NA, 
+                               aes(fill = tissue), alpha = 0.9) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
             text = element_text(size=10)) +
@@ -241,7 +235,9 @@ plotOpenSignal = function(signalMatrix,
       ylim(minBoxLimit, maxBoxLimit)
     return(boxPlot)
   } else if (plotType == "barPlot") {
-    barPlot = ggplot(barPlotStats, aes(x = mixedVar, y = medianBar, fill = tissue))
+    barPlot = ggplot(barPlotStats, aes(x = mixedVar, 
+                                       y = medianBar, 
+                                       fill = tissue))
     
     if ("name" %in% names(barPlotStats)){
       barPlot = barPlot + facet_grid(name ~ .)
@@ -254,7 +250,9 @@ plotOpenSignal = function(signalMatrix,
       xlab("") +
       ylab("med (normalized signal)") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=colorScheme)
+      scale_fill_manual(values=colorScheme)  +
+      theme_blank_facet_label() +
+      theme(strip.text.y.right = element_text(angle = 0))
     return(barPlot)
   } else {
     stop("Plot type does not match any of the available options. 

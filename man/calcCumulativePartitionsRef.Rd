@@ -23,8 +23,5 @@ This function is a wrapper for \code{calcCumulativePartitions} that uses
 built-in partitions for a given reference genome assembly.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-calcCumulativePartitionsRef(query, "hg19")
+calcCumulativePartitionsRef(vistaEnhancers, "hg19")
 }

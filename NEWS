@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
+## [0.8] -- 2020-05-20
+	
+	- Added tiled version to feature distance plot
+	- Added percentage plots to feature distances
+	- Reduced data shipped with package
+	- Reduced verbosity of calc functions
+	- Simplified functions for calculating overlaps
+	- Added UTRs to gene models
+	- Moved data producing functions to data-raw
+	- Improved 'full power' vignette
+	- Bug fixes for edge cases, like plotting distribution with only one value
+
 ## [0.7] -- 2020-04-11
 
 	- Revamped TSS distance distribution plots to better reflect the scale of distances

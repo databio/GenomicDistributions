@@ -22,9 +22,9 @@ you are doing this on a long table with multiple segments concatenated}
 }
 \value{
 A data.table, expanded to nrow = number of bins, with these id columns:
-		id: region ID
-		binID: repeating ID (this is the value to aggregate across)
-		ubinID: unique bin IDs
+    id: region ID
+    binID: repeating ID (this is the value to aggregate across)
+    ubinID: unique bin IDs
 }
 \description{
 Given a start coordinate, end coordinate, and number of bins to divide, 

@@ -19,12 +19,10 @@ A data.frame indicating the number of query region overlaps in
     several genomic partitions.
 }
 \description{
-This function is a wrapper for \code{calcPartitions} that uses built-in
+This function is a wrapper for \code{calcPartitions} 
+and \code{calcPartitionPercents} that uses built-in
 partitions for a given reference genome assembly.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-calcPartitionsRef(query, "hg19")
+calcPartitionsRef(vistaEnhancers, "hg19")
 }

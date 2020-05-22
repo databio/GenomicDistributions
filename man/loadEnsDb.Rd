@@ -2,21 +2,21 @@
 % Please edit documentation in R/loadData.R
 \name{loadEnsDb}
 \alias{loadEnsDb}
-\title{Loads Ensemble gene annotations (EnsDb objects) from UCSC-style character vectors}
+\title{Load selected EnsDb library}
 \usage{
 loadEnsDb(genomeBuild)
 }
 \arguments{
-\item{genomeBuild}{One of 'hg19', 'hg38', 'mm10', 'mm9', or 'grch38'}
+\item{genomeBuild}{string, genome identifier}
+}
+\value{
+loaded library
 }
 \description{
-This function will let you use a simple character vector (e.g. 'hg19') to
-load and then return BSgenome objects. This lets you avoid having to use the
-more complex annotation for a complete BSgenome object (e.g.
-BSgenome.Hsapiens.UCSC.hg38.masked)
+Load selected EnsDb library
 }
 \examples{
 \dontrun{
-ensDb = loadEnsDb('hg19')
+loadEnsDb("hg19")
 }
 }

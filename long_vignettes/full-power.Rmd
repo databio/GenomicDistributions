@@ -1,0 +1,203 @@
+---
+title: "Full power GenomicDistributions"
+author: "Nathan Sheffield"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: sandstone
+    highlight: tango
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{2. Full power GenomicDistributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+# These settings make the vignette prettier
+knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+knitr::opts_chunk$set(fig.width=10, fig.height=7) 
+#refreshPackage("GenomicDistributions")
+#devtools::build_vignettes("code/GenomicDistributions")
+#devtools::test("code/GenomicDistributions")
+```
+
+## Introduction
+
+This vignette shows how to use GenomicDistributions of full-size data. It is pre-computed. Here's what you need to have installed:
+
+```{r, install, eval=FALSE}
+devtools::install_github("databio/GenomicDistributions")
+install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
+```
+Here we'll load up the libraries needed for this vignette:
+
+```{r, initialize}
+library(ggplot2)
+library(GenomicDistributions)
+library(GenomicDistributionsData)
+```
+
+## GenomicDistributionsData
+
+
+This vignette demonstrates the seamless usage of our companion package: `GenomicDistributionsData` as a source of reference data sets that are not included in `GenomicDistributions`. The `GenomicDistributions` package comes with build-in reference data sets to perform calculations for human hg19 genome. To use `GenomicDistributions` with other reference genomes you need to install our companion package with more full-size data: `GenomicDistributionsData`. It's currently hosted on our server. This package provides the following data:
+
+```{r}
+datasetListIQR = utils::data(package="GenomicDistributionsData")
+datasetList = datasetListIQR$results[,"Item"]
+datasetList
+```
+
+With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
+
+## Downloading files
+
+Let's retrieve a variety of ENCODE BED files and use BiocFileCache to download them here:
+
+```{r, download-data}
+if (basename(getwd()) != "long_vignettes") setwd("long_vignettes")  # run from GenomicDistributions/long_vignettes
+message(getwd())
+bfc = BiocFileCache::BiocFileCache(getwd())
+rpath = function(url, bfc) {
+	# Utility function so we can lapply the data loading across a list.
+	message("Downloading ", url)
+	BiocFileCache::bfcrpath(bfc, url)
+}
+
+urls = c(
+	H1_REST="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE101nnn/GSE101251/suppl/GSE101251_ENCFF235EJG_peaks_GRCh38.bed.gz",
+	MCF7_CTCF="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE123nnn/GSE123219/suppl/GSE123219_ENCFF047HAG_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
+	K562_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96303/suppl/GSE96303_ENCFF616DLO_replicated_peaks_GRCh38.bed.gz",
+	GM12878_H3K4me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95899/suppl/GSE95899_ENCFF188SZS_replicated_peaks_GRCh38.bed.gz",
+	K562_ZEB2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF316ASR_peaks_GRCh38.bed.gz", 
+	HEK293_GLI2="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE105977_ENCFF617QGK_optimal_idr_thresholded_peaks_GRCh38.bed.gz",
+	K562_ZEB2_TOP="http://big.databio.org/example_data/bedbase_tutorial/bed_files/GSE91663_ENCFF319TPR_conservative_idr_thresholded_peaks_GRCh38.bed.gz",
+	GLIAL_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE95nnn/GSE95927/suppl/GSE95927_ENCFF724DGK_replicated_peaks_GRCh38.bed.gz",
+	A673_H3K27me3="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96349/suppl/GSE96349_ENCFF412EXZ_peaks_GRCh38.bed.gz",
+	A673_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96332/suppl/GSE96332_ENCFF529ISR_peaks_GRCh38.bed.gz",
+	A673_H3K4me1="https://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96216/suppl/GSE96216_ENCFF328DBS_peaks_GRCh38.bed.gz",
+	A549_JUN="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2437nnn/GSM2437721/suppl/GSM2437721_ENCFF064QGH_peaks_GRCh38.bed.gz",
+	A549_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2421nnn/GSM2421593/suppl/GSM2421593_ENCFF715EXP_peaks_GRCh38.bed.gz")
+bedpaths = lapply(urls, rpath, bfc)
+```
+
+Read these files in and build a GenomicRanges object:
+
+```{r load-data-to-granges}
+df = lapply(bedpaths, data.table::fread)
+gr1 = GenomicDistributions::dtToGr(df[[1]], chr="V1", start="V2", end="V3")
+grs = lapply(df, GenomicDistributions::dtToGr, chr="V1", start="V2", end="V3")
+grs = lapply(grs, sort)
+queryList = GRangesList(grs)
+```
+
+First let's look at the distance to TSS:
+
+```{r TSS-plot}
+TSSdist = calcFeatureDistRefTSS(queryList, "hg38")
+p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, nbin=200)
+print(p)
+```
+
+
+Here, we're using a built-in dataset of protein-coding TSSs for hg38. You can see clear differences here; the JUN TF dataset is the most concentrated around TSSs, followed by the H3K4me3 experiments, which makes sense because that's a promoter mark. Enhancer marks H3K27ac and H3K4me1 are more diffuse, with the repressive mark H3K27me3 being the most diffuse of all of them. This plot makes it easy to visualize these differences for lots of files all at once. -- but we're too zoomed out with the default settings, since almost everything is happening right around the TSSs. So, let's zoom in now and look at 10 kb surrounding the TSS.
+
+```{r TSS-plot-closeup}
+p2 = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, size=1e4, nbin=200)
+print(p2)
+```
+
+Now we can see much more clearly what's happening around the TSS. Notice how the TF, JUN, is right at the TSS, while the promoter-associated histone marks show the nucleosome-depleted region centered at the TSS.  The H3K4me1 mark is broader than the H3K27ac experiments. Also, the repressive marks still show that broad spread.
+
+Let's see what happens when we calculate distances to *genes*, instead of to *TSSs*. The difference is now our feature data will be the full gene body rather than just a 1 nucleotide at the start site.:
+
+```{r gene-distance-plot}
+library(EnsDb.Hsapiens.v86)
+annoData = ensembldb::genes(EnsDb.Hsapiens.v86)
+seqlevels(annoData) = paste0("chr", seqlevels(annoData)) # Change from ensembl-style chrom annotation to UCSC_style
+TSSdist = calcFeatureDist(queryList, annoData)
+p = plotFeatureDist(TSSdist, featureName="Gene", tile=TRUE, nbin=200)
+print(p)
+```
+
+Here you can tell that we've lost the resolution around the TSS, which makes sense because we're no longer looking at distance to the TSS, but to the entire gene body. For reference, you could reproduce the TSS plots by converting these genes to just 1 base, like this: `annoDataP=promoters(annoData, 1, 1)`. But we see similar trends as before. These plots are really useful comparisons to see how different types of regions distribute around other features.
+
+## Partition plots
+
+Next, let's see how these are distributed across genomic partitions.
+
+```{r partition-plot}
+perc2 = calcPartitionsRef(queryList, "hg38")
+plotPartitions(perc2)
+```
+
+This shows that there's some variation among the files, and that most stuff is in introns or intergenic...but this plot really isn't that useful because it's not corrected for the genomic background. It's not surprising that most regions in a file are intergenic -- because most of the genome is intergenic. So, we're much better off looking at the *expected* partition plot, which uses a log ratio of observed versus background expectation:
+
+```{r expected-partition-plot}
+ep2 = calcExpectedPartitionsRef(queryList, "hg38")
+plotExpectedPartitions(ep2)
+```
+
+Now we can start to draw some conclusions. All of these BED files are enriched in introns. We see lots of differences in promoters, which make biological sense: For example, the JUN TF is overrepresented in proximal and core promoters. The H3K4me3 experiment, a promoter mark, is the most overrepresented in core promoters. But the repressive or enhancer marks are depleted at promoters.
+
+Next, we'll plot the cumulative partition plots:
+
+```{r cumulative-partitions, fig.height=12}
+cp2 = calcCumulativePartitionsRef(queryList, "hg38")
+p = plotCumulativePartitions(cp2)
+p + facet_wrap(. ~name, nrow=3)
+```
+
+These plots are similar to the above plots, but add in information about how many bases are covered by each partition.
+
+## Chromosome plots
+
+Here we can see if any of the files have a strange distribution across chromosomes:
+
+```{r chrom-bin-plot}
+# gc2 = calcGCContentRef(queryList, "hg38")
+# plotGCContent(gc2)
+
+chromBins = calcChromBinsRef(queryList, "hg38")
+# Then, plot the result:
+plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
+```
+
+## Open chromatin signal specificity
+
+Next, we'll explore the chromatin accessibility by cell type. Using the `calcOpenSignal` function requires an open signal matrix that is included with `GenomicDistributionsData`. Now, you just need to load in into the workspace, like this:
+
+
+```{r open-signal, fig.height=12}
+
+library(GenomicDistributionsData)
+data(openSignalMatrix_hg38)
+op = calcOpenSignal(queryList, openSignalMatrix_hg38)
+opp = plotOpenSignal(op)
+opp
+```
+
+As expected, the active marks have greater overall signal. We also see some specificity, with regions derived from blood cells showing more openness in blood cell types.
+
+```{r neighbor-distance, eval=FALSE, echo=FALSE}
+# This needs to be corrected for number of regions.
+nd = calcNeighborDist(queryList)
+
+# Plot the distribution
+plotNeighborDist(nd)
+```
+
+## Width distribution
+
+The width distribution plot shows us how wide our regions are:
+
+```{r width-distribution, fig.fullwidth=TRUE}
+qt2 = calcWidth(queryList)
+p = plotQTHist(qt2, bins=15)
+p + facet_wrap(. ~name, nrow=3)
+```
+
+He we can see that a few of the experiments seem to be almost entirely the same width; the REST dataset, for example. This may indicate that these files were computationally set to be uniform width. We also see differences in the width distributions of others. The histone marks are wider than the TFs, which makes sense. We also notice that the two H3K4me3 experiments have different distributions, with the K562 experiment trending toward wider regions. This could reflect different methods of peak calling for these datasets.
+
+That wraps it up! I hope this vignette convinces you that GenomicDistributions can calculate and plot some interesting data to compare genomic region sets.

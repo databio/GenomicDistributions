@@ -1,13 +1,7 @@
 cellTypeMetadata
 chromSizes_hg19
-chromSizes_hg38
-chromSizes_mm10
-chromSizes_mm9
 geneModels_hg19
-geneModels_hg38
-geneModels_mm10
-geneModels_mm9
 TSS_hg19
-TSS_hg38
-TSS_mm10
-TSS_mm9
+exampleOpenSignalMatrix_hg19
+vistaEnhancers
+setB_100

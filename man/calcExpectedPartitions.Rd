@@ -2,10 +2,15 @@
 % Please edit documentation in R/partition-plots.R
 \name{calcExpectedPartitions}
 \alias{calcExpectedPartitions}
-\title{Calculates the distribution of overlaps between query and arbitrary genomic
-partitions}
+\title{Calculates the distribution of overlaps between 
+query and arbitrary genomic partitions}
 \usage{
-calcExpectedPartitions(query, partitionList)
+calcExpectedPartitions(
+  query,
+  partitionList,
+  genomeSize = NULL,
+  remainder = "Intergenic"
+)
 }
 \arguments{
 \item{query}{GRanges or GRangesList with regions to classify.}
@@ -13,6 +18,12 @@ calcExpectedPartitions(query, partitionList)
 \item{partitionList}{An ORDERED and NAMED list of genomic partitions
 GRanges. This list must be in priority order; the input will be assigned
 to the first partition it overlaps.}
+
+\item{genomeSize}{The number of bases in the query genome. In other words, 
+the sum of all chromosome sizes.}
+
+\item{remainder}{Which partition do you want to account for 'everything 
+else'?}
 }
 \value{
 A data.frame assigning each element of a GRanges object to a
@@ -27,10 +38,11 @@ There will be a priority order to these, to account for regions that may
 overlap multiple genomic partitions.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-geneModels = getGeneModels("hg38")
-partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-calcExpectedPartitions(query, partitionList)
+partitionList = genomePartitionList(geneModels_hg19$genesGR,
+                                    geneModels_hg19$exonsGR,
+                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$fiveUTRGR)
+chromSizes = getChromSizes('hg19')
+genomeSize = sum(chromSizes)
+calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
 }
