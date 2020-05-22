@@ -54,11 +54,18 @@ With the package loaded we have access to the required files for more genomes, n
 Let's calculate some statistics and create plot for an hg38 BED file example. First, let's download one and read into R workspace:
 
 ```{r}
-download.file(url="http://big.databio.org/GenomicDistributionsData/GSE91663_ENCFF319TPR_conservative_idr_thresholded_peaks_GRCh38.bed", destfile="example_hg38.bed")
-query = rtracklayer::import("example_hg38.bed", extraCols=c(signalValue = "numeric", pValue = "numeric", qValue = "numeric", peak = "integer"))
-```
-```{r, echo=FALSE}
-file.remove("example_hg38.bed")
+if (basename(getwd()) != "long_vignettes") setwd("long_vignettes")  # run from GenomicDistributions/long_vignettes
+message(getwd())
+bfc = BiocFileCache::BiocFileCache(getwd())
+rpath = function(url, bfc) {
+	# Utility function so we can lapply the data loading across a list.
+	message("Downloading ", url)
+	BiocFileCache::bfcrpath(bfc, url)
+}
+
+url = c(A549_H3K27ac="https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM2421nnn/GSM2421593/suppl/GSM2421593_ENCFF715EXP_peaks_GRCh38.bed.gz")
+filename = BiocFileCache::bfcrpath(bfc, url)
+query = rtracklayer::import(filename, extraCols=c(signalValue = "numeric", pValue = "numeric", qValue = "numeric", peak = "integer"))
 ```
 
 
