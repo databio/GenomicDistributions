@@ -20,3 +20,5 @@ Thumbs.db
 
 # libreoffice lock files:
 .~lock*
+doc
+Meta

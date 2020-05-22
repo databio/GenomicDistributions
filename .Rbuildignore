@@ -5,3 +5,5 @@ long_vignettes
 data-raw
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^doc$
+^Meta$
