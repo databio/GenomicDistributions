@@ -37,7 +37,7 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     if ("end" %in% colnames(queryRegionDT)) {
         # assign to "start" since BSdtToGRanges keeps the start coord
         queryRegionDT$start = round((queryRegionDT$start + 
-                                       queryRegionDT$end)/2) 
+                                        queryRegionDT$end)/2) 
     }
     
     # only keeps start column
@@ -90,7 +90,7 @@ calcOLCount = function(queryRegionDT, regionsGRL) {
     # Now actually do the aggregate:
     message("Combining...")
     bsCombined = queryRegionDT[,eval(parse(text=jExpr)), 
-                               by=eval(parse(text=byString))]
+                                by=eval(parse(text=byString))]
     setkey(bsCombined, regionID)
     
     e = region2group[bsCombined,]

@@ -129,7 +129,7 @@ binChroms = function(binCount, chromSizes) {
 #' calcChromBins(vistaEnhancers, GRangesList(vistaSftd, vistaSftd2))
 calcChromBins = function(query, bins) {
     .validateInputs(list(bins=c("GRanges","GRangesList"),
-                         query=c("GRanges","GRangesList")))
+                           query=c("GRanges","GRangesList")))
     if (is(query, "GRangesList"))  {
         # Recurse over each GRanges object
         x = lapply(query, calcChromBins, bins)
@@ -174,7 +174,7 @@ calcChromBins = function(query, bins) {
 #' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
 calcChromBinsRef = function(query, refAssembly, binCount=10000) {
     .validateInputs(list(refAssembly="character", 
-                         query=c("GRanges","GRangesList")))
+                           query=c("GRanges","GRangesList")))
     # Bin the genome
     chromSizes = getChromSizes(refAssembly)
     binnedDT = binChroms(binCount, chromSizes)
@@ -201,7 +201,7 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 #' ChromBins = plotChromBins(agg)
 #' 
 plotChromBins = function(genomeAggregate, binCount=10000, 
-                         plotTitle="Distribution over chromosomes") {
+                           plotTitle="Distribution over chromosomes") {
     .validateInputs(list(genomeAggregate=c("data.table","data.frame")))
     if ("name" %in% names(genomeAggregate)){
         # It has multiple regions
