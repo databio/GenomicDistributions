@@ -18,11 +18,11 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 
 # Introduction
 
-The point of this vignette is to demonstrate the seamless usage of out compation package: `GenomicDistributionsData` as a source of reference data sets that are not included in `GenomicDistributions`.
+The point of this vignette is to demonstrate the seamless usage of our companion package: `GenomicDistributionsData` as a source of reference data sets that are not included in `GenomicDistributions`.
 
 ## Motivation
 
-`GenomicDistributions` package comes with build-in reference data sets to perform calculations for human hg19 genome. 
+The `GenomicDistributions` package comes with build-in reference data sets to perform calculations for human hg19 genome. 
 
 To use `GenomicDistributions` with other reference genomes you need to install our companion package with more full-size data: `GenomicDistributionsData`. It's currently hosted on our server.
 

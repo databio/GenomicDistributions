@@ -2,7 +2,7 @@
 
 # GenomicDistributions
 
-Functions for calculating and plotting the distribution of query features (*e.g.* genomic ranges) across the genome. If you have a set of genomic ranges, the GenomicDistributions R package can help you with some simple visualizations.
+Functions for calculating and plotting the distribution of query features (*e.g.* genomic ranges) across the genome. If you have a set of genomic ranges, the GenomicDistributions R package can help you with visualizations and comparison.
 
 ## Installing
 
