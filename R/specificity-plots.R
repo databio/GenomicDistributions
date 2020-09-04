@@ -12,8 +12,11 @@
 #'     regions, columns are cell types. First column contains 
 #'     information about the genomic region in following form: 
 #'     chr_start_end. Can be either data.frame or data.table object.
-#' @return  A data.table with cell specific open chromatin signal values for 
-#'     query regions.
+#' @return  A list with named components:
+#'            signalMatrix - data.table with cell specific open chromatin signal
+#'                           values for query regions
+#'            matrixStats - data.frame containing boxplot stats for individual 
+#'                           cell type
 #' 
 #' @export
 #' @examples
@@ -27,9 +30,22 @@ calcOpenSignal = function(query, cellMatrix){
     if(is.null(nameList)) {
       nameList = seq_along(query) # Fallback to sequential numbers
     }
-    # Append names
-    xb = rbindlist(x)
-    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+    # Extract signal matrices and boxplot matrices
+    # rbind them and add a name column
+    signalList = lapply(x, `[[`, 1)
+    statsList = lapply(x, `[[`, 2)
+    
+    signalMatrix = rbindlist(signalList)
+    matrixStats = rbindlist(statsList)
+    
+    signalMatrix$name = rep(nameList, vapply(signalList, nrow, integer(1)))
+    matrixStats$name = rep(nameList, vapply(statsList, nrow, integer(1)))
+    matrixStats$boxStats = rep( c("lowerWhisker", 
+                                   "lowerHinge", 
+                                   "median", 
+                                   "upperHinge", 
+                                   "upperWhisker"), length(statsList))
+    xb = list(signalMatrix = signalMatrix, matrixStats = matrixStats)
     return(xb)
   }
   
@@ -77,13 +93,21 @@ calcOpenSignal = function(query, cellMatrix){
   signalMatrix[, queryPeak := query[overlaps[,yid], peakName]]
   signalMatrix = signalMatrix[, lapply(.SD, sum), by = .(queryPeak)]
   
-  return(signalMatrix)
+  # get box plot statistics about the signal matrix
+  matrixStatsList = apply(signalMatrix[,-1], 2, boxplot.stats)
+  matrixStats = unlist(lapply(matrixStatsList, `[[`, 1))
+  matrixStatsTable = data.frame(matrix(matrixStats, nrow = 5))
+  rownames(matrixStatsTable) = c("lowerWhisker", "lowerHinge", "median", "upperHinge", "upperWhisker")
+  colnames(matrixStatsTable) = names(matrixStatsList)
+  
+  openRegionSummary = list(signalMatrix = signalMatrix, matrixStats = matrixStatsTable)
+  return(openRegionSummary)
 }
 
 #' The function plotOpenSignal visualizes the signalMatrix obtained from
 #' calcOpenSignal.
 #'
-#' @param signalMatrix Output data.table from \code{calcOpenSignal} function.
+#' @param openRegionSummary Output list from \code{calcOpenSignal} function.
 #' @param  plotType Options are: jitter - jitter plot with box plot on top
 #'     boxPlot - box plot without individual points and outliers
 #'     barPlot (default) - bar height represents the median signal value
@@ -108,12 +132,12 @@ calcOpenSignal = function(query, cellMatrix){
 #' @export
 #' @examples
 #' \dontrun{
-#' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
-#' plotSignal = plotOpenSignal(signalMatrix)
-#' plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", 
+#' openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
+#' plotSignal = plotOpenSignal(openRegionSummary)
+#' plotSignal = plotOpenSignal(openRegionSummary, plotType = "jitter", 
 #' cellGroup = "blood")
 #' }
-plotOpenSignal = function(signalMatrix, 
+plotOpenSignal = function(openRegionSummary, 
                           plotType = "barPlot", 
                           cellGroup = NA,
                           cellTypeMetadata = NA, 
@@ -132,38 +156,59 @@ plotOpenSignal = function(signalMatrix,
     cellTypeMetadata = getReferenceData("","cellTypeMetadata")
   } 
   
-  # reshape the signal matrix into ggplot usable form 
+  # reshape the signal matrix ans boxplotStats metrices into 
+  # ggplot usable form 
   # attach the metadata for coloring
   # sort table alphabetically by tissue-cellType
+  signalMatrix = openRegionSummary[["signalMatrix"]]
+  boxStats = openRegionSummary[["matrixStats"]]
+  
   if ("name" %in% names(signalMatrix)){
     plotSignalMatrix = reshape2::melt(signalMatrix, 
                             id.vars = c("queryPeak", "name"), 
                             variable.name = "cellType", value.name = "signal")
+    plotBoxStats = reshape2::melt(boxStats, 
+                                  id.vars = c("boxStats", "name"), 
+                                  variable.name = "cellType", value.name = "value")
   } else {
     plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = "queryPeak", 
                             variable.name = "cellType", value.name = "signal")
+    boxStats$boxStats = rownames(boxStats)
+    plotBoxStats = reshape2::melt(boxStats, id.vars = "boxStats",
+                                  variable.name = "cellType", value.name = "value")
   }
+  data.table::setkey(cellTypeMetadata, cellType)
+  
   data.table::setDT(plotSignalMatrix)
   data.table::setkey(plotSignalMatrix, cellType)
-  data.table::setkey(cellTypeMetadata, cellType)
   plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
   plotSignalMatrix[, lowerCaseTissue := tolower(tissue)]
   data.table::setorder(plotSignalMatrix, lowerCaseTissue, cellType)
   plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissue], 
                                        plotSignalMatrix[,cellType], sep = "_")]
   
-  
+  data.table::setDT(plotBoxStats)
+  data.table::setkey(plotBoxStats, cellType)
+  plotBoxStats = merge(plotBoxStats, cellTypeMetadata, all = FALSE)
+  plotBoxStats[, lowerCaseTissue := tolower(tissue)]
+  data.table::setorder(plotBoxStats, lowerCaseTissue, cellType)
+  plotBoxStats[, mixedVar := paste(plotBoxStats[,tissue], 
+                                   plotBoxStats[,cellType], sep = "_")]
+
   # if user defines cell group, filter the data
   if (length(cellGroup) == 1){
     if (is.na(cellGroup)){
       plotSignalMatrix = plotSignalMatrix
+      plotBoxStats = plotBoxStats
     } else if (cellGroup %in% levels(factor(cellTypeMetadata$tissue))){
       plotSignalMatrix = plotSignalMatrix[tissue == cellGroup]
+      plotBoxStats = plotBoxStats[tissue == cellGroup]
     } else {
       stop("The input cell group is not in predefined list of options.")
     }
   } else if (all(cellGroup %in% levels(factor(cellTypeMetadata$tissue)))) {
     plotSignalMatrix = plotSignalMatrix[tissue %in% cellGroup]
+    plotBoxStats = plotBoxStats[tissue %in% cellGroup]
   } else {
     stop("At least one of the input cell groups is not in predefined list of 
          options.")
@@ -172,27 +217,6 @@ plotOpenSignal = function(signalMatrix,
   # arrange labels in a way, that corresponding groups are plotted together
   myLabels = unique(plotSignalMatrix[, .(mixedVar, cellType)])
   myLabels[, spaceLabel := gsub("_", " ", myLabels[, cellType])]
-  
-  # get box plot staistics to set plot limits
-  boxStats = plotSignalMatrix[, .(boxStats = 
-                                    list(boxplot.stats(signal)$stats)),
-                              by = mixedVar]
-  minBoxLimit = min(unlist(boxStats$boxStats))
-  maxBoxLimit = max(unlist(boxStats$boxStats))
-  
-  # get mediand of signal values to make a bar plot
-  if ("name" %in% names(plotSignalMatrix)){
-    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), 
-                                    by = c("mixedVar", "name")]
-  } else {
-    barPlotStats = plotSignalMatrix[, .(medianBar = median(signal)), 
-                                    by = mixedVar]
-  }
-  tableToMerge = unique(plotSignalMatrix[, .(mixedVar, cellType, 
-                                             tissue, group)])
-  setkey(barPlotStats, mixedVar)
-  setkey(tableToMerge, mixedVar)
-  barPlotStats = merge(barPlotStats, tableToMerge, all = FALSE)
   
   # do the plotting
   p = ggplot(plotSignalMatrix, aes(x = mixedVar, y = signal)) +
@@ -214,8 +238,8 @@ plotOpenSignal = function(signalMatrix,
       xlab("") +
       ylab("normalized signal") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=colorScheme) + 
-      scale_color_manual(values=colorScheme)
+      scale_fill_manual(values = colorScheme) + 
+      scale_color_manual(values = colorScheme)
     return(jitterPlot)
   } else if (plotType == "boxPlot") {
     
@@ -230,16 +254,17 @@ plotOpenSignal = function(signalMatrix,
       xlab("") +
       ylab("normalized signal") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=colorScheme) + 
-      scale_color_manual(values=colorScheme) +
-      ylim(minBoxLimit, maxBoxLimit)
+      scale_fill_manual(values = colorScheme) + 
+      scale_color_manual(values = colorScheme) +
+      ylim(min(plotBoxStats$value), max(plotBoxStats$value))
     return(boxPlot)
   } else if (plotType == "barPlot") {
-    barPlot = ggplot(barPlotStats, aes(x = mixedVar, 
-                                       y = medianBar, 
-                                       fill = tissue))
+    barPlot = ggplot(plotBoxStats[boxStats == "median"], 
+                     aes(x = mixedVar, 
+                         y = value, 
+                         fill = tissue))
     
-    if ("name" %in% names(barPlotStats)){
+    if ("name" %in% names(plotBoxStats)){
       barPlot = barPlot + facet_grid(name ~ .)
     }
     barPlot = barPlot +
@@ -250,7 +275,7 @@ plotOpenSignal = function(signalMatrix,
       xlab("") +
       ylab("med (normalized signal)") + 
       scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values=colorScheme)  +
+      scale_fill_manual(values = colorScheme)  +
       theme_blank_facet_label() +
       theme(strip.text.y.right = element_text(angle = 0))
     return(barPlot)
