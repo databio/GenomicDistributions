@@ -122,10 +122,10 @@ calcOpenSignal = function(query, cellMatrix){
 #' @param cellTypeMetadata Metadata for cell type - tissue association. This
 #'     option is for users, who provide their own open region signal 
 #'     matrix. The cellTypeMetadata matrix must contain two columns called
-#'     cellType and tissue. cellType column containes the cell type names 
-#'     in the provided signalMatrix column names. The tissue columns 
+#'     cellType and tissueType. cellType column containes the cell type names 
+#'     in the provided signalMatrix column names. The tissueType columns 
 #'     provides an information, which tissue the cell type comes from.
-#' @param colorScheme Provide color values for each tissue if you want to 
+#' @param colorScheme Provide color values for each tissueType if you want to 
 #'     change the default colors.
 #' @return A ggplot object.
 #' 
@@ -159,7 +159,7 @@ plotOpenSignal = function(openRegionSummary,
   # reshape the signal matrix ans boxplotStats metrices into 
   # ggplot usable form 
   # attach the metadata for coloring
-  # sort table alphabetically by tissue-cellType
+  # sort table alphabetically by tissueType-cellType
   signalMatrix = openRegionSummary[["signalMatrix"]]
   boxStats = openRegionSummary[["matrixStats"]]
   
@@ -182,17 +182,17 @@ plotOpenSignal = function(openRegionSummary,
   data.table::setDT(plotSignalMatrix)
   data.table::setkey(plotSignalMatrix, cellType)
   plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
-  plotSignalMatrix[, lowerCaseTissue := tolower(tissue)]
+  plotSignalMatrix[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotSignalMatrix, lowerCaseTissue, cellType)
-  plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissue], 
+  plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissueType], 
                                        plotSignalMatrix[,cellType], sep = "_")]
   
   data.table::setDT(plotBoxStats)
   data.table::setkey(plotBoxStats, cellType)
   plotBoxStats = merge(plotBoxStats, cellTypeMetadata, all = FALSE)
-  plotBoxStats[, lowerCaseTissue := tolower(tissue)]
+  plotBoxStats[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotBoxStats, lowerCaseTissue, cellType)
-  plotBoxStats[, mixedVar := paste(plotBoxStats[,tissue], 
+  plotBoxStats[, mixedVar := paste(plotBoxStats[,tissueType], 
                                    plotBoxStats[,cellType], sep = "_")]
 
   # if user defines cell group, filter the data
@@ -200,15 +200,15 @@ plotOpenSignal = function(openRegionSummary,
     if (is.na(cellGroup)){
       plotSignalMatrix = plotSignalMatrix
       plotBoxStats = plotBoxStats
-    } else if (cellGroup %in% levels(factor(cellTypeMetadata$tissue))){
-      plotSignalMatrix = plotSignalMatrix[tissue == cellGroup]
-      plotBoxStats = plotBoxStats[tissue == cellGroup]
+    } else if (cellGroup %in% levels(factor(cellTypeMetadata$tissueType))){
+      plotSignalMatrix = plotSignalMatrix[tissueType == cellGroup]
+      plotBoxStats = plotBoxStats[tissueType == cellGroup]
     } else {
       stop("The input cell group is not in predefined list of options.")
     }
-  } else if (all(cellGroup %in% levels(factor(cellTypeMetadata$tissue)))) {
-    plotSignalMatrix = plotSignalMatrix[tissue %in% cellGroup]
-    plotBoxStats = plotBoxStats[tissue %in% cellGroup]
+  } else if (all(cellGroup %in% levels(factor(cellTypeMetadata$tissueType)))) {
+    plotSignalMatrix = plotSignalMatrix[tissueType %in% cellGroup]
+    plotBoxStats = plotBoxStats[tissueType %in% cellGroup]
   } else {
     stop("At least one of the input cell groups is not in predefined list of 
          options.")
@@ -230,7 +230,7 @@ plotOpenSignal = function(openRegionSummary,
     }
     
     jitterPlot = p + 
-      geom_jitter(alpha = 0.5, height = 0, width = 0.35, aes(color = tissue)) +
+      geom_jitter(alpha = 0.5, height = 0, width = 0.35, aes(color = tissueType)) +
       geom_boxplot(outlier.colour = NA, fill = NA) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
@@ -247,7 +247,7 @@ plotOpenSignal = function(openRegionSummary,
       p = p + facet_grid(name ~ .)
     }
     boxPlot = p + geom_boxplot(outlier.colour = NA, 
-                               aes(fill = tissue), alpha = 0.9) +
+                               aes(fill = tissueType), alpha = 0.9) +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
             text = element_text(size=10)) +
@@ -262,7 +262,7 @@ plotOpenSignal = function(openRegionSummary,
     barPlot = ggplot(plotBoxStats[boxStats == "median"], 
                      aes(x = mixedVar, 
                          y = value, 
-                         fill = tissue))
+                         fill = tissueType))
     
     if ("name" %in% names(plotBoxStats)){
       barPlot = barPlot + facet_grid(name ~ .)
