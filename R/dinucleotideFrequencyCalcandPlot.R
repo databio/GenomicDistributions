@@ -12,22 +12,9 @@ query = rtracklayer::import(queryFile)
 ## calc function
 
 calcDinuclFreq <- function(query, ref) {
-  
-  # here I used the same function structure from calcGCcontent
-  # query and ref as input, gvec as output
-  
-  # if class(query) != "GRanges" & != "GRangesList" {
-  #   stop("Error: query must be GRanges or GrangesList object")
-  # else 
-  #   # Recurse over each GRanges object
-  #   x = lapply(query, calcdinuclfreq, ref)
-  #   
-  # }
-  
   GenomicDistributions:::.validateInputs(list(query=c("GRanges","GRangesList"),
                                               ref="BSgenome"))
-  
-  # I believe this function validates the input as GRanges
+   # I believe this function validates the input as GRanges
   
   if (is(query, "GRangesList")) {
     # Recurse over each GRanges object
@@ -50,26 +37,15 @@ calcDinuclFreq <- function(query, ref) {
   # The Views virtual class is a general container for storing a set of views 
   # on an arbitrary Vector object, called the "subject"
   # The subject in this case are inputs
-  dnvec= as.data.frame(Biostrings::dinucleotideFrequency(v, simplify.as="collapsed", as.matrix = FALSE))
-  
-  
-  dnvec$ID<-rownames(dnvec)
-  colnames(dnvec)<-c("frequency", "dinucleotide")
-  library(tidyverse)
-  dnvec <- tibble::rowid_to_column(dnvec, "ID")
-  dnvec<-dnvec[,-1]
-  dnvec[,2]<-as.factor(dnvec[,2])
-  dnvec[,1]<-as.numeric(dnvec[,1])
-  
-  ## adding columns for plotting
-  # dnvec$x = dnvec$dinucleotide
-  # dnvec$x = factor(dnvec$x, levels=dnvec$x)
-  library(ggplot2)
-  # I swapped out alphabetfrequency function for dinucleotideFrequency
-  
+  dnvec= as.data.frame(Biostrings::dinucleotideFrequency(v))
+                       
   return(dnvec)
-  
-}
+ }
+
+## test function
+
+DNF<-calcDinuclFreq(query, bsg)
+
 ## end calc function
 
 ## plot function
@@ -79,21 +55,88 @@ plotDinuclContent = function(gcvectors) {
   GenomicDistributions:::.validateInputs(list(gcvectors=c("matrix", "array", "data.frame")))
   library(ggplot2)
   g = gcvectors
-  plot=ggplot(data=g, aes(x=dinucleotide, y=frequency)) + ggtitle("Dinucleotide Frequency Plot")+
-    geom_bar(stat="identity", colour="black", show.legend=FALSE) +
-    
-    
-    geom_text(aes(label=ifelse(frequency>700, paste0(frequency, " (",sprintf("%1.1f", frequency/sum(frequency)*100),"%)"),
-                               ifelse(frequency>300, frequency, "")), y=0.5*frequency), colour="white", size=2.5)+coord_flip() + theme_bw() + labs(x="")  
+  
+  ## for violinplot
+  
+  g=reshape2::melt(g) 
+  names(g)[names(g)=="variable"]<-"dinucleotide"
+  names(g)[names(g)=="value"]<-"frequency"
+  g$frequency<-as.numeric(g$frequency)
+  g$dinucleotide<-as.character(g$dinucleotide)
+  plot=ggplot(data=g, aes(dinucleotide, frequency)) + geom_violin(scale="width", trim=TRUE) + geom_boxplot(width=0.1, color="grey", alpha=0.2) + coord_flip() + ggtitle("Dinucleotide Frequency") 
+  
   return(plot)
 }
 
-## end plot function
+# test
 
-
-## test functions
-
-DNF<-calcDinuclFreq(query, bsg)
 plotDinuclContent(DNF)
 
-## end test functions
+## end plot function 
+ 
+
+### check max function
+
+
+
+
+## try violin plot
+
+
+
+###
+v = IRanges::Views(bsg, query)
+dnvec= as.data.frame(Biostrings::dinucleotideFrequency(v))
+dnvec=reshape2::melt(dnvec)
+library('ggplot2')
+names(dnvec)[names(dnvec)=="variable"]<-"dinucleotide"
+names(dnvec)[names(dnvec)=="value"]<-"frequency"
+# dnvec$ID <- rownames(dnvec)
+
+
+dnvec$frequency<-as.numeric(dnvec$frequency)
+dnvec$dinucleotide<-as.character(dnvec$dinucleotide)
+
+ggplot(dnvec, aes(dinucleotide, frequency)) +
+  geom_violin(scale="width", trim=TRUE) + geom_boxplot(width=0.1, color="grey", alpha=0.2) + coord_flip() + ggtitle("Dinucleotide Frequency")
+
+
+
+## check max  function output
+
+# DNF$density
+# ggtitle("Dinucleotide Frequency Plot")
+# 
+# geom_density()
+# 
+# 
+# dotplot = function(sigList, violin=TRUE, nameList=NULL, title=NULL, ylab="", xlab="") {
+#   if(is.null(nameList)) {
+#     if (is.null(names(sigList))) {
+#       nameList = 1:length(sigList) #fallback to sequential numbers
+#     } else {
+#       nameList=names(sigList) #use names if available
+#     }
+#   }
+#   
+#   sigListLengths = sapply(sigList, length)
+#   if (sum(sigListLengths) > 1e4) {
+#     warning("You have more than 10k points, consider using a density plot")
+#   }
+#   DT = data.table(name=factor(rep(nameList, sigListLengths), levels=nameList), value= unlist(sigList))
+#   
+#   g = ggplot(DT, aes(factor(name), value, fill=factor(name))) 
+#   if (violin) { 
+#     # Add a violin plot on bottom.
+#     g = g + geom_violin(color="gray", width = .66, aes(fill=factor(name)),  alpha=.4) 
+#   }
+#   g = g + geom_boxplot(width=.33, aes(alpha=0), outlier.shape = NA) + geom_point(position="jitter", aes(fill=factor(name)), alpha=.5, color="black", pch=21) + scale_fill_brewer(palette="Set1") + scale_color_brewer(palette="Set1") +  theme_classic() + ylab(ylab) + xlab(xlab) + ggtitle(title)  + theme(aspect.ratio=1) + theme(legend.position="none") #+ stat_summary(fun.y="median", geom="point", pch=3) + geom_violin(aes(fill="gray", color="gray"))
+#   
+#   return(g)
+# }
+
+##### atherocluster
+
+### build scatter plot 1 axis frip score other axis accessibility ever single peak 
+
+## raster graphic/contour plot
