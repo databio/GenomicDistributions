@@ -28,7 +28,7 @@ This vignette shows how to use GenomicDistributions of full-size data. It is pre
 
 ```{r, install, eval=FALSE}
 devtools::install_github("databio/GenomicDistributions")
-install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
+install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.2.tar.gz", repos=NULL)
 ```
 Here we'll load up the libraries needed for this vignette:
 
