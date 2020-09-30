@@ -20,7 +20,7 @@
 #' 
 #' @export
 #' @examples
-#' signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
+#' openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 calcOpenSignal = function(query, cellMatrix){
   .validateInputs(list(query=c("GRanges","GRangesList")))
   if (is(query, "GRangesList")) {
@@ -165,17 +165,17 @@ plotOpenSignal = function(openRegionSummary,
   
   if ("name" %in% names(signalMatrix)){
     plotSignalMatrix = reshape2::melt(signalMatrix, 
-                            id.vars = c("queryPeak", "name"), 
-                            variable.name = "cellType", value.name = "signal")
+                            id.vars=c("queryPeak", "name"), 
+                            variable.name="cellType", value.name="signal")
     plotBoxStats = reshape2::melt(boxStats, 
-                                  id.vars = c("boxStats", "name"), 
-                                  variable.name = "cellType", value.name = "value")
+                                  id.vars=c("boxStats", "name"), 
+                                  variable.name="cellType", value.name="value")
   } else {
-    plotSignalMatrix = reshape2::melt(signalMatrix, id.vars = "queryPeak", 
-                            variable.name = "cellType", value.name = "signal")
+    plotSignalMatrix = reshape2::melt(signalMatrix, id.vars="queryPeak", 
+                            variable.name="cellType", value.name="signal")
     boxStats$boxStats = rownames(boxStats)
-    plotBoxStats = reshape2::melt(boxStats, id.vars = "boxStats",
-                                  variable.name = "cellType", value.name = "value")
+    plotBoxStats = reshape2::melt(boxStats, id.vars="boxStats",
+                                  variable.name="cellType", value.name="value")
   }
   data.table::setkey(cellTypeMetadata, cellType)
   
@@ -185,7 +185,7 @@ plotOpenSignal = function(openRegionSummary,
   plotSignalMatrix[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotSignalMatrix, lowerCaseTissue, cellType)
   plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissueType], 
-                                       plotSignalMatrix[,cellType], sep = "_")]
+                                       plotSignalMatrix[,cellType], sep="_")]
   
   data.table::setDT(plotBoxStats)
   data.table::setkey(plotBoxStats, cellType)
@@ -193,7 +193,7 @@ plotOpenSignal = function(openRegionSummary,
   plotBoxStats[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotBoxStats, lowerCaseTissue, cellType)
   plotBoxStats[, mixedVar := paste(plotBoxStats[,tissueType], 
-                                   plotBoxStats[,cellType], sep = "_")]
+                                   plotBoxStats[,cellType], sep ="_")]
 
   # if user defines cell group, filter the data
   if (length(cellGroup) == 1){
@@ -230,54 +230,54 @@ plotOpenSignal = function(openRegionSummary,
     }
     
     jitterPlot = p + 
-      geom_jitter(alpha = 0.5, height = 0, width = 0.35, aes(color = tissueType)) +
-      geom_boxplot(outlier.colour = NA, fill = NA) +
+      geom_jitter(alpha=0.5, height=0, width=0.35, aes(color=tissueType)) +
+      geom_boxplot(outlier.colour=NA, fill=NA) +
       theme_bw() +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+      theme(axis.text.x = element_text(angle=90, hjust=1),
             text = element_text(size=10)) +
       xlab("") +
       ylab("normalized signal") + 
-      scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values = colorScheme) + 
-      scale_color_manual(values = colorScheme)
+      scale_x_discrete(labels=myLabels$spaceLabel) +
+      scale_fill_manual(values=colorScheme) + 
+      scale_color_manual(values=colorScheme)
     return(jitterPlot)
   } else if (plotType == "boxPlot") {
     
     if ("name" %in% names(plotSignalMatrix)){
       p = p + facet_grid(name ~ .)
     }
-    boxPlot = p + geom_boxplot(outlier.colour = NA, 
-                               aes(fill = tissueType), alpha = 0.9) +
+    boxPlot = p + geom_boxplot(outlier.colour=NA, 
+                               aes(fill=tissueType), alpha=0.9) +
       theme_bw() +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+      theme(axis.text.x = element_text(angle=90, hjust=1),
             text = element_text(size=10)) +
       xlab("") +
       ylab("normalized signal") + 
-      scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values = colorScheme) + 
-      scale_color_manual(values = colorScheme) +
+      scale_x_discrete(labels=myLabels$spaceLabel) +
+      scale_fill_manual(values=colorScheme) + 
+      scale_color_manual(values=colorScheme) +
       ylim(min(plotBoxStats$value), max(plotBoxStats$value))
     return(boxPlot)
   } else if (plotType == "barPlot") {
     barPlot = ggplot(plotBoxStats[boxStats == "median"], 
-                     aes(x = mixedVar, 
-                         y = value, 
-                         fill = tissueType))
+                     aes(x=mixedVar, 
+                         y=value, 
+                         fill=tissueType))
     
     if ("name" %in% names(plotBoxStats)){
       barPlot = barPlot + facet_grid(name ~ .)
     }
     barPlot = barPlot +
-      geom_col(alpha = 0.9)+
+      geom_col(alpha=0.9)+
       theme_bw() +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+      theme(axis.text.x = element_text(angle=90, hjust=1),
             text = element_text(size=10)) +
       xlab("") +
       ylab("med (normalized signal)") + 
-      scale_x_discrete(labels = myLabels$spaceLabel) +
-      scale_fill_manual(values = colorScheme)  +
+      scale_x_discrete(labels=myLabels$spaceLabel) +
+      scale_fill_manual(values=colorScheme)  +
       theme_blank_facet_label() +
-      theme(strip.text.y.right = element_text(angle = 0))
+      theme(strip.text.y.right = element_text(angle=0))
     return(barPlot)
   } else {
     stop("Plot type does not match any of the available options. 
