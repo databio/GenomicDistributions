@@ -6,7 +6,7 @@
 calcOpenSignal.}
 \usage{
 plotOpenSignal(
-  signalMatrix,
+  openRegionSummary,
   plotType = "barPlot",
   cellGroup = NA,
   cellTypeMetadata = NA,
@@ -16,7 +16,7 @@ plotOpenSignal(
 )
 }
 \arguments{
-\item{signalMatrix}{Output data.table from \code{calcOpenSignal} function.}
+\item{openRegionSummary}{Output list from \code{calcOpenSignal} function.}
 
 \item{plotType}{Options are: jitter - jitter plot with box plot on top
 boxPlot - box plot without individual points and outliers
@@ -50,9 +50,9 @@ calcOpenSignal.
 }
 \examples{
 \dontrun{
-signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
-plotSignal = plotOpenSignal(signalMatrix)
-plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", 
+openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
+plotSignal = plotOpenSignal(openRegionSummary)
+plotSignal = plotOpenSignal(openRegionSummary, plotType = "jitter", 
 cellGroup = "blood")
 }
 }

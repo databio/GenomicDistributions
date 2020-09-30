@@ -22,8 +22,11 @@ information about the genomic region in following form:
 chr_start_end. Can be either data.frame or data.table object.}
 }
 \value{
-A data.table with cell specific open chromatin signal values for 
-    query regions.
+A list with named components:
+           signalMatrix - data.table with cell specific open chromatin signal
+                          values for query regions
+           matrixStats - data.frame containing boxplot stats for individual 
+                          cell type
 }
 \description{
 The function calcOpenSignal takes the input BED file(s) 
