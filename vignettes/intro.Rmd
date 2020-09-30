@@ -27,6 +27,10 @@ If you have a set of genomic ranges, the GenomicDistributions R package can help
 - *width distribution plot* - visualizes the distribution of range widths
 - *feature distance distribution plot* - visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
 - *partition distribution plot* - visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
+- *specificity of accessibility plot* - visualizes tissue specificity of a set of genomic ranges. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix, which contains a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest.
+- *neighboring regions distance* - visualizes the distance between chromosomes neighboring regions.
+- *GC content plot* - visualizes a probability density function of GC content percentage over the genomic ranges in the query.
+
 
 GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes and locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
 
