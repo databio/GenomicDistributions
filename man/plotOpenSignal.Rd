@@ -34,11 +34,11 @@ character string or vector of strings.}
 \item{cellTypeMetadata}{Metadata for cell type - tissue association. This
 option is for users, who provide their own open region signal 
 matrix. The cellTypeMetadata matrix must contain two columns called
-cellType and tissue. cellType column containes the cell type names 
-in the provided signalMatrix column names. The tissue columns 
+cellType and tissueType. cellType column containes the cell type names 
+in the provided signalMatrix column names. The tissueType columns 
 provides an information, which tissue the cell type comes from.}
 
-\item{colorScheme}{Provide color values for each tissue if you want to 
+\item{colorScheme}{Provide color values for each tissueType if you want to 
 change the default colors.}
 }
 \value{
