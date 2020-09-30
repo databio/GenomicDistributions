@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2020-05-22"
+date: "2020-09-30"
 output: 
   html_document:
     theme: sandstone
@@ -22,7 +22,7 @@ This vignette shows how to use GenomicDistributions of full-size data. It is pre
 
 ```r
 devtools::install_github("databio/GenomicDistributions")
-install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
+install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.2.tar.gz", repos=NULL)
 ```
 Here we'll load up the libraries needed for this vignette:
 
@@ -46,9 +46,9 @@ datasetList
 ```
 
 ```
-## [1] "TSS_hg19"              "TSS_hg38"              "chromSizes_hg19"      
-## [4] "chromSizes_hg38"       "geneModels_hg19"       "geneModels_hg38"      
-## [7] "openSignalMatrix_hg19" "openSignalMatrix_hg38"
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"     
+##  [6] "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"      
+## [11] "geneModels_hg38"       "geneModels_mm10"       "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38"
 ```
 
 With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
@@ -125,9 +125,50 @@ Let's see what happens when we calculate distances to *genes*, instead of to *TS
 
 ```r
 library(EnsDb.Hsapiens.v86)
+```
+
+```
+## Warning: package 'GenomicFeatures' was built under R version 4.0.2
+```
+
+```
+## Warning: package 'AnnotationDbi' was built under R version 4.0.2
+```
+
+```
+## Warning: package 'Biobase' was built under R version 4.0.2
+```
+
+```
+## Error in value[[3L]](cond): Package 'Biobase' version 2.49.0 cannot be unloaded:
+##  Error in unloadNamespace(package) : namespace 'Biobase' is imported by 'GenomicFeatures', 'SummarizedExperiment', 'ensembldb', 'AnnotationDbi' so cannot be unloaded
+```
+
+```r
 annoData = ensembldb::genes(EnsDb.Hsapiens.v86)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'genes': object 'EnsDb.Hsapiens.v86' not found
+```
+
+```r
 seqlevels(annoData) = paste0("chr", seqlevels(annoData)) # Change from ensembl-style chrom annotation to UCSC_style
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'seqlevels': object 'annoData' not found
+```
+
+```r
 TSSdist = calcFeatureDist(queryList, annoData)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'elementMetadata': object 'annoData' not found
+```
+
+```r
 p = plotFeatureDist(TSSdist, featureName="Gene", tile=TRUE, nbin=200)
 print(p)
 ```
