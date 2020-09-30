@@ -25,15 +25,15 @@ calcOpenSignal = function(query, cellMatrix){
   .validateInputs(list(query=c("GRanges","GRangesList")))
   if (is(query, "GRangesList")) {
     # Recurse over each GRanges object
-    x = lapply(query, calcOpenSignal, cellMatrix)
+    regionSummaryList = lapply(query, calcOpenSignal, cellMatrix)
     nameList = names(query)
     if(is.null(nameList)) {
       nameList = seq_along(query) # Fallback to sequential numbers
     }
     # Extract signal matrices and boxplot matrices
     # rbind them and add a name column
-    signalList = lapply(x, `[[`, 1)
-    statsList = lapply(x, `[[`, 2)
+    signalList = lapply(regionSummaryList, `[[`, 1)
+    statsList = lapply(regionSummaryList, `[[`, 2)
     
     signalMatrix = rbindlist(signalList)
     matrixStats = rbindlist(statsList)
@@ -45,8 +45,8 @@ calcOpenSignal = function(query, cellMatrix){
                                    "median", 
                                    "upperHinge", 
                                    "upperWhisker"), length(statsList))
-    xb = list(signalMatrix = signalMatrix, matrixStats = matrixStats)
-    return(xb)
+    regionSummaries = list(signalMatrix = signalMatrix, matrixStats = matrixStats)
+    return(regionSummaries)
   }
   
   # if the cellMatrix is in data.frame format, convert it to data.table
