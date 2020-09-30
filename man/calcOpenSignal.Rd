@@ -38,5 +38,5 @@ each column is a cell type, and the value
 is a normalized ATAC-seq signal.
 }
 \examples{
-signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
+openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 }
