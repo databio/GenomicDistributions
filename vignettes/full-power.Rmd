@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2020-09-30"
+date: "2020-10-02"
 output: 
   html_document:
     theme: sandstone
@@ -125,50 +125,9 @@ Let's see what happens when we calculate distances to *genes*, instead of to *TS
 
 ```r
 library(EnsDb.Hsapiens.v86)
-```
-
-```
-## Warning: package 'GenomicFeatures' was built under R version 4.0.2
-```
-
-```
-## Warning: package 'AnnotationDbi' was built under R version 4.0.2
-```
-
-```
-## Warning: package 'Biobase' was built under R version 4.0.2
-```
-
-```
-## Error in value[[3L]](cond): Package 'Biobase' version 2.49.0 cannot be unloaded:
-##  Error in unloadNamespace(package) : namespace 'Biobase' is imported by 'GenomicFeatures', 'SummarizedExperiment', 'ensembldb', 'AnnotationDbi' so cannot be unloaded
-```
-
-```r
 annoData = ensembldb::genes(EnsDb.Hsapiens.v86)
-```
-
-```
-## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'genes': object 'EnsDb.Hsapiens.v86' not found
-```
-
-```r
 seqlevels(annoData) = paste0("chr", seqlevels(annoData)) # Change from ensembl-style chrom annotation to UCSC_style
-```
-
-```
-## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'seqlevels': object 'annoData' not found
-```
-
-```r
 TSSdist = calcFeatureDist(queryList, annoData)
-```
-
-```
-## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'elementMetadata': object 'annoData' not found
-```
-
-```r
 p = plotFeatureDist(TSSdist, featureName="Gene", tile=TRUE, nbin=200)
 print(p)
 ```
