@@ -23,8 +23,8 @@ boxPlot - box plot without individual points and outliers
 barPlot (default) - bar height represents the median signal value
 for a given cell type.}
 
-\item{cellGroup}{- This option allows to selcet a group of cells to be 
-plotted, if NA (default) all available cell groups are ploted, 
+\item{cellGroup}{- This option allows to selcet a tissue type to be 
+plotted, if NA (default) all available tissue types are ploted, 
 available options: {"blood", "bone", "CNS", "embryonic", "eye", 
 "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
 "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
