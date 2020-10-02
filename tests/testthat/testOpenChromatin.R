@@ -5,7 +5,7 @@ library(GenomicDistributions)
 # data
 cellMatrix = exampleOpenSignalMatrix_hg19
 query = vistaEnhancers
-querySftd = GenomicRanges::shift(query, 100000)
+querySftd = GenomicRanges::shift(query, 100)
 queryList = GRangesList(q1=query, q2=querySftd)
 
 # tests
