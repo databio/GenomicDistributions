@@ -9,7 +9,9 @@ Functions for calculating and plotting the distribution of query features (*e.g.
 ### Main package
 
 ```r
-devtools::install_github("databio/GenomicDistributions")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("GenomicDistributions")
 ```
 
 ### Data package
