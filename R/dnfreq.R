@@ -6,7 +6,7 @@
 #' 
 #' @param query A GRanges object with query sets
 #' @param ref Reference genome BSgenome object
-#' @return A data.table with counts of dinucleotides across the GRanges oject
+#' @return A data.table with counts of dinucleotides across the GRanges object
 #' @export
 #' @examples
 #' \dontrun{ 
@@ -14,7 +14,7 @@
 #' DNF = calcDinuclFreq(vistaEnhancers, bsg)
 #' }
 
-calcDinuclFreq <- function(query, ref) {
+calcDinuclFreq = function(query, ref) {
   .validateInputs(list(query=c("GRanges","GRangesList"),
                                               ref="BSgenome"))
    if (is(query, "GRangesList")) {
@@ -37,7 +37,7 @@ calcDinuclFreq <- function(query, ref) {
   return(dnvec)
  }
 
-DNF<-calcDinuclFreq(query, bsg)
+DNF=calcDinuclFreq(query, bsg)
 
 #' Plot dinuclotide content over genomic ranges
 #' 
@@ -54,22 +54,26 @@ DNF<-calcDinuclFreq(query, bsg)
 #' AT = rnorm(400, mean=0.5, sd=1), 
 #' TA = rnorm(400, mean=0.5, sd=1.5))
 #' 
-#' DNFPlot =  plotDinuclContent(diNucDT)
+#' DNFPlot =  plotDinuclFreq(diNucDT)
 #' 
-plotDinuclContent = function(DNFDataTable) {
+plotDinuclFreq = function(DNFDataTable) {
   
-  .validateInputs(list(DNFDataTable=c("matrix", "array", "data.frame", "data.table")))
+  .validateInputs(list(DNFDataTable=c("matrix", "array", 
+                                      "data.frame", "data.table")))
   library(ggplot2)
   g = DNFDataTable
   
   ## for violinplot
   
   g=reshape2::melt(g) 
-  names(g)[names(g)=="variable"]<-"dinucleotide"
-  names(g)[names(g)=="value"]<-"frequency"
-  g$frequency<-as.numeric(g$frequency)
-  g$dinucleotide<-as.character(g$dinucleotide)
-  plot=ggplot(data=g, aes(dinucleotide, frequency)) + geom_violin(scale="width", trim=TRUE) + geom_boxplot(width=0.1, color="grey", alpha=0.2) + coord_flip() + ggtitle("Dinucleotide Frequency") 
+  names(g)[names(g)=="variable"]="dinucleotide"
+  names(g)[names(g)=="value"]="frequency"
+  g$frequency=as.numeric(g$frequency)
+  g$dinucleotide=as.character(g$dinucleotide)
+  plot=ggplot(data=g, aes(dinucleotide, frequency)) + 
+    geom_violin(scale="width", trim=TRUE) + 
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) + 
+    coord_flip() + ggtitle("Dinucleotide Frequency") 
   
   return(plot)
 }
