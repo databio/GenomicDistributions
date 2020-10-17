@@ -15,13 +15,19 @@
 #' }
 
 calcDinuclFreq = function(query, ref) {
+  
   .validateInputs(list(query=c("GRanges","GRangesList"),
                                               ref="BSgenome"))
    if (is(query, "GRangesList")) {
+     
     x = lapply(query, calcdinuclfreq, ref)
+    
     namelist=names(query)
+    
     if (is.null(namelist)){
+      
       newnames=seq_along(query)
+      
       namelist=newnames
       
       names(x)=namelist
@@ -30,6 +36,7 @@ calcDinuclFreq = function(query, ref) {
   }
   
   seqlevels(query, pruning.mode="coarse")=seqlevels(ref)
+  
   v = IRanges::Views(ref, query)
   
   dnvec= as.data.table(Biostrings::dinucleotideFrequency(v))
@@ -37,7 +44,7 @@ calcDinuclFreq = function(query, ref) {
   return(dnvec)
  }
 
-DNF=calcDinuclFreq(query, bsg)
+
 
 #' Plot dinuclotide content over genomic ranges
 #' 
@@ -61,15 +68,21 @@ plotDinuclFreq = function(DNFDataTable) {
   .validateInputs(list(DNFDataTable=c("matrix", "array", 
                                       "data.frame", "data.table")))
   library(ggplot2)
+  
   g = DNFDataTable
   
   ## for violinplot
   
   g=reshape2::melt(g) 
+  
   names(g)[names(g)=="variable"]="dinucleotide"
+  
   names(g)[names(g)=="value"]="frequency"
+  
   g$frequency=as.numeric(g$frequency)
+  
   g$dinucleotide=as.character(g$dinucleotide)
+  
   plot=ggplot(data=g, aes(dinucleotide, frequency)) + 
     geom_violin(scale="width", trim=TRUE) + 
     geom_boxplot(width=0.1, color="grey", alpha=0.2) + 
@@ -78,3 +91,32 @@ plotDinuclFreq = function(DNFDataTable) {
   return(plot)
 }
 
+#' Calculate GC content over genomic ranges
+#' 
+#' Given a reference genome (BSgenome object) and ranges on the
+#' reference, this function returns a data.table with 
+#' counts of dinucleotides within the GRanges object.
+#' 
+#' @param query A GRanges object with query sets
+#' @param refAssembly A character vector specifying the reference genome
+#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
+#'     \code{getTSSs}.
+#' @return A numeric vector or list of vectors with the GC percentage of 
+#'     the query regions.
+#' @export
+#' @examples
+#' \dontrun{
+#' refAssembly = 'hg19'
+#' GCcontent = calcGCContentRef(vistaEnhancers, refAssembly)
+#' } 
+
+calcDinuclFreqRef= function(query, ref) {
+  
+  .validateInputs(list(query=c("GRanges","GRangesList"),
+                       
+                       refAssembly="character"))
+  
+  ref = loadBSgenome(refAssembly)
+  
+  return(calcDinuclFreqRef(query, ref))
+}
