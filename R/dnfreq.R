@@ -67,7 +67,7 @@ plotDinuclFreq = function(DNFDataTable) {
   
   .validateInputs(list(DNFDataTable=c("matrix", "array", 
                                       "data.frame", "data.table")))
-  library(ggplot2)
+  
   
   g = DNFDataTable
   
