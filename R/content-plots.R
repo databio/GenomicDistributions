@@ -123,7 +123,6 @@ calcDinuclFreq = function(query, ref) {
     if (is(query, "GRangesList")) {
         
         x = lapply(query, calcDinuclFreq, ref)
-        
     }
         namelist=names(query)
         
@@ -136,7 +135,7 @@ calcDinuclFreq = function(query, ref) {
             names(x)=namelist
         }
         return(x)
-    }
+    
     
     seqlevels(query, pruning.mode="coarse")=seqlevels(ref)
     
@@ -145,7 +144,7 @@ calcDinuclFreq = function(query, ref) {
     dnvec= as.data.table(Biostrings::dinucleotideFrequency(v))
     
     return(dnvec)
-}
+    }
 
 
 
