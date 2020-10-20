@@ -153,17 +153,17 @@ calcDinuclFreq = function(query, ref) {
 #' Given \code{calcDinuclFreq} results, this function 
 #' generates a violin plot of dinucleotide frequency
 #' 
-#' @param DNF A data.table of dinucleotide counts 
+#' @param DNFDataTable A data.table of dinucleotide counts 
 #' @return A ggplot object plotting distribution of dinucleotide content per dinucleotide
 #' @export
 #' @examples
 #' 
-#' diNucDT = data.table::data.table(GC = rnorm(400, mean=0.5, sd=0.1), 
+#' DNFDataTable = data.table::data.table(GC = rnorm(400, mean=0.5, sd=0.1), 
 #' CG = rnorm(400, mean=0.5, sd=0.5), 
 #' AT = rnorm(400, mean=0.5, sd=1), 
 #' TA = rnorm(400, mean=0.5, sd=1.5))
 #' 
-#' DNFPlot =  plotDinuclFreq(diNucDT)
+#' DNFPlot =  plotDinuclFreq(DNFDataTable)
 #' 
 plotDinuclFreq = function(DNFDataTable) {
     
