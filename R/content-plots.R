@@ -124,6 +124,7 @@ calcDinuclFreq = function(query, ref) {
         
         x = lapply(query, calcDinuclFreq, ref)
         
+    }
         namelist=names(query)
         
         if (is.null(namelist)){
@@ -193,7 +194,7 @@ plotDinuclFreq = function(DNFDataTable) {
     return(plot)
 }
 
-#' Calculate GC content over genomic ranges
+#' Calculate dinucleotide content over genomic ranges
 #' 
 #' Given a reference genome (BSgenome object) and ranges on the
 #' reference, this function returns a data.table with 
@@ -213,7 +214,7 @@ plotDinuclFreq = function(DNFDataTable) {
 #' } 
 
 
-calcDinuclFreqRef= function(query, ref) {
+calcDinuclFreqRef= function(query, refAssembly) {
     
     .validateInputs(list(query=c("GRanges","GRangesList"),
                          
@@ -221,6 +222,6 @@ calcDinuclFreqRef= function(query, ref) {
     
     ref = loadBSgenome(refAssembly)
     
-    return(calcDinuclFreqRef(query, ref))
+    return(calcDinuclFreq(query, ref))
 }
 
