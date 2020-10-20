@@ -122,7 +122,7 @@ calcDinuclFreq = function(query, ref) {
                          ref="BSgenome"))
     if (is(query, "GRangesList")) {
         
-        x = lapply(query, calcdinuclfreq, ref)
+        x = lapply(query, calcDinuclFreq, ref)
         
         namelist=names(query)
         
@@ -211,3 +211,16 @@ plotDinuclFreq = function(DNFDataTable) {
 #' refAssembly = 'hg19'
 #' GCcontent = calcGCContentRef(vistaEnhancers, refAssembly)
 #' } 
+
+
+calcDinuclFreqRef= function(query, ref) {
+    
+    .validateInputs(list(query=c("GRanges","GRangesList"),
+                         
+                         refAssembly="character"))
+    
+    ref = loadBSgenome(refAssembly)
+    
+    return(calcDinuclFreqRef(query, ref))
+}
+
