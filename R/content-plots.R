@@ -158,7 +158,7 @@ calcDinuclFreq = function(query, ref) {
 #' @export
 #' @examples
 #' 
-#' diNucDT = data.table(GC = rnorm(400, mean=0.5, sd=0.1), 
+#' diNucDT = data.table::data.table(GC = rnorm(400, mean=0.5, sd=0.1), 
 #' CG = rnorm(400, mean=0.5, sd=0.5), 
 #' AT = rnorm(400, mean=0.5, sd=1), 
 #' TA = rnorm(400, mean=0.5, sd=1.5))
