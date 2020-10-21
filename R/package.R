@@ -60,7 +60,8 @@ if(getRversion() >= "2.15.1") {
 	"distance", "elementMetadata<-", "elementNROWS", "expected", "log10OE",
 	"pintersect", "plot_labels", "query", "regionGroupID", "seqlevels<-", "size",
 	"tableCount", "V1", "queryPeak", "xid", "yid", "na.omit", "peakName",
-	"mixedVar", "tissue", ".", "Percent", "Var1", "dinucleotide", "frequency"))
+	"mixedVar", "tissue", ".", "Percent", "Var1", "dinucleotide", "frequency", 
+	"boxStats", "cellTypeMetadata", "tissueType"))
 }
 
 
