@@ -23,8 +23,5 @@ This function is a wrapper for \code{calcExpectedPartitions} that uses
 built-in partitions for a given reference genome assembly.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-calcExpectedPartitionsRef(query, "hg19")
+calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 }

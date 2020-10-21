@@ -16,14 +16,15 @@ vignette: >
 knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 ```
 
-NOTE: This vignette is under construction.
-
 In the getting started vignette, we used convenience wrapper functions to explore how your regions are distributed across some common features and partitions in human reference assemblies. That's great if you just want the basics, but really, `GenomicDistributions` is more powerful and flexible, and can run the same analysis on any kind of genomic feature from any reference genome. This vignette will show you how to do this.
 
-But alas, it is not yet finished. So, you'll just have to read the documentation. It's all in there and working, I promise.
+Here, we'll show you how to use your own features:
 
+```{r, eval=TRUE}
+library("GenomicDistributions")
+queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+query = rtracklayer::import(queryFile)
 
-```{r, eval=FALSE}
 EnsDb = loadEnsDb("hg19")
 featsWide = ensembldb::genes(EnsDb, columns=c("gene_biotype"))
 
@@ -32,4 +33,13 @@ feats = promoters(featsWide[featsWide$gene_biotype == "protein_coding"], 1, 1)
 
 # Change from ensembl-style chrom annotation to UCSC_style
 seqlevels(feats) = paste0("chr", seqlevels(feats))
+
+featDist = calcFeatureDist(query, feats)
+
+# Then plot the result:
+plotFeatureDist(featDist, featureName="my features")
+
 ```
+
+More details to come.
+

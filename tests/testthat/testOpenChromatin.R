@@ -3,13 +3,9 @@ library(data.table)
 library(testthat)
 library(GenomicDistributions)
 # data
-exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", 
-                                    package="GenomicDistributions")
-cellMatrix = data.table::fread(exampleCellMatrixFile)
-f = system.file("extdata", "vistaEnhancers.bed.gz", 
-                package="GenomicDistributions")
-query = rtracklayer::import(f)
-querySftd = GenomicRanges::shift(query, 100000)
+cellMatrix = exampleOpenSignalMatrix_hg19
+query = vistaEnhancers
+querySftd = GenomicRanges::shift(query, 100)
 queryList = GRangesList(q1=query, q2=querySftd)
 
 # tests
@@ -25,17 +21,21 @@ test_that("calcOpenSignal works with multiple queries", {
 
 context("result")
 test_that("calcOpenSignal returns a result of a proper class", {
-    expect_true(is(calcOpenSignal(query, cellMatrix), "data.table"))
+    expect_true(is(calcOpenSignal(query, cellMatrix), "list"))
+    expect_true(is(calcOpenSignal(query, cellMatrix)[[1]], "data.table"))
+    expect_true(is(calcOpenSignal(query, cellMatrix)[[2]], "data.frame"))
 })
 
 test_that("calcOpenSignal returns different results for different queries", {
-    expect_false(NROW(calcOpenSignal(query, cellMatrix)) == 
-                     NROW(calcOpenSignal(querySftd, cellMatrix)))
+    expect_false(identical(calcOpenSignal(query, cellMatrix)[[1]], 
+                           calcOpenSignal(querySftd, cellMatrix)[[1]]))
 })
 
 test_that("calcOpenSignal combines results from multi-query runs", {
     ql = GRangesList(q1=query, q2=query)
-    expect_true(NROW(calcOpenSignal(query, cellMatrix))*2 == 
-                    NROW(calcOpenSignal(ql, cellMatrix)))
+    expect_true(NROW(calcOpenSignal(query, cellMatrix)[[1]])*2 == 
+                    NROW(calcOpenSignal(ql, cellMatrix)[[1]]))
+    expect_true(NROW(calcOpenSignal(query, cellMatrix)[[2]])*2 == 
+                  NROW(calcOpenSignal(ql, cellMatrix)[[2]]))
 })
 

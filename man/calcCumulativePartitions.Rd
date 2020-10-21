@@ -30,10 +30,9 @@ There will be a priority order to these, to account for regions that may
 overlap multiple genomic partitions.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-geneModels = getGeneModels("hg38")
-partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
-calcCumulativePartitions(query, partitionList)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+                                    geneModels_hg19$exonsGR,
+                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$fiveUTRGR)
+calcCumulativePartitions(vistaEnhancers, partitionList)
 }

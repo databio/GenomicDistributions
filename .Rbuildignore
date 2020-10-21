@@ -1,0 +1,9 @@
+.git
+.travis.yml
+_pkgdown.yaml
+long_vignettes
+data-raw
+^.*\.Rproj$
+^\.Rproj\.user$
+^doc$
+^Meta$

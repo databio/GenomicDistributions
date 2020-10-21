@@ -2,27 +2,36 @@
 % Please edit documentation in R/partition-plots.R
 \name{genomePartitionList}
 \alias{genomePartitionList}
-\title{Create a basic genome partition list of genes, exons, introns, and 
+\title{Create a basic genome partition list of genes, exons, introns, UTRs, and 
 intergenic}
 \usage{
-genomePartitionList(genesGR, exonsGR)
+genomePartitionList(genesGR, exonsGR, threeUTRGR = NULL, fiveUTRGR = NULL)
 }
 \arguments{
 \item{genesGR}{a GRanges object of gene coordinates}
 
 \item{exonsGR}{a GRanges object of exons coordinates}
+
+\item{threeUTRGR}{a GRanges object of 3' UTRs}
+
+\item{fiveUTRGR}{a GRanges object of 5' UTRs}
 }
 \value{
 A list of GRanges objects, each corresponding to a partition of the 
-genome. Partitions include proximal and core promoters, exons and introns.
+    genome. Partitions include proximal and core promoters, exons and 
+    introns.
 }
 \description{
 Given GRanges for genes, and a GRanges for exons, returns a list of GRanges
 corresponding to various breakdown of the genome, based on the given
-annotations; it gives you proximal and core promoters, exons, and introns. 
-To be used as a partionList for calcPartitions()
+annotations; it gives you proximal and core promoters, exons, and introns.
+}
+\details{
+To be used as a partitionList for \code{calcPartitions}.
 }
 \examples{
-geneModels = getGeneModels("hg38")
-partitionList = genomePartitionList(geneModels$genesGR, geneModels$exonsGR)
+partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+                                    geneModels_hg19$exonsGR,
+                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$fiveUTRGR)
 }

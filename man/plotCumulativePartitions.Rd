@@ -10,17 +10,17 @@ plotCumulativePartitions(assignedPartitions, feature_names = NULL)
 \item{assignedPartitions}{Results from \code{calcCumulativePartitions}}
 
 \item{feature_names}{An optional character vector of feature names, in the 
-same order as the GenomicRanges or GenomicRangesList 
-object.}
+same order as the GenomicRanges or GenomicRangesList object.}
+}
+\value{
+A ggplot object of the cumulative distribution of regions in 
+    features.
 }
 \description{
 This function plots the cumulative distribution of regions across a 
 feature set.
 }
 \examples{
-f = system.file("extdata", "vistaEnhancers.bed.gz",
-    package="GenomicDistributions")
-query = rtracklayer::import(f)
-p = calcCumulativePartitionsRef(query, "hg19")
+p = calcCumulativePartitionsRef(vistaEnhancers, "hg19")
 cumuPlot = plotCumulativePartitions(p)
 }
