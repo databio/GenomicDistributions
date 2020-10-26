@@ -211,7 +211,7 @@ calcDinuclFreq = function(query, ref) {
 
 calcDinuclFreqRef= function(query, refAssembly) {
     
-    GenomicDistributions:::.validateInputs(list(query=c("GRanges","GRangesList"),
+    .validateInputs(list(query=c("GRanges","GRangesList"),
                                                 
                                                 refAssembly="character"))
     
@@ -240,7 +240,7 @@ calcDinuclFreqRef= function(query, refAssembly) {
 
 plotDinuclFreq = function(DNFDataTable) {
     
-    GenomicDistributions:::.validateInputs(list(DNFDataTable=c("matrix", "array", 
+    .validateInputs(list(DNFDataTable=c("matrix", "array", 
                                                                "data.frame", "data.table")))
     
     
