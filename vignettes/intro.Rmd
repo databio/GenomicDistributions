@@ -46,7 +46,9 @@ In GenomicDistributions, each plot type has two functions: a *calculate* functio
 Install `GenomicDistributions` like this:
 
 ```{r, eval=FALSE}
-devtools::install_github("databio/GenomicDistributions")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("GenomicDistributions")
 ```
 
 ## Loading genomic range data
