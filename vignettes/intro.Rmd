@@ -21,7 +21,7 @@ knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
 
 # Introduction to GenomicDistributions
 
-If you have a set of genomic ranges, the GenomicDistributions R package can help you visualize properties of your region set. GenomicDistributions produces these five types of plot:
+If you have a set of genomic ranges, the GenomicDistributions R package can help you visualize properties of your region set. GenomicDistributions produces these nine types of plot:
 
 - *chromosome distribution plot* - visualizes how your regions are distributed over chromosomes
 - *width distribution plot* - visualizes the distribution of range widths
@@ -47,7 +47,9 @@ In GenomicDistributions, each plot type has two functions: a *calculate* functio
 Install `GenomicDistributions` like this:
 
 ```{r, eval=FALSE}
-devtools::install_github("databio/GenomicDistributions")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("GenomicDistributions")
 ```
 
 ## Loading genomic range data
