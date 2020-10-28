@@ -48,7 +48,6 @@ NULL
 # in order to pass some R CMD check NOTES.
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c(
-    "cuts", "mid", "J", "chr", "N", "regionID", "x", "name", "BSFilter", 
 	"start", "end", "findOverlaps", "queryHits", "subjectHits", "buildJ",
 	"seqlengths", "IRanges", "seqlengths", "reduce", "seqlevels", "follow",
 	"trim", "error", "nlist", "aggregate", "median",  "bgDists", "Freq", "bgX",
