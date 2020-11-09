@@ -157,7 +157,7 @@ plotGCContent = function(gcvectors) {
 
 calcDinuclFreq = function(query, ref=bsg) {
     
-    GenomicDistributions:::.validateInputs(list(query=c("GRanges","GRangesList"),
+    .validateInputs(list(query=c("GRanges","GRangesList"),
                                                 ref="BSgenome"))
     if(is.null(ref)){
         ref=bsg
@@ -245,7 +245,7 @@ calcDinuclFreqRef= function(query, refAssembly) {
 
 plotDinuclFreq = function(DNFDataTable) {
     
-    GenomicDistributions:::.validateInputs(list(DNFDataTable=c("matrix", "array", 
+    .validateInputs(list(DNFDataTable=c("matrix", "array", 
                                                                "data.frame", "data.table", "GRanges","GRangesList")))
     if(is(DNFDataTable, "data.frame")) {
         
