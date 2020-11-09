@@ -155,18 +155,23 @@ plotGCContent = function(gcvectors) {
 #' DNF = calcDinuclFreq(vistaEnhancers, bsg)
 #' }
 
-calcDinuclFreq = function(query, ref) {
+calcDinuclFreq = function(query, ref=bsg) {
     
-    .validateInputs(list(query=c("GRanges","GRangesList"),
-                         ref="BSgenome"))
+    GenomicDistributions:::.validateInputs(list(query=c("GRanges","GRangesList"),
+                                                ref="BSgenome"))
+    if(is.null(ref)){
+        ref=bsg
+    }
     if (is(query, "GRangesList")) {
         
         # Recurse over each GRanges object
         
         x = lapply(query, calcDinuclFreq, ref)
         
-        namelist = names(query)
+        x=as.data.frame(x)
         
+        namelist = names(query)
+        colnames(x)=gsub("vistaEnhancers.", "", colnames(x))
         if (is.null(namelist)) {
             
             newnames = seq_along(query)
@@ -183,9 +188,9 @@ calcDinuclFreq = function(query, ref) {
     
     v = IRanges::Views(ref, query)
     
-    DNFdf= data.table::as.data.table(Biostrings::dinucleotideFrequency(v))
+    dnvec= as.data.frame(Biostrings::dinucleotideFrequency(v))
     
-    return(DNFdf)
+    return(dnvec)
 }
 
 #' Calculate dinucleotide content over genomic ranges
@@ -240,29 +245,57 @@ calcDinuclFreqRef= function(query, refAssembly) {
 
 plotDinuclFreq = function(DNFDataTable) {
     
-    .validateInputs(list(DNFDataTable=c("matrix", "array", 
-                                                               "data.frame", "data.table")))
+    GenomicDistributions:::.validateInputs(list(DNFDataTable=c("matrix", "array", 
+                                                               "data.frame", "data.table", "GRanges","GRangesList")))
+    if(is(DNFDataTable, "data.frame")) {
+        
+        g = data.table::as.data.table(DNFDataTable)
+        
+        ## for violinplot
+        
+        g=reshape2::melt(g) 
+        
+        names(g)[names(g)=="variable"]="dinucleotide"
+        
+        names(g)[names(g)=="value"]="frequency"
+        
+        g$frequency=as.numeric(g$frequency)
+        
+        g$dinucleotide=as.character(g$dinucleotide)
+        
+        plot=ggplot2::ggplot(data=g, ggplot2::aes(dinucleotide, frequency))+
+            ggplot2::geom_violin(scale="width", trim=TRUE)+
+            ggplot2::geom_boxplot(width=0.1, color="grey", alpha=0.2)+
+            ggplot2::coord_flip()+
+            ggplot2::ggtitle("Dinucleotide Frequency") 
+        
+        return(plot)
+        
+    } else {
+        DNFDataTable=calcDinuclFreq(DNFDataTable)
+        
+        g = data.table::as.data.table(DNFDataTable)
+        
+        ## for violinplot
+        
+        g=reshape2::melt(g) 
+        
+        names(g)[names(g)=="variable"]="dinucleotide"
+        
+        names(g)[names(g)=="value"]="frequency"
+        
+        g$frequency=as.numeric(g$frequency)
+        
+        g$dinucleotide=as.character(g$dinucleotide)
+        
+        plot=ggplot2::ggplot(data=g, ggplot2::aes(dinucleotide, frequency))+
+            ggplot2::geom_violin(scale="width", trim=TRUE)+
+            ggplot2::geom_boxplot(width=0.1, color="grey", alpha=0.2)+
+            ggplot2::coord_flip()+
+            ggplot2::ggtitle("Dinucleotide Frequency") 
+        
+        return(plot)
+    }
     
     
-    g = DNFDataTable
-    
-    ## for violinplot
-    
-    g=reshape2::melt(g) 
-    
-    names(g)[names(g)=="variable"]="dinucleotide"
-    
-    names(g)[names(g)=="value"]="frequency"
-    
-    g$frequency=as.numeric(g$frequency)
-    
-    g$dinucleotide=as.character(g$dinucleotide)
-    
-    plot=ggplot2::ggplot(data=g, ggplot2::aes(dinucleotide, frequency))+
-        ggplot2::geom_violin(scale="width", trim=TRUE)+
-        ggplot2::geom_boxplot(width=0.1, color="grey", alpha=0.2)+
-        ggplot2::coord_flip()+
-        ggplot2::ggtitle("Dinucleotide Frequency") 
-    
-    return(plot)
 }
