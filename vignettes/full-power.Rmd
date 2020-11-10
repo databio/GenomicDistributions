@@ -24,8 +24,15 @@ This vignette shows how to use GenomicDistributions of full-size data. It is pre
 if (!requireNamespace("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
 BiocManager::install("GenomicDistributions")
+BiocManager::install("GenomicDistributionsData")
+```
+Or alternatively you can install from GitHub: 
+
+```r
+devtools::install_github("databio/GenomicDistributions")
 install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.2.tar.gz", repos=NULL)
 ```
+
 Here we'll load up the libraries needed for this vignette:
 
 
