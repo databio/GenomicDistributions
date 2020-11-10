@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2020-05-22"
+date: "2020-10-02"
 output: 
   html_document:
     theme: sandstone
@@ -24,8 +24,15 @@ This vignette shows how to use GenomicDistributions of full-size data. It is pre
 if (!requireNamespace("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
 BiocManager::install("GenomicDistributions")
-install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
+BiocManager::install("GenomicDistributionsData")
 ```
+Or alternatively you can install from GitHub: 
+
+```r
+devtools::install_github("databio/GenomicDistributions")
+install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.2.tar.gz", repos=NULL)
+```
+
 Here we'll load up the libraries needed for this vignette:
 
 
@@ -48,9 +55,9 @@ datasetList
 ```
 
 ```
-## [1] "TSS_hg19"              "TSS_hg38"              "chromSizes_hg19"      
-## [4] "chromSizes_hg38"       "geneModels_hg19"       "geneModels_hg38"      
-## [7] "openSignalMatrix_hg19" "openSignalMatrix_hg38"
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"     
+##  [6] "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"      
+## [11] "geneModels_hg38"       "geneModels_mm10"       "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38"
 ```
 
 With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 

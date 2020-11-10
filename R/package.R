@@ -60,7 +60,8 @@ if(getRversion() >= "2.15.1") {
     "countOverlaps", "distance", "elementMetadata<-", "elementNROWS", 
     "expected", "log10OE", "pintersect", "plot_labels", "query", 
     "regionGroupID", "seqlevels<-", "size", "tableCount", "V1", "queryPeak", 
-    "xid", "yid", "na.omit", "peakName", "mixedVar", 
+    "xid", "yid", "na.omit", "peakName", "mixedVar",
+    "cellTypeMetadata", "tissueType", "boxStats",
     "tissue", ".", "Percent", "Var1"))
 }
 

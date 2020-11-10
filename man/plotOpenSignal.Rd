@@ -6,7 +6,7 @@
 calcOpenSignal.}
 \usage{
 plotOpenSignal(
-  signalMatrix,
+  openRegionSummary,
   plotType = "barPlot",
   cellGroup = NA,
   cellTypeMetadata = NA,
@@ -16,15 +16,15 @@ plotOpenSignal(
 )
 }
 \arguments{
-\item{signalMatrix}{Output data.table from \code{calcOpenSignal} function.}
+\item{openRegionSummary}{Output list from \code{calcOpenSignal} function.}
 
 \item{plotType}{Options are: jitter - jitter plot with box plot on top
 boxPlot - box plot without individual points and outliers
 barPlot (default) - bar height represents the median signal value
 for a given cell type.}
 
-\item{cellGroup}{- This option allows to selcet a group of cells to be 
-plotted, if NA (default) all available cell groups are ploted, 
+\item{cellGroup}{- This option allows to selcet a tissue type to be 
+plotted, if NA (default) all available tissue types are ploted, 
 available options: {"blood", "bone", "CNS", "embryonic", "eye", 
 "foreskin", "gastrointestinal", "heart", "liver", "lymphatic", 
 "mammaryGland", "mouth", "respiratorySystem", "skeletalMuscle",
@@ -34,11 +34,11 @@ character string or vector of strings.}
 \item{cellTypeMetadata}{Metadata for cell type - tissue association. This
 option is for users, who provide their own open region signal 
 matrix. The cellTypeMetadata matrix must contain two columns called
-cellType and tissue. cellType column containes the cell type names 
-in the provided signalMatrix column names. The tissue columns 
+cellType and tissueType. cellType column containes the cell type names 
+in the provided signalMatrix column names. The tissueType columns 
 provides an information, which tissue the cell type comes from.}
 
-\item{colorScheme}{Provide color values for each tissue if you want to 
+\item{colorScheme}{Provide color values for each tissueType if you want to 
 change the default colors.}
 }
 \value{
@@ -50,9 +50,9 @@ calcOpenSignal.
 }
 \examples{
 \dontrun{
-signalMatrix = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
-plotSignal = plotOpenSignal(signalMatrix)
-plotSignal = plotOpenSignal(signalMatrix, plotType = "jitter", 
+openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
+plotSignal = plotOpenSignal(openRegionSummary)
+plotSignal = plotOpenSignal(openRegionSummary, plotType = "jitter", 
 cellGroup = "blood")
 }
 }

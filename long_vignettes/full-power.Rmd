@@ -27,8 +27,17 @@ knitr::opts_chunk$set(fig.width=10, fig.height=7)
 This vignette shows how to use GenomicDistributions of full-size data. It is pre-computed. Here's what you need to have installed:
 
 ```{r, install, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("GenomicDistributions")
+BiocManager::install("GenomicDistributionsData")
+```
+
+Or alternatively you can install from GitHub: 
+
+```{r, install, eval=FALSE}
 devtools::install_github("databio/GenomicDistributions")
-install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.1.tar.gz", repos=NULL)
+install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.2.tar.gz", repos=NULL)
 ```
 Here we'll load up the libraries needed for this vignette:
 
