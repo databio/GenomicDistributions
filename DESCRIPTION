@@ -1,6 +1,6 @@
 Package: GenomicDistributions
-Version: 0.99.3
-Date: 2020-11-16
+Version: 0.99.4
+Date: 2021-2-9
 Title: Produces Summaries and Plots of Features Distributed Across Genomes
 Description: If you have a set of genomic ranges, this package can help you with
  visualization and comparison. It produces several kinds of plots, for example:
