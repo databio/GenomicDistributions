@@ -159,6 +159,8 @@ genomeLabel = function(x) {
 #' @param infBins Include catch-all bins on the sides?
 #' @param tile Turn on a tile mode, which plots a tiled figure 
 #'     instead of a histogram.
+#' @param labelOrder -- Enter "default" to order by order of user input (default); 
+#' Enter TSS to order by closest proximity to the TSS in descending order (TSS)
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
@@ -166,11 +168,9 @@ genomeLabel = function(x) {
 #' f = plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
                            numbers=FALSE, nbins=50, size=100000, 
-                           infBins=FALSE, tile=FALSE) {
+                           infBins=FALSE, tile=FALSE, labelOrder = "default") {
     df = cutDists(dists, divisions=NULL, nbins, size, infBins)
     
-    # We could scale
-    # df$Freq = scale(df$Freq, center=FALSE)
     if(is.list(dists)){
         nplots = length(dists)
     } else {
@@ -185,11 +185,14 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
         df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
     }
 
+    
     if ("name" %in% names(df)){
+        df$name = sortingFunction(df, labelOrder, nbins)
         if (!numbers)
             df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
                          by = name]$"Freq.Per"
             # It has multiple regions
+            df$name = sortingFunction(df, labelOrder, nbins)
             g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
            facet_grid(. ~name)
     } else {
@@ -257,6 +260,39 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
     return(g)
 }
 
+# Internal helper function for \code{plotFeatureDist}
+#
+# @param dists A vector of genomic distances.
+# @param divisions A vector of bin sizes to divide the dists into.
+# @param nbins Number of bins on each side of the center point.
+# @param size Number of bases to include in plot on 
+# each side of the center point.
+# @param infBins Include catch-all bins on the sides?
+# @return A data.frame of the table of the frequency of dists in divisions.
+
+sortingFunction = function(df, labelOrder = "default", nbins = 50){
+    if(labelOrder == "default"){
+        orderedLabels = unique(df$name)
+        orderedNames = factor(df$name, levels = orderedLabels)
+        return(orderedNames)
+    }
+    if (labelOrder == "TSS"){
+        temp = df[df$cuts == "0 to 2,000",]
+        orderedLabels = temp[order(temp$Freq, decreasing = TRUE), ]$name
+        orderedNames = factor(df$name, levels = orderedLabels)
+        return(orderedNames)
+        
+        # To make it based on the bins, I wasn't sure how to alternate by nbins + 1 without a for loop...
+        # middleVal = nbins + 1
+        # for (i in df$Freq){
+        # orderedLabels = type(df[rev(order(df$Freq[i])),]$name #row index )
+        # i <= middleVal + middleVal
+        }
+
+    }
+
+}
+
 
 # Internal helper function for \code{plotFeatureDist}
 #
@@ -298,3 +334,4 @@ cutDists = function(dists, divisions=NULL, nbins=50,
     df = as.data.frame(table(cuts))
     return(df)
 }
+
