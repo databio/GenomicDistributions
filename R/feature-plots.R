@@ -282,11 +282,6 @@ sortingFunction = function(df, labelOrder = "default", nbins = 50){
         orderedNames = factor(df$name, levels = orderedLabels)
         return(orderedNames)
         
-        # To make it based on the bins, I wasn't sure how to alternate by nbins + 1 without a for loop...
-        # middleVal = nbins + 1
-        # for (i in df$Freq){
-        # orderedLabels = type(df[rev(order(df$Freq[i])),]$name #row index )
-        # i <= middleVal + middleVal
         }
 
     }
