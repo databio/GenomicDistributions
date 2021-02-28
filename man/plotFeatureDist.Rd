@@ -12,7 +12,8 @@ plotFeatureDist(
   nbins = 50,
   size = 1e+05,
   infBins = FALSE,
-  tile = FALSE
+  tile = FALSE,
+  labelOrder = "default"
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ center point.}
 
 \item{tile}{Turn on a tile mode, which plots a tiled figure 
 instead of a histogram.}
+
+\item{labelOrder}{-- Enter "default" to order by order of user input (default); 
+Enter TSS to order by closest proximity to the TSS in descending order (TSS)}
 }
 \value{
 A ggplot2 plot object

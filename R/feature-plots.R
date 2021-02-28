@@ -277,7 +277,9 @@ sortingFunction = function(df, labelOrder = "default", nbins = 50){
         return(orderedNames)
     }
     if (labelOrder == "TSS"){
-        temp = df[df$cuts == "0 to 2,000",]
+        totalBedFiles = length(bedpaths)
+        val = seq(round(nbins/2), nbins*totalBedFiles, by = nbins)
+        temp = df[val]
         orderedLabels = temp[order(temp$Freq, decreasing = TRUE), ]$name
         orderedNames = factor(df$name, levels = orderedLabels)
         return(orderedNames)
