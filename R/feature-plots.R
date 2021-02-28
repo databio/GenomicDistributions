@@ -278,17 +278,22 @@ sortingFunction = function(df, labelOrder = "default", nbins = 50){
     }
     if (labelOrder == "TSS"){
         totalBedFiles = length(bedpaths)
-        val = seq(round(nbins/2), nbins*totalBedFiles, by = nbins)
+        val = seq(round(nbins), nbins*totalBedFiles, by = nbins)
+        print(val)
+        print(df)
         temp = df[val]
+        print(temp)
+        #print(df)
         orderedLabels = temp[order(temp$Freq, decreasing = TRUE), ]$name
-        orderedNames = factor(df$name, levels = orderedLabels)
+        print(orderedLabels)
+        #print(df$name)
+        orderedNames = factor(df$name, levels = unique(orderedLabels))
+        #print(orderedNames)
         return(orderedNames)
         
         }
 
     }
-
-}
 
 
 # Internal helper function for \code{plotFeatureDist}
