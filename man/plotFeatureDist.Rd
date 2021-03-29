@@ -38,8 +38,8 @@ center point.}
 instead of a histogram.}
 
 \item{labelOrder}{-- Enter "default" to order by order of user input (default); 
- Enter TSS to order by value in tile in the closest proximity to the TSS
-in descending order (TSS)}
+Enter "center" to order by value in tile in the closest proximity to the center 
+of features (in case TSS is used - center is TSS) (center).}
 }
 \value{
 A ggplot2 plot object

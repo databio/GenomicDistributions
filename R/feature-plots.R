@@ -267,7 +267,10 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
 # @param df A data.table with varibales "cuts" - based on created bins in 
 #    \code{plotFeatureDist} function , "Freq" - either frequency or raw 
 #   counts in aa given bin, "name" - name of the dataset
-# @param labelOrder A vector of bin sizes to divide the dists into.
+# @param labelOrder The method used to order datasets. Options: "default"
+#    orderes datasets in a plot based on order of datasets in GRangesList
+#    provided by user; "center" orderes datasets based on value in a central 
+#    bin of the plot.
 # @param nbins Number of bins on each side of the center point - input in 
 #    \code{plotFeatureDist} function.
 # @return A factor of names in "df" input with levels sorted based on 
@@ -280,9 +283,10 @@ sortingFunction = function(df, labelOrder="default", nbins=50){
         return(orderedNames)
     }
     if (labelOrder == "center"){
-      # get the value around center
-        val = seq(nbins, nrow(df), by = (nbins*2))
-        centerTiles = df[val,]
+      # get the value around center, sort lables based on 
+      # central values, use the labels as factor levels
+        centerIndex = seq(nbins, nrow(df), by = (nbins*2))
+        centerTiles = df[centerIndex,]
         orderTiles = centerTiles[order(centerTiles$Freq, decreasing = TRUE),]
         orderedLabels = orderTiles$name
         orderedNames = factor(df$name, levels = orderedLabels)
