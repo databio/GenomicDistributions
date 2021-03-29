@@ -160,7 +160,8 @@ genomeLabel = function(x) {
 #' @param tile Turn on a tile mode, which plots a tiled figure 
 #'     instead of a histogram.
 #' @param labelOrder -- Enter "default" to order by order of user input (default); 
-#' Enter TSS to order by closest proximity to the TSS in descending order (TSS)
+#'     Enter TSS to order by value in tile in the closest proximity to the TSS
+#'    in descending order (TSS)
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
@@ -168,7 +169,7 @@ genomeLabel = function(x) {
 #' f = plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
                            numbers=FALSE, nbins=50, size=100000, 
-                           infBins=FALSE, tile=FALSE, labelOrder = "default") {
+                           infBins=FALSE, tile=FALSE, labelOrder="default") {
     df = cutDists(dists, divisions=NULL, nbins, size, infBins)
     
     if(is.list(dists)){
