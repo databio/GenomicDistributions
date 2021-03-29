@@ -160,8 +160,8 @@ genomeLabel = function(x) {
 #' @param tile Turn on a tile mode, which plots a tiled figure 
 #'     instead of a histogram.
 #' @param labelOrder -- Enter "default" to order by order of user input (default); 
-#'     Enter TSS to order by value in tile in the closest proximity to the TSS
-#'    in descending order (TSS)
+#'     Enter "center" to order by value in tile in the closest proximity to the center 
+#'     of features (in case TSS is used - center is TSS) (center).
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
@@ -185,15 +185,14 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
         df$bgFreq = rep(bgDistsDF$Freq, nplots)
         df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
     }
-
     
     if ("name" %in% names(df)){
         df$name = sortingFunction(df, labelOrder, nbins)
         if (!numbers)
             df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
                          by = name]$"Freq.Per"
-            # It has multiple regions
             df$name = sortingFunction(df, labelOrder, nbins)
+            # It has multiple regions
             g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
            facet_grid(. ~name)
     } else {
@@ -261,27 +260,32 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
     return(g)
 }
 
-# Internal helper function for \code{plotFeatureDist}
+# Internal helper function for \code{plotFeatureDist}:
+# orderes datasets based on their order in the user provided list,
+# or based on the value around feature center (in TSS based on TSS)
 #
-# @param dists A vector of genomic distances.
-# @param divisions A vector of bin sizes to divide the dists into.
-# @param nbins Number of bins on each side of the center point.
-# @param size Number of bases to include in plot on 
-# each side of the center point.
-# @param infBins Include catch-all bins on the sides?
-# @return A data.frame of the table of the frequency of dists in divisions.
+# @param df A data.table with varibales "cuts" - based on created bins in 
+#    \code{plotFeatureDist} function , "Freq" - either frequency or raw 
+#   counts in aa given bin, "name" - name of the dataset
+# @param labelOrder A vector of bin sizes to divide the dists into.
+# @param nbins Number of bins on each side of the center point - input in 
+#    \code{plotFeatureDist} function.
+# @return A factor of names in "df" input with levels sorted based on 
+#    sorting option.
 
-sortingFunction = function(df, labelOrder = "default", nbins = 50){
+sortingFunction = function(df, labelOrder="default", nbins=50){
     if(labelOrder == "default"){
         orderedLabels = unique(df$name)
         orderedNames = factor(df$name, levels = orderedLabels)
         return(orderedNames)
     }
-    if (labelOrder == "TSS"){
-        val = seq(round(nbins/2), nbins*nrow(df), by = nbins)
-        temp = df[val]
-        orderedLabels = temp[order(temp$Freq, decreasing = TRUE), ]$name
-        orderedNames = factor(df$name, levels = unique(orderedLabels))
+    if (labelOrder == "center"){
+      # get the value around center
+        val = seq(nbins, nrow(df), by = (nbins*2))
+        centerTiles = df[val,]
+        orderTiles = centerTiles[order(centerTiles$Freq, decreasing = TRUE),]
+        orderedLabels = orderTiles$name
+        orderedNames = factor(df$name, levels = orderedLabels)
         return(orderedNames)
         
     }
