@@ -33,6 +33,7 @@ Imports:
     methods,
     utils,
     Biostrings,
+    plyr
 Suggests:
     AnnotationFilter,
     rtracklayer,
