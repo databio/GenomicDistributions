@@ -52,6 +52,12 @@ install.packages("BiocManager")
 BiocManager::install("GenomicDistributions")
 ```
 
+Or alternatively you can install from GitHub: 
+
+```{r, install, eval=FALSE}
+devtools::install_github("databio/GenomicDistributions")
+```
+
 ## Loading genomic range data
 
 Start by loading up the package and getting your query set of regions as a GenomicRanges object. I've included an example bed file to demonstrate how these plots look. You can load it up like this:
@@ -205,7 +211,9 @@ If you want to see how your regions are distributed among other partitions, like
 
 One feature we are often interested in is the tissue specificity of a set of genomic ranges. To visualize this, GenomicDistributions provides functions to calculate and plot the tissue specificity. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix. This matrix should contain a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest. 
 
-We have produced example reference data matrixes based on ENCODE accessibility information, which can be downloaded from [big.databio.org](http://big.databio.org/open_chromatin_matrix/). Here, we'll demonstrate how this works with some tiny built-in example reference data.
+We have produced example reference data matrixes based on ENCODE accessibility information, which can be downloaded from [big.databio.org](http://big.databio.org/open_chromatin_matrix/). Here, we'll demonstrate how this works with some tiny built-in example reference data. For examples of use with the full size matrix see [full-power vignette](http://code.databio.org/GenomicDistributions/articles/full-power.html).
+
+In this example we show bar plots with median of signal values across regions being plotted. Otherr offered plotting options are jitter plot showing all signal values across query regions, box plot, and violin plot (with indicated medians).
 
 ```{r specificity-plot-single, fig.height = 6, fig.cap="Specificity of chromatin accessibility across cell types."}
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
@@ -219,6 +227,9 @@ To plot multiple datasets at a time:
 op2 = calcOpenSignal(queryList, cellMatrix)
 plotOpenSignal(op2)
 ```
+
+
+
 
 ## Neighboring regions distance plots
 
