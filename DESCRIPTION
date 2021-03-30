@@ -1,7 +1,7 @@
 Package: GenomicDistributions
-Version: 0.99.4
-Date: 2021-2-9
-Title: Produces Summaries and Plots of Features Distributed Across Genomes
+Version: 0.99.5
+Date: 2021-3-30
+Title: GenomicDistributions: fast analysis of genomic intervals with Bioconductor
 Description: If you have a set of genomic ranges, this package can help you with
  visualization and comparison. It produces several kinds of plots, for example:
  Chromosome distribution plots, which visualize how your regions are distributed
@@ -12,8 +12,6 @@ Description: If you have a set of genomic ranges, this package can help you with
  exons, or intergenic regions. It also makes it easy to compare one set of
  ranges to another.
 Authors@R: c(
-	person(given=c("Nathan", "C."), "Sheffield",
-	email = "nathan@code.databio.org", role="aut"),
 	  person("Kristyna", "Kupkova", role=c("aut", "cre"), 
     email = "kristynakupkova@gmail.com"),
     person("Jose", "Verdezoto", role="aut"),
@@ -21,7 +19,9 @@ Authors@R: c(
     person("John", "Lawson", role="ctb"),
     person("Jose", "Verdezoto", role="ctb"),
     person("Michal", "Stolarczyk", role="ctb"),
-    person("Jason", "Smith", role="ctb"))
+    person("Jason", "Smith", role="ctb"),
+    person(given=c("Nathan", "C."), "Sheffield",
+    email = "nathan@code.databio.org", role="aut"))
 Depends:
     R (>= 4.0),
     IRanges,

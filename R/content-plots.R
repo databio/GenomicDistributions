@@ -102,7 +102,7 @@ plotGCContent = function(gcvectors) {
     g = g + 
         ggtitle("GC content distribution") + 
         theme(plot.title = element_text(hjust=0.5)) +
-        xlab("gc %") + 
+        xlab("GC content") + 
         xlim(0,1) 
     return(g)
 }
