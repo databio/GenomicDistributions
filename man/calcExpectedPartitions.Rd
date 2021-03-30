@@ -9,7 +9,7 @@ calcExpectedPartitions(
   query,
   partitionList,
   genomeSize = NULL,
-  remainder = "Intergenic"
+  remainder = "intergenic"
 )
 }
 \arguments{

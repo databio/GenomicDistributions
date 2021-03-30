@@ -228,66 +228,84 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #' genomeSize = sum(chromSizes)
 #' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
 calcExpectedPartitions = function(query, partitionList,
-                                  genomeSize=NULL, remainder="Intergenic") {
-    .validateInputs(list(query=c("GRanges", "GRangesList"), 
-                         partitionList="list"))
-    if (methods::is(query, c("GRangesList"))) {
-        # Recurse over each GRanges object
-        x = lapply(query, calcExpectedPartitions, partitionList,
-                   genomeSize, remainder)
-        nameList = names(query)
-        if(is.null(nameList)) {
-            nameList = seq_along(query) # Fallback to sequential numbers
-        }
-        # Append names
-        xb = data.table::rbindlist(x)
-        xb$name = rep(nameList, vapply(x, nrow, integer(1)))
-        return(xb)
+                                  genomeSize=NULL, remainder="intergenic") {
+  .validateInputs(list(query=c("GRanges", "GRangesList"), 
+                       partitionList="list"))
+  if (methods::is(query, c("GRangesList"))) {
+    # Recurse over each GRanges object
+    x = lapply(query, calcExpectedPartitions, partitionList,
+               genomeSize, remainder)
+    nameList = names(query)
+    if(is.null(nameList)) {
+      nameList = seq_along(query) # Fallback to sequential numbers
     }
-    #Overlap each of the partition list.
-    partitionNames = names(partitionList)
-    #expected scaled by number of regions in query
-    query_total = length(query)
-    partitionCounts = data.table::data.table(
-        data.frame(N=(elementNROWS(partitionList)/
-                      sum(elementNROWS(partitionList))*query_total)),
-        keep.rownames="partition")
-    if (!is.null(genomeSize)) {
-        # Calculate remainder
-        partitionCounts = rbind(partitionCounts,
-            data.table::data.table(partition=remainder,
-                                   N=((genomeSize-sum(partitionCounts$N))/
-                                       genomeSize)*query_total))
-    }
-    partitionCounts = partitionCounts[order(partitionCounts$partition)]
-    partition = rep(0, length(query))
-    for (pi in seq_along(partitionList)) {
-        #message(partitionNames[pi],":")
-        ol = suppressWarnings(
-            countOverlaps(query[partition==0], partitionList[[pi]]))
-        #message("\tfound ", sum(ol>0))
-        partition[partition==0][ol > 0] = partitionNames[pi]
-    }
-    # Remove remainder
-    if (!is.null(genomeSize)) {
-        #message(remainder,":")
-        count = length(partition[partition=="0"])
-        partition[partition=="0"] = remainder
-        #message("\tfound ", count)
-        partitionNames = c(partitionNames, remainder)
-    } else {
-        partition = partition[!partition=="0"]
-    }
-    tpartition = table(partition)
-    expectedPartitions = data.table::data.table(
-        partition=factor(names(tpartition)), observed=as.vector(tpartition))
-    expectedPartitions = merge(expectedPartitions, partitionCounts,
-                               by = "partition")
-    data.table::setnames(expectedPartitions,"N","expected")
-    expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
+    # Append names
+    xb = data.table::rbindlist(x)
+    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+    return(xb)
+  }
+  
+  # Get expected partitions - total number of bp each element
+  # contributes to the genome 
+  #(intron = gene - (exon + 3'UTR + 5'UTR))
+  #intergenic = genomeSize - other
+  partitionNames = names(partitionList)
+  query_total = length(query)
+  
+  widths = lapply(partitionList, width)
+  elements_total = lapply(widths, sum)
+  
+  elements_total$promoterProx = elements_total$promoterProx - 
+    elements_total$promoterCore
+  
+  elements_total$intron = elements_total$intron - 
+    (elements_total$exon + 
+       elements_total$threeUTR + 
+       elements_total$fiveUTR)
+  
+  partitionCounts = data.table::data.table(
+    plyr::ldply(elements_total, data.frame))
+  colnames(partitionCounts) = c("partition", "N")
+  
+  
+  if (!is.null(genomeSize)) {
+    # Calculate remainder
+    partitionCounts = rbind(partitionCounts,
+                            data.table::data.table(partition=remainder,
+                                                   N=(genomeSize-sum(partitionCounts$N))))
+  }
+  
+  partitionCounts$N = partitionCounts$N / genomeSize * query_total
+  
+  partitionCounts = partitionCounts[order(partitionCounts$partition)]
+  partition = rep(0, length(query))
+  for (pi in seq_along(partitionList)) {
+    #message(partitionNames[pi],":")
+    ol = suppressWarnings(
+      countOverlaps(query[partition==0], partitionList[[pi]]))
+    #message("\tfound ", sum(ol>0))
+    partition[partition==0][ol > 0] = partitionNames[pi]
+  }
+  # Remove remainder
+  if (!is.null(genomeSize)) {
+    #message(remainder,":")
+    count = length(partition[partition=="0"])
+    partition[partition=="0"] = remainder
+    #message("\tfound ", count)
+    partitionNames = c(partitionNames, remainder)
+  } else {
+    partition = partition[!partition=="0"]
+  }
+  tpartition = table(partition)
+  expectedPartitions = data.table::data.table(
+    partition=factor(names(tpartition)), observed=as.vector(tpartition))
+  expectedPartitions = merge(expectedPartitions, partitionCounts,
+                             by = "partition")
+  data.table::setnames(expectedPartitions,"N","expected")
+  expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
-    return(expectedPartitions[match(partitionNames,
-           expectedPartitions$partition),])
+  return(expectedPartitions[match(partitionNames,
+                                  expectedPartitions$partition),])
 }
 
 
