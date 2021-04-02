@@ -150,7 +150,7 @@ plotOpenSignal = function(openRegionSummary,
     
   } else if (plotType == "violinPlot"){
     
-    violinPlot = OpenSignalViolinPlot(plotBoxStats, myLabels, colorScheme)
+    violinPlot = OpenSignalViolinPlot(plotSignalMatrix,plotBoxStats, myLabels, colorScheme)
     return(violinPlot)
     
   } else {
