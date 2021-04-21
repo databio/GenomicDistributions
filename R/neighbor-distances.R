@@ -77,10 +77,10 @@ plotNeighborDist = function(dcvec) {
     if (is(dcvec, "list")){
       nameList = names(dcvec)
       vectorLengths = unlist(lapply(dcvec, length))
-      gcdfReshaped = data.frame(value = unlist(dcvec),
+      distReshaped = data.frame(value = unlist(dcvec),
                               regionSet = rep(nameList, vectorLengths))
     } else {
-      gcdfReshaped = data.frame(value = dcvec)
+      distReshaped = data.frame(value = dcvec)
     }
   
     if (is(dcvec, "list")) {
