@@ -71,9 +71,18 @@ neighbordt = function(querydt)  {
 #' d = plotNeighborDist(numVector)
 plotNeighborDist = function(dcvec) {
     .validateInputs(list(dcvec=c("numeric","list")))
-    distdf = lapply(dcvec, as.data.frame)
-    distReshaped = reshape2::melt(distdf, id.vars=NULL)
-    colnames(distReshaped)[colnames(distReshaped) == "L1"] = "regionSet"
+    # if input is list, conver it to a data frame with 
+    # value and region set name, if input is vector - make a single
+    # columns data.frame
+    if (is(dcvec, "list")){
+      nameList = names(dcvec)
+      vectorLengths = unlist(lapply(dcvec, length))
+      gcdfReshaped = data.frame(value = unlist(dcvec),
+                              regionSet = rep(nameList, vectorLengths))
+    } else {
+      gcdfReshaped = data.frame(value = dcvec)
+    }
+  
     if (is(dcvec, "list")) {
         g = ggplot2::ggplot(distReshaped, aes(x=value, 
                                               fill=regionSet, 
