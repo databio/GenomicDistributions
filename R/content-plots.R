@@ -77,14 +77,12 @@ calcGCContentRef = function(query, refAssembly) {
 #' 
 plotGCContent = function(gcvectors) {
     .validateInputs(list(gcvectors=c("numeric", "list")))
+
     if (is(gcvectors, "list")) {
-        gcdfReshaped = data.frame()
-        gcvectorsNames = names(gcvectors)
-        for(gcvectorName in gcvectorsNames){
-            tempDf = data.frame("regionSet" = gcvectorName, 
-                                "value" = gcvectors[[gcvectorName]])
-            gcdfReshaped = rbind(gcdfReshaped, tempDf)
-        }
+        nameList = names(gcvectors)
+        vectorLengths = unlist(lapply(gcvectors, length))
+        gcdfReshaped = data.frame(value = unlist(gcvectors),
+                                  regionSet = rep(nameList, vectorLengths))
         meansdf = aggregate(gcdfReshaped$value, 
                             list(gcdfReshaped$regionSet), mean)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=regionSet)) +
@@ -95,8 +93,7 @@ plotGCContent = function(gcvectors) {
         theme(legend.position = "bottom")
     } else {
         # plot a single regionset
-        gcdfReshaped = data.frame("regionSet" = seq(1, length(gcvectors)), 
-                                  "value" = gcvectors)
+        gcdfReshaped = data.frame(value = gcvectors)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
         geom_density() + 
         geom_vline(aes(xintercept=mean(value)),
