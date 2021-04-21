@@ -73,25 +73,16 @@ calcGCContentRef = function(query, refAssembly) {
 #' GCplot = plotGCContent(numVector)
 #' vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), 
 #'             example2 = rnorm(600, mean=0.5, sd=0.1))
-#' GCplot = plotGCContent(numVector)
+#' GCplot = plotGCContent(vecs)
 #' 
 plotGCContent = function(gcvectors) {
-    .validateInputs(list(gcvectors=c("numeric","list")))
-  
-  # if input is list, conver it to a data frame with 
-  # value and region set name, if input is vector - make a single
-  # columns data.frame
-  if (is(gcvectors, "list")){
-    nameList = names(gcvectors)
-    vectorLengths = unlist(lapply(gcvectors, length))
-    gcdfReshaped = data.frame(value = unlist(gcvectors),
-                              regionSet = rep(nameList, vectorLengths))
-  } else {
-    gcdfReshaped = data.frame(value = gcvectors)
-  }
-  
+    .validateInputs(list(gcvectors=c("numeric", "list")))
 
     if (is(gcvectors, "list")) {
+        nameList = names(gcvectors)
+        vectorLengths = unlist(lapply(gcvectors, length))
+        gcdfReshaped = data.frame(value = unlist(gcvectors),
+                                  regionSet = rep(nameList, vectorLengths))
         meansdf = aggregate(gcdfReshaped$value, 
                             list(gcdfReshaped$regionSet), mean)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=regionSet)) +
@@ -102,6 +93,7 @@ plotGCContent = function(gcvectors) {
         theme(legend.position = "bottom")
     } else {
         # plot a single regionset
+        gcdfReshaped = data.frame(value = gcvectors)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
         geom_density() + 
         geom_vline(aes(xintercept=mean(value)),

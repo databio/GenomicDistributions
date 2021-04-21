@@ -203,8 +203,13 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 plotChromBins = function(genomeAggregate, binCount=10000, 
                            plotTitle="Distribution over chromosomes") {
     .validateInputs(list(genomeAggregate=c("data.table","data.frame")))
+    
     if ("name" %in% names(genomeAggregate)){
         # It has multiple regions
+        # sort the regions labels again
+        setkey(genomeAggregate, regionID)
+        genomeAggregate[, chr:=factor(chr, levels=unique(genomeAggregate$chr))]
+        # and plot
         g = ggplot(genomeAggregate, aes(x=withinGroupID, y=N, 
                                         fill=name, color=name))
     } else {
