@@ -45,5 +45,5 @@ jobs:
         run: R CMD INSTALL .
 
       - name: Lint
-        run: lintr::lint_package(linters = with_defaults(assignment_linter=NULL))
+        run: lintr::lint_package(linters = lintr::with_defaults(assignment_linter=NULL))
         shell: Rscript {0}
