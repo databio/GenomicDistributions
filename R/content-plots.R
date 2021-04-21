@@ -77,11 +77,20 @@ calcGCContentRef = function(query, refAssembly) {
 #' 
 plotGCContent = function(gcvectors) {
     .validateInputs(list(gcvectors=c("numeric","list")))
-#    gcdf = lapply(gcvectors, as.data.frame)
-#   # reshape2 is deprecated, but there's no other way to do this easily...
-#    gcdfReshaped = reshape2::melt(gcdf, id.vars=NULL)
-#    colnames(gcdfReshaped)[colnames(gcdfReshaped) == "L1"] = "regionSet"
-    # plot multiple regionsets if gcvectors is a list
+  
+  # if input is list, conver it to a data frame with 
+  # value and region set name, if input is vector - make a single
+  # columns data.frame
+  if (is(gcvectors, "list")){
+    nameList = names(gcvectors)
+    vectorLengths = unlist(lapply(gcvectors, length))
+    gcdfReshaped = data.frame(value = unlist(gcvectors),
+                              regionSet = rep(nameList, vectorLengths))
+  } else {
+    gcdfReshaped = data.frame(value = gcvectors)
+  }
+  
+
     if (is(gcvectors, "list")) {
         meansdf = aggregate(gcdfReshaped$value, 
                             list(gcdfReshaped$regionSet), mean)
@@ -93,8 +102,8 @@ plotGCContent = function(gcvectors) {
         theme(legend.position = "bottom")
     } else {
         # plot a single regionset
-        g = ggplot2::ggplot() + 
-        geom_density(aes(gcvectors)) + 
+        g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
+        geom_density() + 
         geom_vline(aes(xintercept=mean(value)),
                    color="red", linetype="dashed", size=0.5) + 
         theme_classic()
