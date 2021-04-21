@@ -81,7 +81,8 @@ plotGCContent = function(gcvectors) {
         gcdfReshaped = data.frame()
         gcvectorsNames = names(gcvectors)
         for(gcvectorName in gcvectorsNames){
-            tempDf = data.frame("regionSet" = gcvectorName, "value" = gcvectors[[gcvectorName]])
+            tempDf = data.frame("regionSet" = gcvectorName, 
+                                "value" = gcvectors[[gcvectorName]])
             gcdfReshaped = rbind(gcdfReshaped, tempDf)
         }
         meansdf = aggregate(gcdfReshaped$value, 
@@ -94,7 +95,8 @@ plotGCContent = function(gcvectors) {
         theme(legend.position = "bottom")
     } else {
         # plot a single regionset
-        gcdfReshaped = data.frame("regionSet" = gcvectors, "value" = seq(1, length(gcvec)))
+        gcdfReshaped = data.frame("regionSet" = seq(1, length(gcvectors)), 
+                                  "value" = gcvectors)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
         geom_density() + 
         geom_vline(aes(xintercept=mean(value)),
