@@ -25,6 +25,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
 BiocManager::install("GenomicDistributions")
 BiocManager::install("GenomicDistributionsData")
+BiocManager::install("biomaRt")
 ```
 Or alternatively you can install from GitHub: 
 
