@@ -122,10 +122,10 @@ plotFeatureDist(TSSdist2, featureName="TSS")
 
 ```
 
-You can also plot a tiled version that aligns them all vertically:
+You can also plot a tiled version that aligns them all vertically, and you can sort the datasets based on the values in the center:
 
 ```{r tiled-distance-plot, fig.cap="Tiled feature distance plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
-plotFeatureDist(TSSdist2, featureName="TSS", tile=TRUE)
+plotFeatureDist(TSSdist2, featureName="TSS", tile=TRUE, labelOrder = "center")
 ```
 
 If you want to check distances to other features, that's no problem; `calcFeatureDistRefTSS()` is really just a wrapper for the workhorse function, `calcFeatureDist()`. To show how this works, get some features you want to check the distance to. Here, let's just shift our query set by a normally distributed random number:
@@ -187,7 +187,7 @@ These plots would show all values aligning at 0 if your given regions perfectly 
 
 ### Cumulative partition distribution plots
 
-The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of reads relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
+The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of regions relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
 
 Now, we'll plot single and multiple cumulative distributions of regions in genomic partitions:
 ```{r cumulative-partition-plot, fig.cap="Cumulative partition distribution plot. Cumulative distribution of query regions across genomic features.", fig.small=TRUE}
@@ -228,7 +228,10 @@ op2 = calcOpenSignal(queryList, cellMatrix)
 plotOpenSignal(op2)
 ```
 
-
+There are also multiple plotting options. Do you maybe prefer violin plots with highlighted medians? Here it is:
+```{r specificity-plot-multi-violin, fig.height = 7, fig.cap="Violijn plot: chromatin accessibility across cell types."}
+plotOpenSignal(op2, plotType = "violinPlot")
+```
 
 
 ## Neighboring regions distance plots
@@ -272,7 +275,6 @@ gc1 = calcGCContentRef(query, "hg19")
 # Plot the GC distribution
 plotGCContent(gc1)
 ```
-
 
 You can also plot the probability distribution for more than one query:
 
