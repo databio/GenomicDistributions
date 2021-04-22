@@ -31,18 +31,21 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
 BiocManager::install("GenomicDistributions")
 BiocManager::install("GenomicDistributionsData")
+BiocManager::install("biomaRt")
 ```
 
 Or alternatively you can install from GitHub: 
 
-```{r, install, eval=FALSE}
+```{r, install-alt, eval=FALSE}
 devtools::install_github("databio/GenomicDistributions")
 install.packages("http://big.databio.org/GenomicDistributionsData/GenomicDistributionsData_0.0.2.tar.gz", repos=NULL)
 ```
 Here we'll load up the libraries needed for this vignette:
 
 ```{r, initialize}
+library(biomaRt)
 library(ggplot2)
+library(GenomeInfoDb)
 library(GenomicDistributions)
 library(GenomicDistributionsData)
 ```
@@ -141,7 +144,48 @@ perc2 = calcPartitionsRef(queryList, "hg38")
 plotPartitions(perc2)
 ```
 
-This shows that there's some variation among the files, and that most stuff is in introns or intergenic...but this plot really isn't that useful because it's not corrected for the genomic background. It's not surprising that most regions in a file are intergenic -- because most of the genome is intergenic. So, we're much better off looking at the *expected* partition plot, which uses a log ratio of observed versus background expectation:
+You can also include custom partitions too! First, we'll grab all of the Ensembl predicted enhancers from the ensembl regulatory build.
+
+```{r custom-partition}
+funcgen = biomaRt::useMart("ENSEMBL_MART_FUNCGEN")
+funcgen = biomaRt::useDataset("hsapiens_regulatory_feature", mart=funcgen)
+
+enhancers = biomaRt::getBM(attributes=c('chromosome_name', 'chromosome_start', 
+                               'chromosome_end', 'feature_type_name'), 
+                  filters='regulatory_feature_type_name', 
+                  values='Enhancer', 
+                  mart=funcgen)
+```
+
+Then we'll convert chromosome names to the UCSC naming convention to match included partitions. Next, follow that up by converting this into a GenomicRanges object.
+```{r partition-to-granges}
+enhancers$chromosome_name = paste("chr", enhancers$chromosome_name, sep="")
+
+gr1 = GenomicRanges::sort(GenomeInfoDb::sortSeqlevels(
+    GenomicDistributions::dtToGr(enhancers,
+                                 chr="chromosome_name",
+                                 start="chromosome_start",
+                                 end="chromosome_end")))
+```
+
+Now we can add our enhancers GenomicRanges object to the list of partitions we can obtain from the GenomicDistributions package itself.
+```{r construct-custom-partitionList}
+geneModels = GenomicDistributions::getGeneModels("hg38")
+partitionList = GenomicDistributions::genomePartitionList(geneModels$genesGR, 
+                                                          geneModels$exonsGR,
+                                                          geneModels$threeUTRGR, 
+                                                          geneModels$fiveUTRGR)
+partitionList[["enhancer"]] = gr1
+```
+
+And how does this look now that we've included enhancers?
+
+```{r custom-partition-plot}
+perc3 = calcPartitions(queryList, partitionList)
+plotPartitions(perc3)
+```
+
+Both plots show some variation among the files, and that most stuff is in introns or intergenic...but this plot really isn't that useful because it's not corrected for the genomic background. It's not surprising that most regions in a file are intergenic -- because most of the genome is intergenic. So, we're much better off looking at the *expected* partition plot, which uses a log ratio of observed versus background expectation:
 
 ```{r expected-partition-plot}
 ep2 = calcExpectedPartitionsRef(queryList, "hg38")
@@ -149,6 +193,13 @@ plotExpectedPartitions(ep2)
 ```
 
 Now we can start to draw some conclusions. All of these BED files are enriched in introns. We see lots of differences in promoters, which make biological sense: For example, the JUN TF is overrepresented in proximal and core promoters. The H3K4me3 experiment, a promoter mark, is the most overrepresented in core promoters. But the repressive or enhancer marks are depleted at promoters.
+
+Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer partition.
+
+```{r custom-expected-partition-plot}
+ep3 = calcExpectedPartitions(queryList, partitionList)
+plotExpectedPartitions(ep3)
+```
 
 Next, we'll plot the cumulative partition plots:
 
@@ -159,6 +210,14 @@ p + facet_wrap(. ~name, nrow=3)
 ```
 
 These plots are similar to the above plots, but add in information about how many bases are covered by each partition.
+
+Again, we can also plot these with the enhancers included.
+
+```{r custom-cumulative-partitions, fig.height=12}
+cp3 = calcCumulativePartitions(queryList, partitionList)
+p = plotCumulativePartitions(cp3)
+p + facet_wrap(. ~name, nrow=3)
+```
 
 ## Chromosome plots
 
