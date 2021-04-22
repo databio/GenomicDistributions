@@ -112,7 +112,7 @@ First let's look at the distance to TSS:
 
 ```r
 TSSdist = calcFeatureDistRefTSS(queryList, "hg38")
-p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, nbin=200)
+p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, nbin=200, labelOrder = "center")
 print(p)
 ```
 
