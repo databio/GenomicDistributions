@@ -622,8 +622,9 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #' @param assignedPartitions  A table holding the frequency of assignment to
 #'     each of the partitions. Produced by \code{calcPartitions}
 #' @param numbers logical indicating whether raw overlaps should be 
-#'     plotted instead 
-#' of the default percentages
+#'     plotted instead of the default percentages
+#' @param stacked logical indicating that data should be plotted as stacked 
+#'     bar plot 
 #' @return A ggplot object using a barplot to show the distribution 
 #'     of the query 
 #'  regions across a given partition list.  
@@ -632,43 +633,78 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #' p = calcPartitionsRef(vistaEnhancers, "hg19")
 #' partPlot = plotPartitions(p)
 #' partCounts = plotPartitions(p, numbers=TRUE)
-plotPartitions = function(assignedPartitions, numbers=FALSE) {
+plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
     # resAll = t(sapply(assignedPartitions, table))
     # resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
     # df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
     .validateInputs(list(assignedPartitions="data.frame"))
     
     df = assignedPartitions 
-    # For multiple regions
-    if ("name" %in% names(assignedPartitions)) {
+    # stacked bar option
+    if (stacked){
+      if ("name" %in% names(assignedPartitions)){
+        # multiple datasets
+        g = ggplot(df, aes(x=name, y=Freq, fill=partition))
+        
+        if (numbers) {
+          g = g +
+            geom_bar(stat="identity", position="stack")
+        } else {
+          g = g +
+            geom_bar(stat="identity", position="fill")
+        }
+        
+      } else {
+        # singla dataset stacked
+        df$regionSet = "regionSet"
+        g = ggplot(df, aes(x=regionSet, y=Freq, fill=partition))
+        if (numbers) {
+          g = g +
+            geom_bar(stat="identity", position="stack")
+        } else {
+          g = g +
+            geom_bar(stat="identity", position="fill")
+        }
+      }
+      
+      g = g +
+        xlab("Region set") +
+        ylab(ifelse(numbers,"Counts","Frequency"))
+    } else {
+      # not stacked 
+      # For multiple regions
+      if ("name" %in% names(assignedPartitions)) {
         # percentages are to be set as the default instead of raw overlaps
         if (numbers == FALSE) {
-            # assigned partitions is a data table
-            df$Freq = assignedPartitions[, .(Freq.Perc=(Freq/sum(Freq)) * 100), 
-                                                        by=name]$"Freq.Perc" 
+          # assigned partitions is a data table
+          df$Freq = assignedPartitions[, .(Freq.Perc=(Freq/sum(Freq)) * 100), 
+                                       by=name]$"Freq.Perc" 
         }
         g = ggplot(df, aes(x=partition, y=Freq, fill=factor(name)))
-    } else {
+      } else {
         # not a data table, a single regionset df
         if (numbers == FALSE) {
-            df$Freq = (df$Freq / sum(df$Freq)) * 100
+          df$Freq = (df$Freq / sum(df$Freq)) * 100
         }
         g = ggplot(df, aes(x=partition, y=Freq))
-    }
-  
-    g = g +
+      }
+      
+      g = g +
         geom_bar(stat="identity", position=position_dodge()) + 
-        theme_classic() + 
         theme_blank_facet_label() + # No boxes around labels
-        theme(aspect.ratio=1) + 
         xlab("Genomic partition") +
-        ylab(ifelse(numbers,"Counts","Frequency (%)")) +
-        theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + 
-        theme(plot.title=element_text(hjust = 0.5)) + # Center title
-        ggtitle(paste("Distribution across genomic partitions")) +
+        ylab(ifelse(numbers,"Counts","Frequency (%)"))  +
         scale_fill_discrete(name="regionSet") + 
         theme(legend.position="bottom")
-  
+    }
+    
+    g = g + 
+      theme_classic()+
+      theme(aspect.ratio=1) + 
+      theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) +
+      theme(plot.title=element_text(hjust = 0.5)) + # Center title
+      ggtitle(paste("Distribution across genomic partitions"))
+
     return(g)
 }
 
