@@ -655,7 +655,7 @@ plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
         }
         
       } else {
-        # singla dataset stacked
+        # single dataset stacked
         df$regionSet = "regionSet"
         g = ggplot(df, aes(x=regionSet, y=Freq, fill=partition))
         if (numbers) {
