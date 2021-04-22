@@ -1,6 +1,6 @@
 Package: GenomicDistributions
-Version: 0.99.0
-Date: 2020-05-22
+Version: 0.99.4
+Date: 2021-2-9
 Title: Produces Summaries and Plots of Features Distributed Across Genomes
 Description: If you have a set of genomic ranges, this package can help you with
  visualization and comparison. It produces several kinds of plots, for example:
@@ -13,13 +13,15 @@ Description: If you have a set of genomic ranges, this package can help you with
  ranges to another.
 Authors@R: c(
 	person(given=c("Nathan", "C."), "Sheffield",
-	email = "nathan@code.databio.org", role=c("aut", "cre")), 
+	email = "nathan@code.databio.org", role="aut"),
+	  person("Kristyna", "Kupkova", role=c("aut", "cre"), 
+    email = "kristynakupkova@gmail.com"),
+    person("Jose", "Verdezoto", role="aut"),
     person("Tessa", "Danehy", role="ctb"),
     person("John", "Lawson", role="ctb"),
     person("Jose", "Verdezoto", role="ctb"),
     person("Michal", "Stolarczyk", role="ctb"),
-    person("Jason", "Smith", role="ctb"),
-    person("Kristyna", "Kupkova", role="ctb"))
+    person("Jason", "Smith", role="ctb"))
 Depends:
     R (>= 4.0),
     IRanges,

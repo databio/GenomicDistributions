@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.org/databio/GenomicDistributions.svg?branch=dev)](https://travis-ci.org/databio/GenomicDistributions)
+| Master | Dev |
+|--------|-----|
+|[![Build Status](https://travis-ci.org/databio/GenomicDistributions.svg?branch=master)](https://travis-ci.org/databio/GenomicDistributions) | [![Build Status](https://travis-ci.org/databio/GenomicDistributions.svg?branch=dev)](https://travis-ci.org/databio/GenomicDistributions) |
+
+
 
 # GenomicDistributions
 

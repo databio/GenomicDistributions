@@ -97,6 +97,8 @@ DTNearest = function(DT1, DT2) {
     }
     DT1[, mid:=start + round((end-start)/2)]
     DT2[, mid:=start + round((end-start)/2)]
+    data.table::setorder(DT1, mid)
+    data.table::setorder(DT2, mid)
     data.table::setattr(DT1, "sorted", "mid")
     data.table::setattr(DT2, "sorted", "mid")
     DT2[J(DT1), roll="nearest"]

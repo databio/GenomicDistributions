@@ -66,6 +66,8 @@ test_that("calcOLCount", {
 
 # "featureDistanceDistribution" function is now named "calcFeatureDist"
 # reset test data in case it was changed by another unit test section
+# and select just one chromosome - since DTNearest is help function calculating
+# distances within one chromosome
 coordDT1 = copy(origCoordDT1)
 coordDT2 = copy(origCoordDT2)
 testGR1 = dtToGr(coordDT1)
@@ -97,11 +99,7 @@ test_that("featureDistribution",  {
     # Distance from the midpointof each region to the midpoint.
     nearestVec = DTNearest(coordDT1, coordDT2)
     nearestVec
-    expect_equal(nearestVec, c(150, -99, 75, -750))
-    
-    # nearestVec2 = DTNearest(coordDT2, coordDT1)
-    # nearestVec2 # actual from nearestDT: c( 99, -901, -1276, 750, -1650)
-    # calculated by hand c(99, -901, -75, 750, -449)
+    expect_equal(nearestVec, c(124, -99, 276, 75))
   
 
     # DTNearest ignores chromosome completely. By design.
