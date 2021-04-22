@@ -229,7 +229,7 @@ plotOpenSignal(op2)
 ```
 
 There are also multiple plotting options. Do you maybe prefer violin plots with highlighted medians? Here it is:
-```{r specificity-plot-multi, fig.height = 7, fig.cap="Violijn plot: chromatin accessibility across cell types."}
+```{r specificity-plot-multi-violin, fig.height = 7, fig.cap="Violijn plot: chromatin accessibility across cell types."}
 plotOpenSignal(op2, plotType = "violinPlot")
 ```
 
