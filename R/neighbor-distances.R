@@ -44,11 +44,10 @@ calcNeighborDist =  function(query) {
 #' @return A numeric vector with the distances in bp 
 neighbordt = function(querydt)  {
     # there should be at least 2 regions for each chr
-    if (length(rownames((querydt))) > 1) {
+    if (nrow(querydt) > 1) {
         endVect = abs(querydt[, diff(end)])
         regionWidth = querydt[, (end-start)]
-        widthVect = regionWidth[-1]
-        distancesVector = endVect - widthVect
+        distancesVector = endVect - regionWidth[-1]
         # neg values represent overlaps between neighbor regions, set those to 0
         distancesVector[which(distancesVector < 0)] = 0 
         return(distancesVector)
