@@ -708,6 +708,131 @@ plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
     return(g)
 }
 
+#' Calculates the distribution of overlaps (in base pairs) between 
+#' query and arbitrary genomic partitions
+#' 
+#' Takes overlaps between query and a partition. The output is the number
+#' of base pairs that fall into overlap. Frequency then gives the proportions
+#' of query that overlap with a given partition
+#'
+#' @param query GRanges or GRangesList with regions to classify
+#' @param partitionList NAMED list of genomic partitions
+#'     GRanges. 
+#' @param remainder A character vector to assign any query regions that do
+#'     not overlap with anything in the partitionList. Defaults to "intergenic"
+#' @return A data.frame giving total overlap [bp] of a GRanges object to a
+#'     partition from a previously provided partitionList.
+#' @export
+#' @examples 
+#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+#'                                     geneModels_hg19$exonsGR,
+#'                                     geneModels_hg19$threeUTRGR, 
+#'                                     geneModels_hg19$fiveUTRGR)
+#' calcPropPartitions(vistaEnhancers, partitionList)
+calcPropPartitions = function(query, partitionList, remainder="intergenic"){
+  .validateInputs(list(query=c("GRanges", "GRangesList"), 
+                       partitionList="list"))
+  
+  if (is(query, "GRangesList")) {
+    # Recurse over each GRanges object
+    x = lapply(query, calcPropPartitions, partitionList, remainder)
+    nameList = names(query)
+    if(is.null(nameList)) {
+      newnames = seq_along(query) # Fallback to sequential numbers
+      nameList = names
+    }
+    # Append names
+    xb = rbindlist(x)
+    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+    return(xb)
+  }
+  
+  # do overlap with each partition and record the overlap widths
+  totalOverlap = lapply(partitionList, overlapWidths, query)
+  
+  # calculate the number of bases that did not fall anywhere - remainder
+  remainderBases = sum(width(query)) - sum(unlist(totalOverlap))
+  
+  # gather all overlaps into data.frame
+  propPartitions = data.frame(partition = c(names(partitionList), remainder),
+                              bpOverlap = c(unlist(totalOverlap), remainderBases))
+  propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
+  return(propPartitions)
+}
+
+#' Calculates the distribution of overlaps (in base pairs) between 
+#' query and arbitrary genomic partitions. The function uses built-in
+#' partitions for a given reference genome assembly.
+#' 
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector specifying the reference genome
+#'     assembly (*e.g.* 'hg19'). This will be used to grab genome 
+#'     annotations with \code{getGeneModels}
+#' @return A data.frame giving total overlap [bp] of a GRanges object to a
+#'     partition from a previously provided partitionList.
+#' @export
+#' @examples 
+#' calcPropPartitionsRef(vistaEnhancers, "hg19")
+calcPropPartitionsRef = function(query, refAssembly){
+  geneModels = getGeneModels(refAssembly)
+  partitionList = genomePartitionList(geneModels$genesGR, 
+                                      geneModels$exonsGR,
+                                      geneModels$threeUTRGR, 
+                                      geneModels$fiveUTRGR)
+  message("Calculating overlaps...")
+  
+  
+  # do overlap with each partition and record the overlap widths
+  totalOverlap = lapply(partitionList, overlapWidths, query)
+  
+  # correct the number of overlapping bases for overlapping elements 
+  # (e.g) promoterCore is part of promoterProx - subtract that
+  correctTotalOverlap = totalOverlap
+  
+  correctTotalOverlap$promoterProx = totalOverlap$promoterProx - 
+    totalOverlap$promoterCore
+  
+  nonIntron = totalOverlap$threeUTR + totalOverlap$fiveUTR +
+    totalOverlap$exon
+  correctTotalOverlap$intron = totalOverlap$intron - nonIntron
+  
+  # calculate the number of bases that did not fall anywhere - remainder
+  remainderBases = sum(width(query)) - sum(unlist(correctTotalOverlap))
+  
+  # gather all overlaps into data.frame
+  propPartitions = data.frame(partition = c(names(correctTotalOverlap), remainder),
+                              bpOverlap = c(unlist(correctTotalOverlap), remainderBases))
+  propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
+  return(propPartitions)
+}
+
+# Internal helper function to overlap two data.table objects and
+# get the total sum of their overlaps in base pairs
+#
+# @param partiton GRanges object1
+# @param query GRanges object2
+# @return A numeric value - sum of overlaps between 
+# partition and query
+overlapWidths = function(partition, query){
+  .validateInputs(list(query=c("GRanges"), 
+                       partition="GRanges"))
+  partitionDT = grToDt(partition)
+  queryDT = grToDt(query)
+  setkey(queryDT, chr, start, end)
+  
+  # find overlaps
+  hits = foverlaps(partitionDT, queryDT, nomatch=NULL,)
+  
+  # get the widths of the overlaps - get maximum start
+  # value and minumum end value, get their difference
+  hits[, maxStart:=max(start, i.start), by=1:nrow(hits)]
+  hits[, minEnd:=min(end, i.end), by=1:nrow(hits)]
+  hits[, overlap:=minEnd-maxStart+1]
+  
+  # get total number of overlapping bases
+  totalOverlap = sum(hits[, overlap])
+  return(totalOverlap)
+}
 
 
 
