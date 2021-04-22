@@ -22,8 +22,7 @@ density plot
 \examples{
 numVector = rnorm(400, mean=0.5, sd=0.1)
 GCplot = plotGCContent(numVector)
-vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), 
-            example2 = rnorm(600, mean=0.5, sd=0.1))
+vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), example2 = rnorm(600, mean=0.5, sd=0.1))
 GCplot = plotGCContent(numVector)
 
 }
