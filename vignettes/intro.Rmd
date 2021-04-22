@@ -273,7 +273,6 @@ gc1 = calcGCContentRef(query, "hg19")
 plotGCContent(gc1)
 ```
 
-
 You can also plot the probability distribution for more than one query:
 
 ```{r gc-content-plots-multi, fig.cap="Multiple GC content plots.", eval=FALSE}

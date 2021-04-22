@@ -15,7 +15,7 @@
 #' gcvec = calcGCContent(vistaEnhancers, bsg)
 #' }
 calcGCContent = function(query, ref) {
-    .validateInputs(list(query=c("GRanges","GRangesList"),
+    GenomicDistributions:::.validateInputs(list(query=c("GRanges","GRangesList"),
                          ref="BSgenome"))
     if (is(query, "GRangesList")) {
         # Recurse over each GRanges object
@@ -29,7 +29,9 @@ calcGCContent = function(query, ref) {
         }
         return(x)
     }
-    seqlevels(query, pruning.mode="coarse") = seqlevels(ref)
+    # Restrict to seqnames in both query and reference
+    lvls = intersect(unique(seqnames(query)), seqlevels(ref))
+    seqlevels(query, pruning.mode="coarse") = lvls
     v = IRanges::Views(ref, query)
     gcvec = apply(Biostrings::alphabetFrequency(v)[,c("C","G")],1, sum)/width(v)
     return(gcvec)
