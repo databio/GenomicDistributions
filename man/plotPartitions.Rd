@@ -5,15 +5,17 @@
 \title{Produces a barplot showing how query regions of interest are distributed
 across a given partition list}
 \usage{
-plotPartitions(assignedPartitions, numbers = FALSE)
+plotPartitions(assignedPartitions, numbers = FALSE, stacked = FALSE)
 }
 \arguments{
 \item{assignedPartitions}{A table holding the frequency of assignment to
 each of the partitions. Produced by \code{calcPartitions}}
 
 \item{numbers}{logical indicating whether raw overlaps should be 
-    plotted instead 
-of the default percentages}
+plotted instead of the default percentages}
+
+\item{stacked}{logical indicating that data should be plotted as stacked 
+bar plot}
 }
 \value{
 A ggplot object using a barplot to show the distribution 
