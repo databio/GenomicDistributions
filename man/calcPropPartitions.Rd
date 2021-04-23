@@ -3,7 +3,7 @@
 \name{calcPropPartitions}
 \alias{calcPropPartitions}
 \title{Calculates the distribution of overlaps (in base pairs) between 
-query and arbitrary genomic partitions}
+query and arbitrary genomic partitions.}
 \usage{
 calcPropPartitions(query, partitionList, remainder = "intergenic")
 }

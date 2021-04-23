@@ -32,4 +32,5 @@ partition that it overlaps with the highest priority.
 p = calcPartitionsRef(vistaEnhancers, "hg19")
 partPlot = plotPartitions(p)
 partCounts = plotPartitions(p, numbers=TRUE)
+partPlot = plotPartitions(p, stacked=TRUE)
 }

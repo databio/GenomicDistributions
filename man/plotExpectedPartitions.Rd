@@ -27,4 +27,6 @@ relative to the expected distribution across a given partition list
 \examples{
 p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 expectedPlot = plotExpectedPartitions(p)
+pp = calcExpectedPropPartitionsRef(vistaEnhancers, "hg19")
+expectedPropPlot = plotExpectedPartitions(pp)
 }
