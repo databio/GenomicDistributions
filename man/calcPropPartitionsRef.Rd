@@ -4,7 +4,8 @@
 \alias{calcPropPartitionsRef}
 \title{Calculates the distribution of overlaps (in base pairs) between 
 query and arbitrary genomic partitions. The function uses built-in
-partitions for a given reference genome assembly.}
+partitions for a given reference genome assembly, and is a wrapper
+# function for \code{calcPropPartitions} function.}
 \usage{
 calcPropPartitionsRef(query, refAssembly, remainder = "intergenic")
 }
@@ -25,7 +26,8 @@ A data.frame giving total overlap [bp] of a GRanges object to a
 \description{
 Calculates the distribution of overlaps (in base pairs) between 
 query and arbitrary genomic partitions. The function uses built-in
-partitions for a given reference genome assembly.
+partitions for a given reference genome assembly, and is a wrapper
+# function for \code{calcPropPartitions} function.
 }
 \examples{
 calcPropPartitionsRef(vistaEnhancers, "hg19")
