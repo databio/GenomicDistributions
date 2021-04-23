@@ -5,14 +5,20 @@
 \title{Calculates the distribution of observed versus expected overlaps for a 
 query set to a reference assembly}
 \usage{
-calcExpectedPartitionsRef(query, refAssembly)
+calcExpectedPartitionsRef(query, refAssembly, bpProportion = FALSE)
 }
 \arguments{
 \item{query}{A GenomicRanges or GenomicRangesList object with query regions}
 
 \item{refAssembly}{A character vector specifying the reference genome
-assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
-with \code{getTSSs}.}
+assembly (*e.g.* 'hg19'). This will be used to grab annotation 
+models with \code{getGeneModels}, and chromosome sizes with\code{getChromSizes}}
+
+\item{bpProportion}{logical indicating if overlaps should be calculated based
+on number of base pairs overlapping with each partition. 
+bpProportion=FALSE does overlaps in priority order, 
+bpProportion=TRUE counts number of overlapping
+base pairs between query and each partition.}
 }
 \value{
 A data.frame indicating the number of query region overlaps in   
@@ -24,4 +30,5 @@ built-in partitions for a given reference genome assembly.
 }
 \examples{
 calcExpectedPartitionsRef(vistaEnhancers, "hg19")
+calcExpectedPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
 }

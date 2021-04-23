@@ -7,14 +7,20 @@
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
-#'     with \code{getTSSs}.
+#'     assembly (*e.g.* 'hg19'). This will be used to grab annotation 
+#'     models with \code{getGeneModels}
+#' @param bpProportion logical indicating if overlaps should be calculated based
+#'     on number of base pairs overlapping with each partition. 
+#'     bpProportion=FALSE does overlaps in priority order, 
+#'     bpProportion=TRUE counts number of overlapping
+#'     base pairs between query and each partition. 
 #' @return A data.frame indicating the number of query region overlaps in   
 #'     several genomic partitions.
 #' @export
 #' @examples 
 #' calcPartitionsRef(vistaEnhancers, "hg19")
-calcPartitionsRef = function(query, refAssembly) {
+#' calcPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
+calcPartitionsRef = function(query, refAssembly, bpProportion=FALSE){
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
@@ -23,7 +29,7 @@ calcPartitionsRef = function(query, refAssembly) {
                                         geneModels$threeUTRGR, 
                                         geneModels$fiveUTRGR)
     message("Calculating overlaps...")
-    return(calcPartitions(query, partitionList))
+    return(calcPartitions(query, partitionList, bpProportion=bpProportion))
 }
 
 
@@ -35,14 +41,21 @@ calcPartitionsRef = function(query, refAssembly) {
 #' 
 #' @param query A GenomicRanges or GenomicRangesList object with query regions
 #' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
-#'     with \code{getTSSs}.
+#'     assembly (*e.g.* 'hg19'). This will be used to grab annotation 
+#'     models with \code{getGeneModels}, and chromosome sizes with\code{getChromSizes}
+#' @param bpProportion logical indicating if overlaps should be calculated based
+#'     on number of base pairs overlapping with each partition. 
+#'     bpProportion=FALSE does overlaps in priority order, 
+#'     bpProportion=TRUE counts number of overlapping
+#'     base pairs between query and each partition. 
 #' @return A data.frame indicating the number of query region overlaps in   
 #'     several genomic partitions.
 #' @export
 #' @examples 
 #' calcExpectedPartitionsRef(vistaEnhancers, "hg19")
-calcExpectedPartitionsRef = function(query, refAssembly) {
+#' calcExpectedPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
+calcExpectedPartitionsRef = function(query, refAssembly, 
+                                     bpProportion=FALSE) {
     .validateInputs(list(query=c("GRanges", "GRangesList"), 
                          refAssembly="character"))
     geneModels = getGeneModels(refAssembly)
@@ -52,7 +65,9 @@ calcExpectedPartitionsRef = function(query, refAssembly) {
                                         geneModels$exonsGR,
                                         geneModels$threeUTRGR,
                                         geneModels$fiveUTRGR)
-    return(calcExpectedPartitions(query, partitionList, genomeSize))
+    expectedPartitions = calcExpectedPartitions(query, partitionList, 
+                           genomeSize, bpProportion=bpProportion)
+    return(expectedPartitions)
 }
 
 #' Calculates the cumulative distribution of overlaps for a query set to a
@@ -141,11 +156,17 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
 #' overlap multiple genomic partitions.
 #'
 #' @param query GRanges or GRangesList with regions to classify
-#' @param partitionList an ORDERED and NAMED list of genomic partitions
-#'     GRanges. This list must be in priority order; the input will be assigned
-#'     to the first partition it overlaps
+#' @param partitionList an ORDERED (if bpProportion=FALSE) and NAMED list of 
+#'     genomic partitions GRanges. This list must be in priority order; the 
+#'     input will be assigned to the first partition it overlaps.
+#'     bpProportion=TRUE, the list does not need ordering.
 #' @param remainder A character vector to assign any query regions that do
 #'     not overlap with anything in the partitionList. Defaults to "intergenic"
+#' @param bpProportion logical indicating if overlaps should be calculated based
+#'     on number of base pairs overlapping with each partition. 
+#'     bpProportion=FALSE does overlaps in priority order, 
+#'     bpProportion=TRUE counts number of overlapping
+#'     base pairs between query and each partition. 
 #' @return A data.frame assigning each element of a GRanges object to a
 #'     partition from a previously provided partitionList.
 #' @export
@@ -155,31 +176,60 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
 #'                                     geneModels_hg19$threeUTRGR, 
 #'                                     geneModels_hg19$fiveUTRGR)
 #' calcPartitions(vistaEnhancers, partitionList)
-calcPartitions = function(query, partitionList, remainder="intergenic") {
-    .validateInputs(list(query=c("GRanges", "GRangesList"), 
-                         partitionList="list"))
-    if (methods::is(query, c("GRangesList"))) {
-        # Recurse over each GRanges object
-        x = lapply(query, calcPartitions, partitionList, remainder)
-        nameList = names(query)
-        if(is.null(nameList)) {
-            newnames = seq_along(query) # Fallback to sequential numbers
-            nameList = names
-        }
-        # Append names
-        xb = rbindlist(x)
-        xb$name = rep(nameList, vapply(x, nrow, integer(1)))
-        return(xb)
+#' calcPartitions(vistaEnhancers, partitionList, bpProportion=TRUE)
+calcPartitions = function(query, partitionList, 
+                          remainder="intergenic", bpProportion=FALSE) {
+  .validateInputs(list(query=c("GRanges", "GRangesList"), 
+                       partitionList="list"))
+  if (methods::is(query, c("GRangesList"))) {
+    # Recurse over each GRanges object
+    x = lapply(query, calcPartitions, partitionList, remainder, bpProportion)
+    nameList = names(query)
+    if(is.null(nameList)) {
+      newnames = seq_along(query) # Fallback to sequential numbers
+      nameList = names
     }
+    # Append names
+    xb = rbindlist(x)
+    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+    return(xb)
+  }
+  
+  # proportional partitions
+  if (bpProportion){
+    # do overlap with each partition and record the overlap widths
+    totalOverlap = lapply(partitionList, overlapWidths, query)
+    
+    # correct the number of overlapping bases for overlapping elements 
+    # (e.g) promoterCore is part of promoterProx - subtract that
+    correctTotalOverlap = totalOverlap
+    
+    correctTotalOverlap$promoterProx = totalOverlap$promoterProx - 
+      totalOverlap$promoterCore
+    
+    nonIntron = totalOverlap$threeUTR + totalOverlap$fiveUTR +
+      totalOverlap$exon
+    correctTotalOverlap$intron = totalOverlap$intron - nonIntron
+    
+    # calculate the number of bases that did not fall anywhere - remainder
+    remainderBases = sum(width(query)) - sum(unlist(correctTotalOverlap))
+    
+    # gather all overlaps into data.frame
+    propPartitions = data.frame(partition = c(names(correctTotalOverlap), remainder),
+                                bpOverlap = c(unlist(correctTotalOverlap), remainderBases))
+    propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
+    return(propPartitions)
+  } else {
+    # priority overlap partitions
     #Overlap each of the partition list.
     partitionNames = names(partitionList)
     partition = rep(0, length(query))  
     for (pi in seq_along(partitionList)) {
-        #message(partitionNames[pi],":")
-        ol = suppressWarnings(
-            countOverlaps(query[partition==0], partitionList[[pi]]))
-        #message("\tfound ", sum(ol>0))
-        partition[partition==0][ol > 0] = partitionNames[pi]
+      #message(partitionNames[pi],":")
+      ol = suppressWarnings(
+        countOverlaps(query[partition==0], partitionList[[pi]]))
+      #message("\tfound ", sum(ol>0))
+      partition[partition==0][ol > 0] = partitionNames[pi]
     }
     partition[partition=="0"] = remainder
     tpartition = table(partition)
@@ -195,8 +245,8 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
     }
     
     return(data.frame(tpartition))
+  }
 }
-
 
 #' Calculates expected partiton overlap based on contribution of each
 #' feature (partition) to genome size. Expected and observed overlaps
@@ -212,6 +262,11 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #'     partition from a previously provided partitionList.
 #' @param remainder  Which partition do you want to account for 'everything 
 #'     else'?
+#' @param bpProportion logical indicating if overlaps should be calculated based
+#'     on number of base pairs overlapping with each partition. 
+#'     bpProportion=FALSE does overlaps in priority order, 
+#'     bpProportion=TRUE counts number of overlapping
+#'     base pairs between query and each partition. 
 #' @export
 #' @examples 
 #' partitionList = genomePartitionList(geneModels_hg19$genesGR,
@@ -221,14 +276,16 @@ calcPartitions = function(query, partitionList, remainder="intergenic") {
 #' chromSizes = getChromSizes('hg19')
 #' genomeSize = sum(chromSizes)
 #' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
+#' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize, bpProportion=TRUE)
 calcExpectedPartitions = function(query, partitionList,
-                                  genomeSize=NULL, remainder="intergenic") {
+                                  genomeSize=NULL, remainder="intergenic",
+                                  bpProportion=FALSE) {
   .validateInputs(list(query=c("GRanges", "GRangesList"), 
                        partitionList="list"))
   if (methods::is(query, c("GRangesList"))) {
     # Recurse over each GRanges object
     x = lapply(query, calcExpectedPartitions, partitionList,
-               genomeSize, remainder)
+               genomeSize, remainder,bpProportion)
     nameList = names(query)
     if(is.null(nameList)) {
       nameList = seq_along(query) # Fallback to sequential numbers
@@ -244,8 +301,17 @@ calcExpectedPartitions = function(query, partitionList,
   #(intron = gene - (exon + 3'UTR + 5'UTR))
   #intergenic = genomeSize - other
   partitionNames = names(partitionList)
-  query_total = length(query)
   
+  if (bpProportion){
+    # get the total number of base pairs in query
+    query_total = sum(width(query))
+  } else {
+    # get the number of elements in query
+    query_total = length(query)
+  }
+  
+  # calculate the number of bp in each partition and correct introns, 
+  # and proximal promoters (these overlap with other elements)
   widths = lapply(partitionList, width)
   elements_total = lapply(widths, sum)
   
@@ -261,7 +327,6 @@ calcExpectedPartitions = function(query, partitionList,
     plyr::ldply(elements_total, data.frame))
   colnames(partitionCounts) = c("partition", "N")
   
-  
   if (!is.null(genomeSize)) {
     # Calculate remainder
     partitionCounts = rbind(partitionCounts,
@@ -270,37 +335,29 @@ calcExpectedPartitions = function(query, partitionList,
   }
   
   partitionCounts$N = partitionCounts$N / genomeSize * query_total
-  
+  # these are the final expected partition counts based on element sizes
   partitionCounts = partitionCounts[order(partitionCounts$partition)]
-  partition = rep(0, length(query))
-  for (pi in seq_along(partitionList)) {
-    #message(partitionNames[pi],":")
-    ol = suppressWarnings(
-      countOverlaps(query[partition==0], partitionList[[pi]]))
-    #message("\tfound ", sum(ol>0))
-    partition[partition==0][ol > 0] = partitionNames[pi]
-  }
-  # Remove remainder
-  if (!is.null(genomeSize)) {
-    #message(remainder,":")
-    count = length(partition[partition=="0"])
-    partition[partition=="0"] = remainder
-    #message("\tfound ", count)
-    partitionNames = c(partitionNames, remainder)
+  
+  observedPartition = calcPartitions(query, partitionList, remainder, bpProportion)
+  if (bpProportion) {
+    # if flagged os bpProportions=TRUE - the output has different column names
+    # now create data frame with observed and expected overlaps
+    expectedPartitions = data.table::data.table(
+      partition=observedPartition$partition, 
+      observed=observedPartition$bpOverlap)
   } else {
-    partition = partition[!partition=="0"]
+    expectedPartitions = data.table::data.table(
+      partition=observedPartition$partition,
+      observed=observedPartition$Freq)
   }
-  tpartition = table(partition)
-  expectedPartitions = data.table::data.table(
-    partition=factor(names(tpartition)), observed=as.vector(tpartition))
   expectedPartitions = expectedPartitions[partitionCounts, on = "partition", nomatch=0]
   data.table::setnames(expectedPartitions,"N","expected")
   expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
+  partitionNames = c(partitionNames, remainder)
   return(expectedPartitions[match(partitionNames,
                                   expectedPartitions$partition),])
 }
-
 
 #' Calculates the cumulative distribution of overlaps between query and 
 #' arbitrary genomic partitions
@@ -544,7 +601,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #' @examples 
 #' p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 #' expectedPlot = plotExpectedPartitions(p)
-#' pp = calcExpectedPropPartitionsRef(vistaEnhancers, "hg19")
+#' pp = calcExpectedPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
 #' expectedPropPlot = plotExpectedPartitions(pp)
 plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
     .validateInputs(list(expectedPartitions="data.frame"))
@@ -629,13 +686,19 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #' partPlot = plotPartitions(p)
 #' partCounts = plotPartitions(p, numbers=TRUE)
 #' partPlot = plotPartitions(p, stacked=TRUE)
+#' pProp = calcPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
+#' partPlot = plotPartitions(pProp)
+#' partCounts = plotPartitions(pProp, numbers=TRUE)
+#' partPlot = plotPartitions(pProp, stacked=TRUE)
 plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
-    # resAll = t(sapply(assignedPartitions, table))
-    # resAllAve = sweep(resAll, 1, apply(resAll, 1, sum), FUN="/")*100
-    # df = data.frame(partition=colnames(resAll), nOverlaps=t(resAll))
     .validateInputs(list(assignedPartitions="data.frame"))
     
-    df = assignedPartitions 
+    if ("bpOverlap" %in% colnames(assignedPartitions)){
+      df = data.frame(partition=assignedPartitions$partition,
+                      Freq=assignedPartitions$bpOverlap)
+    }else{
+      df = assignedPartitions 
+    }
     # stacked bar option
     if (stacked){
       if ("name" %in% names(assignedPartitions)){
@@ -689,7 +752,9 @@ plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
         geom_bar(stat="identity", position=position_dodge()) + 
         theme_blank_facet_label() + # No boxes around labels
         xlab("Genomic partition") +
-        ylab(ifelse(numbers,"Counts","Frequency (%)"))  +
+        ylab(ifelse(numbers & "bpOverlap" %in% colnames(assignedPartitions),
+                    "Counts [bp]",
+                    ifelse(numbers, "Counts [regions]", "Frequency (%)")))  +
         scale_fill_discrete(name="regionSet") + 
         theme(legend.position="bottom")
     }
@@ -702,217 +767,6 @@ plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
       ggtitle(paste("Distribution across genomic partitions"))
 
     return(g)
-}
-
-#' Calculates the distribution of overlaps (in base pairs) between 
-#' query and arbitrary genomic partitions.
-#' 
-#' Takes overlaps between query and a partition. The output is the number
-#' of base pairs that fall into overlap. Frequency then gives the proportions
-#' of query that overlap with a given partition
-#'
-#' @param query GRanges or GRangesList with regions to classify
-#' @param partitionList NAMED list of genomic partitions
-#'     GRanges. 
-#' @param remainder A character vector to assign any query regions that do
-#'     not overlap with anything in the partitionList. Defaults to "intergenic"
-#' @return A data.frame giving total overlap [bp] of a GRanges object to a
-#'     partition from a previously provided partitionList.
-#' @export
-#' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR, 
-#'                                     geneModels_hg19$exonsGR,
-#'                                     geneModels_hg19$threeUTRGR, 
-#'                                     geneModels_hg19$fiveUTRGR)
-#' calcPropPartitions(vistaEnhancers, partitionList)
-calcPropPartitions = function(query, partitionList, remainder="intergenic"){
-  .validateInputs(list(query=c("GRanges", "GRangesList"), 
-                       partitionList="list"))
-  
-  if (is(query, "GRangesList")) {
-    # Recurse over each GRanges object
-    x = lapply(query, calcPropPartitions, partitionList, remainder)
-    nameList = names(query)
-    if(is.null(nameList)) {
-      newnames = seq_along(query) # Fallback to sequential numbers
-      nameList = names
-    }
-    # Append names
-    xb = rbindlist(x)
-    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
-    return(xb)
-  }
-  
-  # do overlap with each partition and record the overlap widths
-  totalOverlap = lapply(partitionList, overlapWidths, query)
-  
-  # correct the number of overlapping bases for overlapping elements 
-  # (e.g) promoterCore is part of promoterProx - subtract that
-  correctTotalOverlap = totalOverlap
-  
-  correctTotalOverlap$promoterProx = totalOverlap$promoterProx - 
-    totalOverlap$promoterCore
-  
-  nonIntron = totalOverlap$threeUTR + totalOverlap$fiveUTR +
-    totalOverlap$exon
-  correctTotalOverlap$intron = totalOverlap$intron - nonIntron
-  
-  # calculate the number of bases that did not fall anywhere - remainder
-  remainderBases = sum(width(query)) - sum(unlist(correctTotalOverlap))
-  
-  # gather all overlaps into data.frame
-  propPartitions = data.frame(partition = c(names(correctTotalOverlap), remainder),
-                              bpOverlap = c(unlist(correctTotalOverlap), remainderBases))
-  propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
-  return(propPartitions)
-}
-
-#' Calculates the distribution of overlaps (in base pairs) between 
-#' query and arbitrary genomic partitions. The function uses built-in
-#' partitions for a given reference genome assembly, and is a wrapper
-#' # function for \code{calcPropPartitions} function.
-#' 
-#' @param query A GenomicRanges or GenomicRangesList object with query regions
-#' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). This will be used to grab genome 
-#'     annotations with \code{getGeneModels}
-#' @param remainder A character vector to assign any query regions that do
-#'     not overlap with anything in the partitionList. Defaults to "intergenic"
-#' @return A data.frame giving total overlap [bp] of a GRanges object to a
-#'     partition from a previously provided partitionList.
-#' @export
-#' @examples 
-#' calcPropPartitionsRef(vistaEnhancers, "hg19")
-calcPropPartitionsRef = function(query, refAssembly, remainder="intergenic"){
-  geneModels = getGeneModels(refAssembly)
-  partitionList = genomePartitionList(geneModels$genesGR, 
-                                      geneModels$exonsGR,
-                                      geneModels$threeUTRGR, 
-                                      geneModels$fiveUTRGR)
-  message("Calculating overlaps...")
-  return(calcPropPartitions(query, partitionList))
-}
-
-
-#'Calculates expected partition overlap based on base pair contribution
-#' of each feature (partition) to genome .Expected and observed overlaps
-#' are then compared.
-#'
-#' @param query GRanges or GRangesList with regions to classify.
-#' @param partitionList NAMED list of genomic partitions
-#'     GRanges. 
-#' @param genomeSize The number of bases in the query genome. In other words, 
-#'     the sum of all chromosome sizes.
-#' @param remainder  Which partition do you want to account for 'everything 
-#'     else'?
-#' @return A data.frame assigning each element of a GRanges object to a
-#'     partition from a previously provided partitionList.
-#' @export
-#' @examples 
-#' partitionList = genomePartitionList(geneModels_hg19$genesGR,
-#'                                     geneModels_hg19$exonsGR,
-#'                                     geneModels_hg19$threeUTRGR, 
-#'                                     geneModels_hg19$fiveUTRGR)
-#' chromSizes = getChromSizes('hg19')
-#' genomeSize = sum(chromSizes)
-#' calcExpectedPropPartitions(vistaEnhancers, partitionList, genomeSize)
-calcExpectedPropPartitions = function(query, partitionList,
-                                      genomeSize=NULL, remainder="intergenic") {
-  .validateInputs(list(query=c("GRanges", "GRangesList"), 
-                       partitionList="list"))
-  if (methods::is(query, c("GRangesList"))) {
-    # Recurse over each GRanges object
-    x = lapply(query, calcExpectedPropPartitions, partitionList,
-               genomeSize, remainder)
-    nameList = names(query)
-    if(is.null(nameList)) {
-      nameList = seq_along(query) # Fallback to sequential numbers
-    }
-    # Append names
-    xb = data.table::rbindlist(x)
-    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
-    return(xb)
-  }
-  
-  # Get expected partitions - total number of bp each element
-  # contributes to the genome 
-  #(intron = gene - (exon + 3'UTR + 5'UTR))
-  #intergenic = genomeSize - other
-  partitionNames = names(partitionList)
-  # get the total number of base pairs in query
-  query_total = sum(width(query))
-  
-  widths = lapply(partitionList, width)
-  elements_total = lapply(widths, sum)
-  
-  elements_total$promoterProx = elements_total$promoterProx - 
-    elements_total$promoterCore
-  
-  elements_total$intron = elements_total$intron - 
-    (elements_total$exon + 
-       elements_total$threeUTR + 
-       elements_total$fiveUTR)
-  
-  partitionCounts = data.table::data.table(
-    plyr::ldply(elements_total, data.frame))
-  colnames(partitionCounts) = c("partition", "N")
-  
-  
-  if (!is.null(genomeSize)) {
-    # Calculate remainder
-    partitionCounts = rbind(partitionCounts,
-                            data.table::data.table(partition=remainder,
-                                                   N=(genomeSize-sum(partitionCounts$N))))
-  }
-  
-  partitionCounts$N = partitionCounts$N / genomeSize * query_total
-  
-  # these are the final expected partition counts based on element sizes
-  partitionCounts = partitionCounts[order(partitionCounts$partition)]
-  
-  # now calculate the observed partitions
-  observedPartition = calcPropPartitions(query, partitionList, remainder)
-  
-  expectedPartitions = data.table::data.table(
-    partition=observedPartition$partition, 
-    observed=observedPartition$bpOverlap)
-  
-  expectedPartitions = expectedPartitions[partitionCounts, on = "partition", nomatch=0]
-  data.table::setnames(expectedPartitions,"N","expected")
-  expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
-                                       expectedPartitions$expected)]
-  partitionNames = c(partitionNames, remainder)
-  return(expectedPartitions[match(partitionNames,
-                                  expectedPartitions$partition),])
-}
-
-
-#' Calculates the distribution of observed versus expected overlaps for a 
-#' query set to a reference assembly
-#'
-#' This function is a wrapper for \code{calcExpectedPropPartitions} that uses 
-#' built-in partitions for a given reference genome assembly.
-#' 
-#' @param query A GenomicRanges or GenomicRangesList object with query regions
-#' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
-#'     with \code{getTSSs}.
-#' @return A data.frame indicating the number of query region overlaps in   
-#'     several genomic partitions.
-#' @export
-#' @examples 
-#' calcExpectedPartitionsRef(vistaEnhancers, "hg19")
-calcExpectedPropPartitionsRef = function(query, refAssembly) {
-  .validateInputs(list(query=c("GRanges", "GRangesList"), 
-                       refAssembly="character"))
-  geneModels = getGeneModels(refAssembly)
-  chromSizes = getChromSizes(refAssembly)
-  genomeSize = sum(chromSizes)
-  partitionList = genomePartitionList(geneModels$genesGR, 
-                                      geneModels$exonsGR,
-                                      geneModels$threeUTRGR,
-                                      geneModels$fiveUTRGR)
-  return(calcExpectedPropPartitions(query, partitionList, genomeSize))
 }
 
 

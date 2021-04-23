@@ -10,7 +10,8 @@ calcExpectedPartitions(
   query,
   partitionList,
   genomeSize = NULL,
-  remainder = "intergenic"
+  remainder = "intergenic",
+  bpProportion = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,12 @@ the sum of all chromosome sizes.}
 
 \item{remainder}{Which partition do you want to account for 'everything 
 else'?}
+
+\item{bpProportion}{logical indicating if overlaps should be calculated based
+on number of base pairs overlapping with each partition. 
+bpProportion=FALSE does overlaps in priority order, 
+bpProportion=TRUE counts number of overlapping
+base pairs between query and each partition.}
 }
 \value{
 A data.frame assigning each element of a GRanges object to a
@@ -43,4 +50,5 @@ partitionList = genomePartitionList(geneModels_hg19$genesGR,
 chromSizes = getChromSizes('hg19')
 genomeSize = sum(chromSizes)
 calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
+calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize, bpProportion=TRUE)
 }

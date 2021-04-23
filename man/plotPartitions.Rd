@@ -33,4 +33,8 @@ p = calcPartitionsRef(vistaEnhancers, "hg19")
 partPlot = plotPartitions(p)
 partCounts = plotPartitions(p, numbers=TRUE)
 partPlot = plotPartitions(p, stacked=TRUE)
+pProp = calcPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
+partPlot = plotPartitions(pProp)
+partCounts = plotPartitions(pProp, numbers=TRUE)
+partPlot = plotPartitions(pProp, stacked=TRUE)
 }
