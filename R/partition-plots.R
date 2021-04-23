@@ -696,6 +696,9 @@ plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
     if ("bpOverlap" %in% colnames(assignedPartitions)){
       df = data.frame(partition=assignedPartitions$partition,
                       Freq=assignedPartitions$bpOverlap)
+      if("name" %in% names(assignedPartitions)){
+        df$name = assignedPartitions$name
+      }
     }else{
       df = assignedPartitions 
     }
@@ -736,8 +739,7 @@ plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
         # percentages are to be set as the default instead of raw overlaps
         if (numbers == FALSE) {
           # assigned partitions is a data table
-          df$Freq = assignedPartitions[, .(Freq.Perc=(Freq/sum(Freq)) * 100), 
-                                       by=name]$"Freq.Perc" 
+          df$Freq = (df$Freq / sum(df$Freq)) * 100
         }
         g = ggplot(df, aes(x=partition, y=Freq, fill=factor(name)))
       } else {
