@@ -750,56 +750,6 @@ calcPropPartitions = function(query, partitionList, remainder="intergenic"){
   # do overlap with each partition and record the overlap widths
   totalOverlap = lapply(partitionList, overlapWidths, query)
   
-  # calculate the number of bases that did not fall anywhere - remainder
-  remainderBases = sum(width(query)) - sum(unlist(totalOverlap))
-  
-  # gather all overlaps into data.frame
-  propPartitions = data.frame(partition = c(names(partitionList), remainder),
-                              bpOverlap = c(unlist(totalOverlap), remainderBases))
-  propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
-  return(propPartitions)
-}
-
-#' Calculates the distribution of overlaps (in base pairs) between 
-#' query and arbitrary genomic partitions. The function uses built-in
-#' partitions for a given reference genome assembly.
-#' 
-#' @param query A GenomicRanges or GenomicRangesList object with query regions
-#' @param refAssembly A character vector specifying the reference genome
-#'     assembly (*e.g.* 'hg19'). This will be used to grab genome 
-#'     annotations with \code{getGeneModels}
-#' @param remainder A character vector to assign any query regions that do
-#'     not overlap with anything in the partitionList. Defaults to "intergenic"
-#' @return A data.frame giving total overlap [bp] of a GRanges object to a
-#'     partition from a previously provided partitionList.
-#' @export
-#' @examples 
-#' calcPropPartitionsRef(vistaEnhancers, "hg19")
-calcPropPartitionsRef = function(query, refAssembly, remainder="intergenic"){
-  geneModels = getGeneModels(refAssembly)
-  partitionList = genomePartitionList(geneModels$genesGR, 
-                                      geneModels$exonsGR,
-                                      geneModels$threeUTRGR, 
-                                      geneModels$fiveUTRGR)
-  message("Calculating overlaps...")
-  
-  if (is(query, "GRangesList")) {
-    # Recurse over each GRanges object
-    x = lapply(query, calcPropPartitionsRef, refAssembly, remainder)
-    nameList = names(query)
-    if(is.null(nameList)) {
-      newnames = seq_along(query) # Fallback to sequential numbers
-      nameList = names
-    }
-    # Append names
-    xb = rbindlist(x)
-    xb$name = rep(nameList, vapply(x, nrow, integer(1)))
-    return(xb)
-  }
-  
-  # do overlap with each partition and record the overlap widths
-  totalOverlap = lapply(partitionList, overlapWidths, query)
-  
   # correct the number of overlapping bases for overlapping elements 
   # (e.g) promoterCore is part of promoterProx - subtract that
   correctTotalOverlap = totalOverlap
@@ -819,6 +769,32 @@ calcPropPartitionsRef = function(query, refAssembly, remainder="intergenic"){
                               bpOverlap = c(unlist(correctTotalOverlap), remainderBases))
   propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
   return(propPartitions)
+}
+
+#' Calculates the distribution of overlaps (in base pairs) between 
+#' query and arbitrary genomic partitions. The function uses built-in
+#' partitions for a given reference genome assembly, and is a wrapper
+#' # function for \code{calcPropPartitions} function.
+#' 
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector specifying the reference genome
+#'     assembly (*e.g.* 'hg19'). This will be used to grab genome 
+#'     annotations with \code{getGeneModels}
+#' @param remainder A character vector to assign any query regions that do
+#'     not overlap with anything in the partitionList. Defaults to "intergenic"
+#' @return A data.frame giving total overlap [bp] of a GRanges object to a
+#'     partition from a previously provided partitionList.
+#' @export
+#' @examples 
+#' calcPropPartitionsRef(vistaEnhancers, "hg19")
+calcPropPartitionsRef = function(query, refAssembly, remainder="intergenic"){
+  geneModels = getGeneModels(refAssembly)
+  partitionList = genomePartitionList(geneModels$genesGR, 
+                                      geneModels$exonsGR,
+                                      geneModels$threeUTRGR, 
+                                      geneModels$fiveUTRGR)
+  message("Calculating overlaps...")
+  return(calcPropPartitions(query, partitionList))
 }
 
 # Internal helper function to overlap two data.table objects and
