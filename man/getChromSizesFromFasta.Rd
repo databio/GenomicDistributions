@@ -4,7 +4,7 @@
 \alias{getChromSizesFromFasta}
 \title{Get gene models from a remote or local FASTA file}
 \usage{
-getChromSizesFromFasta(source, destDir)
+getChromSizesFromFasta(source, destDir = NULL)
 }
 \arguments{
 \item{source}{a string that is either a path to a local or remote FASTA}
@@ -19,5 +19,5 @@ Get gene models from a remote or local FASTA file
 }
 \examples{
 CElegansUrl = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
-CElegansChromSizes = getChromSizesFromFasta(CElegansUrl, getwd())
+CElegansChromSizes = getChromSizesFromFasta(CElegansUrl)
 }

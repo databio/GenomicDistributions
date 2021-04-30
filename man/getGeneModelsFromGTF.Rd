@@ -4,16 +4,21 @@
 \alias{getGeneModelsFromGTF}
 \title{Get gene models from a remote or local GTF file}
 \usage{
-getGeneModelsFromGTF(source, destDir, features, convertEnsemblUCSC = FALSE)
+getGeneModelsFromGTF(
+  source,
+  features,
+  convertEnsemblUCSC = FALSE,
+  destDir = NULL
+)
 }
 \arguments{
 \item{source}{a string that is either a path to a local or remote GTF}
 
-\item{destDir}{a string that indicates the path to the directory where the downloaded GTF file should be stored}
-
 \item{features}{a vector of strings with feature identifiers that to include in the result list}
 
 \item{convertEnsemblUCSC}{a logical indicating whether Ensembl style chromosome annotation should be changed to UCSC style}
+
+\item{destDir}{a string that indicates the path to the directory where the downloaded GTF file should be stored}
 }
 \value{
 a list of GRanges objects
@@ -24,5 +29,5 @@ Get gene models from a remote or local GTF file
 \examples{
 CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
-CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfUrl, getwd(), features, TRUE)
+CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfUrl, features, TRUE)
 }

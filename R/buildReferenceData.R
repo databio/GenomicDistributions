@@ -1,15 +1,16 @@
 #' Read local or remote file
 #'
 #' @param source a string that is either a path to a local or remote GTF
-#' @param destDir a string that indicates the path to the directory where the downloaded GTF file should be stored
+#' @param destDir a string that indicates the path to the directory where the downloaded GTF file should be stored. If not provided, a temporary directory will be used.
 #'
 #' @return data.frame retrieved file path
 #' @export
 #'
 #' @examples
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-#' CElegansGtf = retrieveFile(CElegansGtfUrl, getwd())
-retrieveFile <- function(source, destDir){
+#' CElegansGtf = retrieveFile(CElegansGtfUrl)
+retrieveFile <- function(source, destDir=NULL){
+    if (is.null(destDir)) destDir = tempdir()
     # download file, if not local
     if (!file.exists(source)) {
         destFile = paste(destDir, basename(source), sep = "/")
@@ -36,9 +37,11 @@ retrieveFile <- function(source, destDir){
 #'
 #' @examples
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-#' CElegansTss = getTssFromGTF(CElegansGtfUrl, getwd(), TRUE)
-getTssFromGTF <- function(source, destDir, convertEnsemblUCSC){
+#' CElegansTss = getTssFromGTF(CElegansGtfUrl, TRUE)
+getTssFromGTF <- function(source, convertEnsemblUCSC, destDir=NULL){
+    
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
+    
     subsetGtfDf = GtfDf %>% 
         filter(gene_biotype == "protein_coding", type == "gene")
     gr = makeGRangesFromDataFrame(subsetGtfDf, keep.extra.columns = T)
@@ -63,11 +66,11 @@ getTssFromGTF <- function(source, destDir, convertEnsemblUCSC){
 #' @examples
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 #' features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
-#' CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfUrl, getwd(), features, TRUE)
+#' CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfUrl, features, TRUE)
 getGeneModelsFromGTF <- function(source,
-                                 destDir,
                                  features,
-                                 convertEnsemblUCSC = FALSE) {
+                                 convertEnsemblUCSC = FALSE,
+                                 destDir = NULL) {
     message("Reading GTF file: ", destFile)
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
     subsetGtfDf = GtfDf %>%
@@ -97,12 +100,13 @@ getGeneModelsFromGTF <- function(source,
 #' @param destDir a string that indicates the path to the directory where the downloaded FASTA file should be stored
 #'
 #' @return a named vector of sequence lengths
+#' @importFrom Biostrings readDNAStringSet
 #' @export
 #'
 #' @examples
 #' CElegansUrl = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
-#' CElegansChromSizes = getChromSizesFromFasta(CElegansUrl, getwd())
-getChromSizesFromFasta <- function(source, destDir) {
+#' CElegansChromSizes = getChromSizesFromFasta(CElegansUrl)
+getChromSizesFromFasta <- function(source, destDir=NULL) {
     fastaPath = retrieveFile(source, destDir)
     fastaStringSet = readDNAStringSet(fastaPath)
     oriNames = fastaStringSet@ranges@NAMES

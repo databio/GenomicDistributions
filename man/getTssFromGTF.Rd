@@ -4,14 +4,14 @@
 \alias{getTssFromGTF}
 \title{Get transcription start sites (TSSs) from a remote or local GTF file}
 \usage{
-getTssFromGTF(source, destDir, convertEnsemblUCSC)
+getTssFromGTF(source, convertEnsemblUCSC, destDir = NULL)
 }
 \arguments{
 \item{source}{a string that is either a path to a local or remote GTF}
 
-\item{destDir}{a string that indicates the path to the directory where the downloaded GTF file should be stored}
-
 \item{convertEnsemblUCSC}{a logical indicating whether Ensembl style chromosome annotation should be changed to UCSC style}
+
+\item{destDir}{a string that indicates the path to the directory where the downloaded GTF file should be stored}
 }
 \value{
 a list of GRanges objects
@@ -21,5 +21,5 @@ Get transcription start sites (TSSs) from a remote or local GTF file
 }
 \examples{
 CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-CElegansTss = getTssFromGTF(CElegansGtfUrl, getwd(), TRUE)
+CElegansTss = getTssFromGTF(CElegansGtfUrl, TRUE)
 }

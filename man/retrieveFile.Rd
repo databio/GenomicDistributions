@@ -4,7 +4,7 @@
 \alias{retrieveFile}
 \title{Read local or remote file}
 \usage{
-retrieveFile(source, destDir)
+retrieveFile(source, destDir = NULL)
 }
 \arguments{
 \item{source}{a string that is either a path to a local or remote GTF}
@@ -19,5 +19,5 @@ Read local or remote file
 }
 \examples{
 CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-CElegansGtf = retrieveFile(CElegansGtfUrl, getwd())
+CElegansGtf = retrieveFile(CElegansGtfUrl)
 }
