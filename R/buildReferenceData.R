@@ -15,7 +15,11 @@ retrieveFile <- function(source, destDir=NULL){
     if (!file.exists(source)) {
         destFile = paste(destDir, basename(source), sep = "/")
         message("File will be saved in: ", destFile)
-        download.file(url = source, destfile = destFile)
+        if (file.exists(destFile)){
+            message("File exists: ", destFile)
+        } else{
+            download.file(url = source, destfile = destFile)    
+        }
     } else{
         destFile = source
         message("Got local file: ", destFile)
@@ -33,19 +37,18 @@ retrieveFile <- function(source, destDir=NULL){
 #'
 #' @return a list of GRanges objects
 #'
+#' @import dplyr
 #' @export
 #'
 #' @examples
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 #' CElegansTss = getTssFromGTF(CElegansGtfUrl, TRUE)
-getTssFromGTF <- function(source, convertEnsemblUCSC, destDir=NULL){
-    
+getTssFromGTF <- function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
-    
     subsetGtfDf = GtfDf %>% 
-        filter(gene_biotype == "protein_coding", type == "gene")
+        dplyr::filter(gene_biotype == "protein_coding", type == "gene")
     gr = makeGRangesFromDataFrame(subsetGtfDf, keep.extra.columns = T)
-    feats = promoters(gr, 1, 1)
+    feats = promoters(gr, 1, 1) 
     if(convertEnsemblUCSC)
         seqlevels(feats) = paste0("chr", seqlevels(feats))
     feats
@@ -61,6 +64,7 @@ getTssFromGTF <- function(source, convertEnsemblUCSC, destDir=NULL){
 #'
 #' @return a list of GRanges objects
 #'
+#' @import dplyr
 #' @export
 #'
 #' @examples
@@ -71,7 +75,6 @@ getGeneModelsFromGTF <- function(source,
                                  features,
                                  convertEnsemblUCSC = FALSE,
                                  destDir = NULL) {
-    message("Reading GTF file: ", destFile)
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
     subsetGtfDf = GtfDf %>%
         filter(gene_biotype == "protein_coding")

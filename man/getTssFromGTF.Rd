@@ -4,7 +4,7 @@
 \alias{getTssFromGTF}
 \title{Get transcription start sites (TSSs) from a remote or local GTF file}
 \usage{
-getTssFromGTF(source, convertEnsemblUCSC, destDir = NULL)
+getTssFromGTF(source, convertEnsemblUCSC = FALSE, destDir = NULL)
 }
 \arguments{
 \item{source}{a string that is either a path to a local or remote GTF}
