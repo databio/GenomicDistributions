@@ -38,10 +38,7 @@ retrieveFile <- function(source, destDir){
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 #' CElegansTss = getTssFromGTF(CElegansGtfUrl, getwd(), TRUE)
 getTssFromGTF <- function(source, destDir, convertEnsemblUCSC){
-    
-    message("Reading GTF file: ", destFile)
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
-    
     subsetGtfDf = GtfDf %>% 
         filter(gene_biotype == "protein_coding", type == "gene")
     gr = makeGRangesFromDataFrame(subsetGtfDf, keep.extra.columns = T)
