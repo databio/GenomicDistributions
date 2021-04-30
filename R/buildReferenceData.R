@@ -14,10 +14,10 @@ retrieveFile <- function(source, destDir=NULL){
     # download file, if not local
     if (!file.exists(source)) {
         destFile = paste(destDir, basename(source), sep = "/")
-        message("File will be saved in: ", destFile)
         if (file.exists(destFile)){
             message("File exists: ", destFile)
         } else{
+            message("File will be saved in: ", destFile)
             download.file(url = source, destfile = destFile)    
         }
     } else{
