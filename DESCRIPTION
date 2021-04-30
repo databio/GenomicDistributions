@@ -40,7 +40,8 @@ Suggests:
     testthat,
     knitr,
     BiocStyle,
-    rmarkdown
+    rmarkdown,
+    dplyr
 Enhances:
     BSgenome,
     extrafont,
