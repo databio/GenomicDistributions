@@ -33,15 +33,15 @@ Imports:
     methods,
     utils,
     Biostrings,
-    plyr
+    plyr,
+    dplyr
 Suggests:
     AnnotationFilter,
     rtracklayer,
     testthat,
     knitr,
     BiocStyle,
-    rmarkdown,
-    dplyr
+    rmarkdown
 Enhances:
     BSgenome,
     extrafont,

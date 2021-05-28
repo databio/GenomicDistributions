@@ -113,14 +113,16 @@ print(p)
 ```
 
 
-Here, we're using a built-in dataset of protein-coding TSSs for hg38. You can see clear differences here; the JUN TF dataset is the most concentrated around TSSs, followed by the H3K4me3 experiments, which makes sense because that's a promoter mark. Enhancer marks H3K27ac and H3K4me1 are more diffuse, with the repressive mark H3K27me3 being the most diffuse of all of them. This plot makes it easy to visualize these differences for lots of files all at once. -- but we're too zoomed out with the default settings, since almost everything is happening right around the TSSs. So, let's zoom in now and look at 10 kb surrounding the TSS.
+Here, we're using a built-in dataset of protein-coding TSSs for hg38. You can see clear differences here; the JUN TF dataset is the most concentrated around TSSs, followed by the H3K4me3 experiments, which makes sense because that's a promoter mark. Enhancer marks H3K27ac and H3K4me1 are more diffuse, with the repressive mark H3K27me3 being the most diffuse of all of them. This plot makes it easy to visualize these differences for lots of files all at once. -- but we're too zoomed out with the default settings, since almost everything is happening right around the TSSs. So, let's zoom in now and look at 10 kb surrounding the TSS and let's order the datasets based on the values in bins surrounding TSSs.
 
 ```{r TSS-plot-closeup}
-p2 = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, size=1e4, nbin=200)
+p2 = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, size=1e4, nbin=200, labelOrder = "center")
 print(p2)
 ```
 
 Now we can see much more clearly what's happening around the TSS. Notice how the TF, JUN, is right at the TSS, while the promoter-associated histone marks show the nucleosome-depleted region centered at the TSS.  The H3K4me1 mark is broader than the H3K27ac experiments. Also, the repressive marks still show that broad spread.
+
+
 
 Let's see what happens when we calculate distances to *genes*, instead of to *TSSs*. The difference is now our feature data will be the full gene body rather than just a 1 nucleotide at the start site.:
 
@@ -142,6 +144,13 @@ Next, let's see how these are distributed across genomic partitions.
 ```{r partition-plot}
 perc2 = calcPartitionsRef(queryList, "hg38")
 plotPartitions(perc2)
+```
+
+In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In `calcPartitionsRef` function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets fall into each annotation class, you can just set the `bpProportion=T`. Let's have a look.
+
+```{r partition-plot-proportional}
+propPerc = calcPartitionsRef(queryList, "hg38", bpProportion=T)
+plotPartitions(propPerc)
 ```
 
 You can also include custom partitions too! First, we'll grab all of the Ensembl predicted enhancers from the ensembl regulatory build.

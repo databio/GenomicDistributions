@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2021-04-22"
+date: "2021-05-28"
 output: 
   html_document:
     theme: sandstone
@@ -59,11 +59,10 @@ datasetList
 ```
 
 ```
-##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"             
-##  [4] "TSS_mm9"               "cellTypeMetadata"      "chromSizes_hg19"      
-##  [7] "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"       
-## [10] "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
-## [13] "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38"
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"     
+##  [6] "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"      
+## [11] "geneModels_hg38"       "geneModels_mm10"       "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38"
+## [16] "openSignalMatrix_mm10"
 ```
 
 With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
@@ -116,24 +115,26 @@ First let's look at the distance to TSS:
 
 ```r
 TSSdist = calcFeatureDistRefTSS(queryList, "hg38")
-p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, nbin=200, labelOrder = "center")
+p = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, nbin=200)
 print(p)
 ```
 
 ![plot of chunk TSS-plot](figures-full-power/TSS-plot-1.png)
 
 
-Here, we're using a built-in dataset of protein-coding TSSs for hg38. You can see clear differences here; the JUN TF dataset is the most concentrated around TSSs, followed by the H3K4me3 experiments, which makes sense because that's a promoter mark. Enhancer marks H3K27ac and H3K4me1 are more diffuse, with the repressive mark H3K27me3 being the most diffuse of all of them. This plot makes it easy to visualize these differences for lots of files all at once. -- but we're too zoomed out with the default settings, since almost everything is happening right around the TSSs. So, let's zoom in now and look at 10 kb surrounding the TSS.
+Here, we're using a built-in dataset of protein-coding TSSs for hg38. You can see clear differences here; the JUN TF dataset is the most concentrated around TSSs, followed by the H3K4me3 experiments, which makes sense because that's a promoter mark. Enhancer marks H3K27ac and H3K4me1 are more diffuse, with the repressive mark H3K27me3 being the most diffuse of all of them. This plot makes it easy to visualize these differences for lots of files all at once. -- but we're too zoomed out with the default settings, since almost everything is happening right around the TSSs. So, let's zoom in now and look at 10 kb surrounding the TSS and let's order the datasets based on the values in bins surrounding TSSs.
 
 
 ```r
-p2 = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, size=1e4, nbin=200)
+p2 = plotFeatureDist(TSSdist, featureName="TSS", tile=TRUE, size=1e4, nbin=200, labelOrder = "center")
 print(p2)
 ```
 
 ![plot of chunk TSS-plot-closeup](figures-full-power/TSS-plot-closeup-1.png)
 
 Now we can see much more clearly what's happening around the TSS. Notice how the TF, JUN, is right at the TSS, while the promoter-associated histone marks show the nucleosome-depleted region centered at the TSS.  The H3K4me1 mark is broader than the H3K27ac experiments. Also, the repressive marks still show that broad spread.
+
+
 
 Let's see what happens when we calculate distances to *genes*, instead of to *TSSs*. The difference is now our feature data will be the full gene body rather than just a 1 nucleotide at the start site.:
 
@@ -162,6 +163,16 @@ plotPartitions(perc2)
 ```
 
 ![plot of chunk partition-plot](figures-full-power/partition-plot-1.png)
+
+In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In `calcPartitionsRef` function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets fall into each annotation class, you can just set the `bpProportion=T`. Let's have a look.
+
+
+```r
+propPerc = calcPartitionsRef(queryList, "hg38", bpProportion=T)
+plotPartitions(propPerc)
+```
+
+![plot of chunk partition-plot-proportional](figures-full-power/partition-plot-proportional-1.png)
 
 You can also include custom partitions too! First, we'll grab all of the Ensembl predicted enhancers from the ensembl regulatory build.
 
@@ -227,10 +238,19 @@ Furthermore, we can do the same thing with the expected plots that we could with
 
 ```r
 ep3 = calcExpectedPartitions(queryList, partitionList)
+```
+
+```
+## Error in set(x, j = name, value = value): RHS of assignment to existing column 'N' is zero length but not NULL. If you intend to delete the column use NULL. Otherwise, the RHS must have length > 0; e.g., NA_integer_. If you are trying to change the column type to be an empty list column then, as with all column type changes, provide a full length RHS vector such as vector('list',nrow(DT)); i.e., 'plonk' in the new column.
+```
+
+```r
 plotExpectedPartitions(ep3)
 ```
 
-![plot of chunk custom-expected-partition-plot](figures-full-power/custom-expected-partition-plot-1.png)
+```
+## Error in get(nms[i], envir = parent.frame(1)): object 'ep3' not found
+```
 
 Next, we'll plot the cumulative partition plots:
 
@@ -287,19 +307,10 @@ library(GenomicDistributionsData)
 data(openSignalMatrix_hg38)
 op = calcOpenSignal(queryList, openSignalMatrix_hg38)
 opp = plotOpenSignal(op)
-```
-
-```
-## Error: cannot allocate vector of size 537.9 Mb
-```
-
-```r
 opp
 ```
 
-```
-## Error in eval(expr, envir, enclos): object 'opp' not found
-```
+![plot of chunk open-signal](figures-full-power/open-signal-1.png)
 
 As expected, the active marks have greater overall signal. We also see some specificity, with regions derived from blood cells showing more openness in blood cell types.
 
