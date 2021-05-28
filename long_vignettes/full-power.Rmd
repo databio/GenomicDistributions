@@ -201,14 +201,17 @@ ep2 = calcExpectedPartitionsRef(queryList, "hg38")
 plotExpectedPartitions(ep2)
 ```
 
-Now we can start to draw some conclusions. All of these BED files are enriched in introns. We see lots of differences in promoters, which make biological sense: For example, the JUN TF is overrepresented in proximal and core promoters. The H3K4me3 experiment, a promoter mark, is the most overrepresented in core promoters. But the repressive or enhancer marks are depleted at promoters.
+Now we can start to draw some conclusions. We see lots of differences in promoters, which make biological sense:We see that H3K4me3 marks and JUN transcription factor are especially highly enriched in core promoter compared to the rest of the datasets. This makes biological sense since H3K4me3 is a well-known for its association with promoter regions and transcription factors bind promoter regions. On the other hand, the repressive marks like H3K27me3 associated with heterochromatin show considerably lower enrichment in the promoter regions.
 
-Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer partition.
+Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer partition. The function for calculation of expected partition distribution with user provided annotation classes, however, requires additional input compared to the wrapper `calcExpectedPartitionsRef` function. This is simply a sum of chromosome sizes for a given organism. Let’s also see, how do these results turn out when looking at proportional overlaps.
 
 ```{r custom-expected-partition-plot}
-ep3 = calcExpectedPartitions(queryList, partitionList)
+chromSizes = getChromSizes('hg38')
+genomeSize = sum(chromSizes)
+ep3 = calcExpectedPartitions(queryList, partitionList, genomeSize, bpProportion=T)
 plotExpectedPartitions(ep3)
 ```
+From this plot we can see that H3K27ac and H3K4me1, marks known for their association with enhancers, are in fact enriched in enhancer regions, unlike the rest of the datasets.
 
 Next, we'll plot the cumulative partition plots:
 

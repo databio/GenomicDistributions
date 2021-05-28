@@ -59,10 +59,10 @@ datasetList
 ```
 
 ```
-##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"     
-##  [6] "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"      
-## [11] "geneModels_hg38"       "geneModels_mm10"       "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38"
-## [16] "openSignalMatrix_mm10"
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"              
+##  [5] "cellTypeMetadata"      "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"      
+##  [9] "chromSizes_mm9"        "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
+## [13] "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38" "openSignalMatrix_mm10"
 ```
 
 With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
@@ -231,26 +231,27 @@ plotExpectedPartitions(ep2)
 
 ![plot of chunk expected-partition-plot](figures-full-power/expected-partition-plot-1.png)
 
-Now we can start to draw some conclusions. All of these BED files are enriched in introns. We see lots of differences in promoters, which make biological sense: For example, the JUN TF is overrepresented in proximal and core promoters. The H3K4me3 experiment, a promoter mark, is the most overrepresented in core promoters. But the repressive or enhancer marks are depleted at promoters.
+Now we can start to draw some conclusions. We see lots of differences in promoters, which make biological sense:We see that H3K4me3 marks and JUN transcription factor are especially highly enriched in core promoter compared to the rest of the datasets. This makes biological sense since H3K4me3 is a well-known for its association with promoter regions and transcription factors bind promoter regions. On the other hand, the repressive marks like H3K27me3 associated with heterochromatin show considerably lower enrichment in the promoter regions.
 
-Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer partition.
+Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer partition. The function for calculation of expected partition distribution with user provided annotation classes, however, requires additional input compared to the wrapper `calcExpectedPartitionsRef` function. This is simply a sum of chromosome sizes for a given organism. Let’s also see, how do these results turn out when looking at proportional overlaps.
 
 
 ```r
-ep3 = calcExpectedPartitions(queryList, partitionList)
+chromSizes = getChromSizes('hg38')
+genomeSize = sum(chromSizes)
+ep3 = calcExpectedPartitions(queryList, partitionList, genomeSize, bpProportion=T)
 ```
 
 ```
-## Error in set(x, j = name, value = value): RHS of assignment to existing column 'N' is zero length but not NULL. If you intend to delete the column use NULL. Otherwise, the RHS must have length > 0; e.g., NA_integer_. If you are trying to change the column type to be an empty list column then, as with all column type changes, provide a full length RHS vector such as vector('list',nrow(DT)); i.e., 'plonk' in the new column.
+## Warning in eval(jsub, SDenv, parent.frame()): NaNs produced
 ```
 
 ```r
 plotExpectedPartitions(ep3)
 ```
 
-```
-## Error in get(nms[i], envir = parent.frame(1)): object 'ep3' not found
-```
+![plot of chunk custom-expected-partition-plot](figures-full-power/custom-expected-partition-plot-1.png)
+From this plot we can see that H3K27ac and H3K4me1, marks known for their association with enhancers, are in fact enriched in enhancer regions, unlike the rest of the datasets.
 
 Next, we'll plot the cumulative partition plots:
 
