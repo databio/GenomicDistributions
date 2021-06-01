@@ -9,8 +9,8 @@
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab annotation 
 #'     models with \code{getGeneModels}
-#' @param bpProportion logical indicating if overlaps should be calculated based
-#'     on number of base pairs overlapping with each partition. 
+#' @param bpProportion logical indicating if overlaps should be calculated 
+#'     based on number of base pairs overlapping with each partition. 
 #'     bpProportion=FALSE does overlaps in priority order, 
 #'     bpProportion=TRUE counts number of overlapping
 #'     base pairs between query and each partition. 
@@ -215,8 +215,10 @@ calcPartitions = function(query, partitionList,
     remainderBases = sum(width(query)) - sum(unlist(correctTotalOverlap))
     
     # gather all overlaps into data.frame
-    propPartitions = data.frame(partition = c(names(correctTotalOverlap), remainder),
-                                bpOverlap = c(unlist(correctTotalOverlap), remainderBases))
+    propPartitions = data.frame(partition = c(names(correctTotalOverlap), 
+                                              remainder),
+                                bpOverlap = c(unlist(correctTotalOverlap), 
+                                              remainderBases))
     propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
     return(propPartitions)
   } else {
@@ -799,8 +801,6 @@ overlapWidths = function(partition, query){
   totalOverlap = sum(hits[, overlap])
   return(totalOverlap)
 }
-
-
 
 
 

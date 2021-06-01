@@ -1,7 +1,9 @@
 #' Read local or remote file
 #'
 #' @param source a string that is either a path to a local or remote GTF
-#' @param destDir a string that indicates the path to the directory where the downloaded GTF file should be stored. If not provided, a temporary directory will be used.
+#' @param destDir a string that indicates the path to the directory where
+#'       the downloaded GTF file should be stored. If not provided, 
+#'       a temporary directory will be used.
 #'
 #' @return data.frame retrieved file path
 #' @export
@@ -32,8 +34,10 @@ retrieveFile <- function(source, destDir=NULL){
 #' Get transcription start sites (TSSs) from a remote or local GTF file
 #'
 #' @param source a string that is either a path to a local or remote GTF
-#' @param destDir a string that indicates the path to the directory where the downloaded GTF file should be stored
-#' @param convertEnsemblUCSC a logical indicating whether Ensembl style chromosome annotation should be changed to UCSC style
+#' @param destDir a string that indicates the path to the directory where 
+#'        the downloaded GTF file should be stored
+#' @param convertEnsemblUCSC a logical indicating whether Ensembl style 
+#'        chromosome annotation should be changed to UCSC style
 #'
 #' @return a list of GRanges objects
 #'
@@ -58,9 +62,12 @@ getTssFromGTF <- function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
 #' Get gene models from a remote or local GTF file
 #'
 #' @param source a string that is either a path to a local or remote GTF
-#' @param destDir a string that indicates the path to the directory where the downloaded GTF file should be stored
-#' @param features a vector of strings with feature identifiers that to include in the result list
-#' @param convertEnsemblUCSC a logical indicating whether Ensembl style chromosome annotation should be changed to UCSC style
+#' @param destDir a string that indicates the path to the directory where
+#'        the downloaded GTF file should be stored
+#' @param features a vector of strings with feature identifiers that to 
+#'        include in the result list
+#' @param convertEnsemblUCSC a logical indicating whether Ensembl style 
+#'        chromosome annotation should be changed to UCSC style
 #'
 #' @return a list of GRanges objects
 #'
@@ -99,8 +106,10 @@ getGeneModelsFromGTF <- function(source,
 
 #' Get gene models from a remote or local FASTA file
 #'
-#' @param source a string that is either a path to a local or remote FASTA
-#' @param destDir a string that indicates the path to the directory where the downloaded FASTA file should be stored
+#' @param source a string that is either a path to a  
+#'        local or remote FASTA
+#' @param destDir a string that indicates the path to the 
+#'        directory where the downloaded FASTA file should be stored
 #'
 #' @return a named vector of sequence lengths
 #' @importFrom Biostrings readDNAStringSet
