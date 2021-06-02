@@ -9,7 +9,9 @@ retrieveFile(source, destDir = NULL)
 \arguments{
 \item{source}{a string that is either a path to a local or remote GTF}
 
-\item{destDir}{a string that indicates the path to the directory where the downloaded GTF file should be stored. If not provided, a temporary directory will be used.}
+\item{destDir}{a string that indicates the path to the directory where
+the downloaded GTF file should be stored. If not provided, 
+a temporary directory will be used.}
 }
 \value{
 data.frame retrieved file path

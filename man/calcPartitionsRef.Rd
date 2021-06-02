@@ -14,8 +14,8 @@ calcPartitionsRef(query, refAssembly, bpProportion = FALSE)
 assembly (*e.g.* 'hg19'). This will be used to grab annotation 
 models with \code{getGeneModels}}
 
-\item{bpProportion}{logical indicating if overlaps should be calculated based
-on number of base pairs overlapping with each partition. 
+\item{bpProportion}{logical indicating if overlaps should be calculated 
+based on number of base pairs overlapping with each partition. 
 bpProportion=FALSE does overlaps in priority order, 
 bpProportion=TRUE counts number of overlapping
 base pairs between query and each partition.}

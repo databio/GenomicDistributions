@@ -133,12 +133,20 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
         if (startsWith(conditionMessage(w), "GRanges object contains"))
             invokeRestart("muffleWarning")
     })
+    
+    # subtract overlaps (promoterCore lies within PromoterProx)
+    promoterProx = GenomicRanges::setdiff(promProx, promCore)
+    #   introns = gene - (5'UTR, 3'UTR, exons)
+    nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
+    nonThreeFive = GenomicRanges::setdiff(nonThree, fiveUTRGR)
+    intronGR = GenomicRanges::setdiff(nonThreeFive, exonsGR)
+    
     partitionList = list(promoterCore=promCore,
-                         promoterProx=promProx,
+                         promoterProx=promoterProx,
                          threeUTR=threeUTRGR, 
                          fiveUTR=fiveUTRGR,
                          exon=exonsGR,
-                         intron=genesGR)
+                         intron=intronGR)
 
     
     return(Filter(Negate(is.null), partitionList))
@@ -200,24 +208,13 @@ calcPartitions = function(query, partitionList,
     # do overlap with each partition and record the overlap widths
     totalOverlap = lapply(partitionList, overlapWidths, query)
     
-    # correct the number of overlapping bases for overlapping elements 
-    # (e.g) promoterCore is part of promoterProx - subtract that
-    correctTotalOverlap = totalOverlap
-    
-    correctTotalOverlap$promoterProx = totalOverlap$promoterProx - 
-      totalOverlap$promoterCore
-    
-    nonIntron = totalOverlap$threeUTR + totalOverlap$fiveUTR +
-      totalOverlap$exon
-    correctTotalOverlap$intron = totalOverlap$intron - nonIntron
-    
     # calculate the number of bases that did not fall anywhere - remainder
-    remainderBases = sum(width(query)) - sum(unlist(correctTotalOverlap))
+    remainderBases = sum(width(query)) - sum(unlist(totalOverlap))
     
     # gather all overlaps into data.frame
-    propPartitions = data.frame(partition = c(names(correctTotalOverlap), 
+    propPartitions = data.frame(partition = c(names(totalOverlap), 
                                               remainder),
-                                bpOverlap = c(unlist(correctTotalOverlap), 
+                                bpOverlap = c(unlist(totalOverlap), 
                                               remainderBases))
     propPartitions$frequency = propPartitions$bpOverlap / sum(propPartitions$bpOverlap)
     return(propPartitions)
@@ -255,9 +252,11 @@ calcPartitions = function(query, partitionList,
 #' are then compared.
 #'
 #' @param query GRanges or GRangesList with regions to classify.
-#' @param partitionList An ORDERED and NAMED list of genomic partitions
-#'     GRanges. This list must be in priority order; the input will be assigned
-#'     to the first partition it overlaps.
+#' @param partitionList An ORDERED (if bpProportion=FALSE) and NAMED 
+#'     list of genomic partitions GRanges. This list must be in 
+#'     priority order; the input will be assigned
+#'     to the first partition it overlaps. However, if bpProportion=TRUE, 
+#'     the list does not need ordering.
 #' @param genomeSize The number of bases in the query genome. In other words, 
 #'     the sum of all chromosome sizes.
 #' @return A data.frame assigning each element of a GRanges object to a
@@ -312,18 +311,9 @@ calcExpectedPartitions = function(query, partitionList,
     query_total = length(query)
   }
   
-  # calculate the number of bp in each partition and correct introns, 
-  # and proximal promoters (these overlap with other elements)
+  # calculate the number of bp in each partition
   widths = lapply(partitionList, width)
   elements_total = lapply(widths, sum)
-  
-  elements_total$promoterProx = elements_total$promoterProx - 
-    elements_total$promoterCore
-  
-  elements_total$intron = elements_total$intron - 
-    (elements_total$exon + 
-       elements_total$threeUTR + 
-       elements_total$fiveUTR)
   
   partitionCounts = data.table::data.table(
     plyr::ldply(elements_total, data.frame))

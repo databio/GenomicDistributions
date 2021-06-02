@@ -9,9 +9,11 @@ getTssFromGTF(source, convertEnsemblUCSC = FALSE, destDir = NULL)
 \arguments{
 \item{source}{a string that is either a path to a local or remote GTF}
 
-\item{convertEnsemblUCSC}{a logical indicating whether Ensembl style chromosome annotation should be changed to UCSC style}
+\item{convertEnsemblUCSC}{a logical indicating whether Ensembl style 
+chromosome annotation should be changed to UCSC style}
 
-\item{destDir}{a string that indicates the path to the directory where the downloaded GTF file should be stored}
+\item{destDir}{a string that indicates the path to the directory where 
+the downloaded GTF file should be stored}
 }
 \value{
 a list of GRanges objects

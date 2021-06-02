@@ -7,9 +7,11 @@
 getChromSizesFromFasta(source, destDir = NULL)
 }
 \arguments{
-\item{source}{a string that is either a path to a local or remote FASTA}
+\item{source}{a string that is either a path to a
+local or remote FASTA}
 
-\item{destDir}{a string that indicates the path to the directory where the downloaded FASTA file should be stored}
+\item{destDir}{a string that indicates the path to the 
+directory where the downloaded FASTA file should be stored}
 }
 \value{
 a named vector of sequence lengths

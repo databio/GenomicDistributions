@@ -17,9 +17,11 @@ calcExpectedPartitions(
 \arguments{
 \item{query}{GRanges or GRangesList with regions to classify.}
 
-\item{partitionList}{An ORDERED and NAMED list of genomic partitions
-GRanges. This list must be in priority order; the input will be assigned
-to the first partition it overlaps.}
+\item{partitionList}{An ORDERED (if bpProportion=FALSE) and NAMED 
+list of genomic partitions GRanges. This list must be in 
+priority order; the input will be assigned
+to the first partition it overlaps. However, if bpProportion=TRUE, 
+the list does not need ordering.}
 
 \item{genomeSize}{The number of bases in the query genome. In other words, 
 the sum of all chromosome sizes.}
