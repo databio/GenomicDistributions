@@ -88,8 +88,8 @@ getGeneModelsFromGTF <- function(source,
     retList = list()
     message("Extracting features: ", paste(features, collapse = ", "))
     for (feat in features) {
-        featGR = unique(keepStandardChromosomes(reduce(
-            makeGRangesFromDataFrame(
+        featGR = unique(GenomeInfoDb::keepStandardChromosomes(reduce(
+          GenomicRanges::makeGRangesFromDataFrame(
                 subsetGtfDf %>% filter(type == feat),
                 keep.extra.columns = T
             )

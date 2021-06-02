@@ -34,7 +34,8 @@ Imports:
     utils,
     Biostrings,
     plyr,
-    dplyr
+    dplyr,
+    GenomeInfoDb
 Suggests:
     AnnotationFilter,
     rtracklayer,

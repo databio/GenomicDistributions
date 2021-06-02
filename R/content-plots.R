@@ -30,7 +30,7 @@ calcGCContent = function(query, ref) {
         return(x)
     }
     # Restrict the seqnames to known chromosomes
-    query = keepStandardChromosomes(query, pruning.mode="coarse")
+    query = GenomeInfoDb::keepStandardChromosomes(query, pruning.mode="coarse")
     v = IRanges::Views(ref, query)
     gcvec = apply(Biostrings::alphabetFrequency(v)[,c("C","G")],1, sum)/width(v)
     return(gcvec)

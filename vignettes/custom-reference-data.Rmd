@@ -1,7 +1,7 @@
 ---
 title: "Custom reference data in GenomicDistributions"
 author: "Michał Stolarczyk"
-date: "2021-04-30"
+date: "2021-06-02"
 output: 
   BiocStyle::html_document:
     toc: true
@@ -42,11 +42,7 @@ CEelegansChromSizes = getChromSizesFromFasta(source=fastaSource)
 ```
 
 ```
-## File will be saved in: /var/folders/z_/bkm4rp412zjctjm28b54tbvr0000gn/T//Rtmp5eUUvI/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz
-```
-
-```
-## File exists: /var/folders/z_/bkm4rp412zjctjm28b54tbvr0000gn/T//Rtmp5eUUvI/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz
 ```
 Let's inspect the result:
 
@@ -68,11 +64,7 @@ CEelegansTSSs = getTssFromGTF(source=gtfSource, convertEnsemblUCSC=TRUE)
 ```
 
 ```
-## File will be saved in: /var/folders/z_/bkm4rp412zjctjm28b54tbvr0000gn/T//Rtmp5eUUvI/Caenorhabditis_elegans.WBcel235.103.gtf.gz
-```
-
-```
-## File exists: /var/folders/z_/bkm4rp412zjctjm28b54tbvr0000gn/T//Rtmp5eUUvI/Caenorhabditis_elegans.WBcel235.103.gtf.gz
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.103.gtf.gz
 ```
 
 Let's inspect the result:
@@ -91,22 +83,14 @@ head(CEelegansTSSs)
 ##   [4]     chrV 20824-20825      + | WormBase     gene        NA      <NA> WBGene00001177       egl-8    WormBase
 ##   [5]     chrV 45309-45310      + | WormBase     gene        NA      <NA> WBGene00015152     B0348.2    WormBase
 ##   [6]     chrV 48921-48922      + | WormBase     gene        NA      <NA> WBGene00015151     B0348.1    WormBase
-##         gene_biotype transcript_id transcript_source transcript_biotype exon_number     exon_id  protein_id
-##          <character>   <character>       <character>        <character> <character> <character> <character>
-##   [1] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
-##   [2] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
-##   [3] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
-##   [4] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
-##   [5] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
-##   [6] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
-##               tag
-##       <character>
-##   [1]        <NA>
-##   [2]        <NA>
-##   [3]        <NA>
-##   [4]        <NA>
-##   [5]        <NA>
-##   [6]        <NA>
+##         gene_biotype transcript_id transcript_source transcript_biotype exon_number     exon_id  protein_id         tag
+##          <character>   <character>       <character>        <character> <character> <character> <character> <character>
+##   [1] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [2] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [3] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [4] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [5] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [6] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
 ##   -------
 ##   seqinfo: 7 sequences from an unspecified genome; no seqlengths
 ```
@@ -120,11 +104,7 @@ CEelegansGeneModels = getGeneModelsFromGTF(source=gtfSource, features=features, 
 ```
 
 ```
-## File will be saved in: /var/folders/z_/bkm4rp412zjctjm28b54tbvr0000gn/T//Rtmp5eUUvI/Caenorhabditis_elegans.WBcel235.103.gtf.gz
-```
-
-```
-## File exists: /var/folders/z_/bkm4rp412zjctjm28b54tbvr0000gn/T//Rtmp5eUUvI/Caenorhabditis_elegans.WBcel235.103.gtf.gz
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.103.gtf.gz
 ```
 
 ```
