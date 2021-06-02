@@ -264,7 +264,7 @@ getMatrixStats = function(signalMatrix){
 reshapeDataToPlot = function(openRegionSummary, cellTypeMetadata){
   # reshape the signal matrix ans boxplotStats matrices into ggplot usable form
   # attach the metadata for coloring sort table alphabetically by 
-  #tissueType-cellType
+  # tissueType-cellType
   signalMatrix = openRegionSummary[["signalMatrix"]]
   boxStats = openRegionSummary[["matrixStats"]]
   
@@ -282,11 +282,12 @@ reshapeDataToPlot = function(openRegionSummary, cellTypeMetadata){
     plotBoxStats = reshape2::melt(boxStats, id.vars="boxStats",
                                   variable.name="cellType", value.name="value")
   }
-  data.table::setkey(cellTypeMetadata, cellType)
   
+  data.table::setkey(cellTypeMetadata, cellType)
   data.table::setDT(plotSignalMatrix)
   data.table::setkey(plotSignalMatrix, cellType)
-  plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
+
+  plotSignalMatrix = plotSignalMatrix[cellTypeMetadata, on = "cellType", nomatch=0]
   plotSignalMatrix[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotSignalMatrix, lowerCaseTissue, cellType)
   plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissueType], 
@@ -294,7 +295,7 @@ reshapeDataToPlot = function(openRegionSummary, cellTypeMetadata){
   
   data.table::setDT(plotBoxStats)
   data.table::setkey(plotBoxStats, cellType)
-  plotBoxStats = merge(plotBoxStats, cellTypeMetadata, all = FALSE)
+  plotBoxStats = plotBoxStats[cellTypeMetadata, on = "cellType", nomatch=0]
   plotBoxStats[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotBoxStats, lowerCaseTissue, cellType)
   plotBoxStats[, mixedVar := paste(plotBoxStats[,tissueType], 
