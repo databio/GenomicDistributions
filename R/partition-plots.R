@@ -136,6 +136,12 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
     
     # subtract overlaps (promoterCore lies within PromoterProx)
     promoterProx = GenomicRanges::setdiff(promProx, promCore)
+    
+    # remove any possible overlaps between classes
+    fiveUTRGR = GenomicRanges::setdiff(fiveUTRGR, threeUTRGR)
+    exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
+    exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
+    
     #   introns = gene - (5'UTR, 3'UTR, exons)
     nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
     nonThreeFive = GenomicRanges::setdiff(nonThree, fiveUTRGR)
@@ -210,6 +216,14 @@ calcPartitions = function(query, partitionList,
     
     # calculate the number of bases that did not fall anywhere - remainder
     remainderBases = sum(width(query)) - sum(unlist(totalOverlap))
+    
+    # there are some remainder overlaps between classes (e.g. promoter and 5'UTR)
+    # their elimination might not make functional sense, but the double class can
+    # lead to negative numbers in intergenic regions (always a very small number)
+    # to eliminate this - set negative numbers to 0
+    if (remainderBases < 0){
+      remainderBases = 0
+    }
     
     # gather all overlaps into data.frame
     propPartitions = data.frame(partition = c(names(totalOverlap), 

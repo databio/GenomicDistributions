@@ -148,7 +148,7 @@ perc2 = calcPartitionsRef(queryList, "hg38")
 plotPartitions(perc2)
 ```
 
-In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In `calcPartitionsRef` function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets fall into each annotation class, you can just set the `bpProportion=T`. Let's have a look.
+In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In `calcPartitionsRef` function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets falls into each annotation class, you can just set the `bpProportion=T`. Let's have a look.
 
 ```{r partition-plot-proportional}
 propPerc = calcPartitionsRef(queryList, "hg38", bpProportion=T)
@@ -207,7 +207,7 @@ plotExpectedPartitions(ep2)
 
 Now we can start to draw some conclusions. We see lots of differences in promoters, which make biological sense. We see that H3K4me3 marks and JUN transcription factor are especially highly enriched in core promoter compared to the rest of the datasets. This makes biological sense since H3K4me3 is a well-known for its association with promoter regions and transcription factors bind promoter regions. On the other hand, the repressive marks like H3K27me3 associated with heterochromatin show considerably lower enrichment in the promoter regions.
 
-Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer partition. The function for calculation of expected partition distribution with user provided annotation classes, however, requires additional input compared to the wrapper `calcExpectedPartitionsRef` function. This is simply a sum of chromosome sizes for a given organism. Let’s also see, how do these results turn out when looking at proportional overlaps.
+Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer annotation class. The function for calculation of expected partition distribution with user provided annotation classes, however, requires additional input compared to the wrapper `calcExpectedPartitionsRef` function. This is simply a sum of chromosome sizes for a given organism. Let’s also see, how do these results turn out when looking at proportional overlaps.
 
 ```{r custom-expected-partition-plot}
 chromSizes = getChromSizes('hg38')
@@ -240,9 +240,6 @@ p + facet_wrap(. ~name, nrow=3)
 Here we can see if any of the files have a strange distribution across chromosomes:
 
 ```{r chrom-bin-plot}
-# gc2 = calcGCContentRef(queryList, "hg38")
-# plotGCContent(gc2)
-
 chromBins = calcChromBinsRef(queryList, "hg38")
 # Then, plot the result:
 plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
@@ -268,7 +265,7 @@ As expected, the active marks have greater overall signal. We also see some spec
 
 Next we can calculate the distribution distances between two consecutive regions in a sorted region set. 
 
-```{r neighbor-distance, eval=FALSE, echo=FALSE}
+```{r neighbor-distance-distribution, fig.fullwidth=TRUE}
 # This needs to be corrected for number of regions.
 nd = calcNeighborDist(queryList)
 

@@ -166,6 +166,11 @@ test_that("Partitions", {
     promProx = trim(promoters(testGR2, upstream=2000, downstream=0))
     promoterProx = GenomicRanges::setdiff(promProx, promCore)
     
+    # remove any possible overlaps between classes
+    testGR5 = GenomicRanges::setdiff(testGR5, testGR4)
+    testGR3 = GenomicRanges::setdiff(testGR3, testGR4)
+    testGR3 = GenomicRanges::setdiff(testGR3, testGR5)
+    
     nonThree = GenomicRanges::setdiff(testGR2, testGR4)
     nonThreeFive = GenomicRanges::setdiff(nonThree, testGR5)
     intronGR = GenomicRanges::setdiff(nonThreeFive, testGR3)
