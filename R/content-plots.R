@@ -29,9 +29,8 @@ calcGCContent = function(query, ref) {
         }
         return(x)
     }
-    # Restrict to seqnames in both query and reference
-    lvls = intersect(unique(seqnames(query)), seqlevels(ref))
-    seqlevels(query, pruning.mode="coarse") = lvls
+    # Restrict the seqnames to known chromosomes
+    query = keepStandardChromosomes(query, pruning.mode="coarse")
     v = IRanges::Views(ref, query)
     gcvec = apply(Biostrings::alphabetFrequency(v)[,c("C","G")],1, sum)/width(v)
     return(gcvec)
