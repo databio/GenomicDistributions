@@ -104,6 +104,8 @@ grs = lapply(grs, sort)
 queryList = GRangesList(grs)
 ```
 
+## Distance distribution plots
+
 First let's look at the distance to TSS:
 
 ```{r TSS-plot}
@@ -153,6 +155,8 @@ propPerc = calcPartitionsRef(queryList, "hg38", bpProportion=T)
 plotPartitions(propPerc)
 ```
 
+### Add custom partitions
+
 You can also include custom partitions too! First, we'll grab all of the Ensembl predicted enhancers from the ensembl regulatory build.
 
 ```{r custom-partition}
@@ -201,7 +205,7 @@ ep2 = calcExpectedPartitionsRef(queryList, "hg38")
 plotExpectedPartitions(ep2)
 ```
 
-Now we can start to draw some conclusions. We see lots of differences in promoters, which make biological sense:We see that H3K4me3 marks and JUN transcription factor are especially highly enriched in core promoter compared to the rest of the datasets. This makes biological sense since H3K4me3 is a well-known for its association with promoter regions and transcription factors bind promoter regions. On the other hand, the repressive marks like H3K27me3 associated with heterochromatin show considerably lower enrichment in the promoter regions.
+Now we can start to draw some conclusions. We see lots of differences in promoters, which make biological sense. We see that H3K4me3 marks and JUN transcription factor are especially highly enriched in core promoter compared to the rest of the datasets. This makes biological sense since H3K4me3 is a well-known for its association with promoter regions and transcription factors bind promoter regions. On the other hand, the repressive marks like H3K27me3 associated with heterochromatin show considerably lower enrichment in the promoter regions.
 
 Furthermore, we can do the same thing with the expected plots that we could with the frequency plots and include the enhancer partition. The function for calculation of expected partition distribution with user provided annotation classes, however, requires additional input compared to the wrapper `calcExpectedPartitionsRef` function. This is simply a sum of chromosome sizes for a given organism. Let’s also see, how do these results turn out when looking at proportional overlaps.
 
@@ -260,6 +264,10 @@ opp
 
 As expected, the active marks have greater overall signal. We also see some specificity, with regions derived from blood cells showing more openness in blood cell types.
 
+# Neighbor distance
+
+Next we can calculate the distribution distances between two consecutive regions in a sorted region set. 
+
 ```{r neighbor-distance, eval=FALSE, echo=FALSE}
 # This needs to be corrected for number of regions.
 nd = calcNeighborDist(queryList)
@@ -267,6 +275,8 @@ nd = calcNeighborDist(queryList)
 # Plot the distribution
 plotNeighborDist(nd)
 ```
+
+Here we can see that certain region sets have a very distinct signature in neighbor distance distribution. Some of the distributions are bimodal, that suggests a pattern in which groups of regions form local clusters and that the distances between individual clusters are longer. 
 
 ## Width distribution
 
@@ -279,5 +289,16 @@ p + facet_wrap(. ~name, nrow=3)
 ```
 
 He we can see that a few of the experiments seem to be almost entirely the same width; the REST dataset, for example. This may indicate that these files were computationally set to be uniform width. We also see differences in the width distributions of others. The histone marks are wider than the TFs, which makes sense. We also notice that the two H3K4me3 experiments have different distributions, with the K562 experiment trending toward wider regions. This could reflect different methods of peak calling for these datasets.
+
+## GC content
+
+You can further find out what is the GC content in your regions of interest.
+
+```{r GC-content, fig.fullwidth=TRUE}
+gc = calcGCContentRef(queryList, "hg38")
+plotGCContent(gc)
+```
+
+As you can see, as part of the plotting function, we also included a line indicating mean GC content for a given region set to make the comparison among the region sets easier.
 
 That wraps it up! I hope this vignette convinces you that GenomicDistributions can calculate and plot some interesting data to compare genomic region sets.
