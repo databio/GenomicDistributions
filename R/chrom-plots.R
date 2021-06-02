@@ -74,7 +74,7 @@ binRegion = function(start, end, binSize=NULL, binCount=NULL, indicator=NULL) {
 #'         of the reference genome.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' binCount = 1000
 #' refGenomeBins = binBSGenome("hg19", binCount)
 #' }

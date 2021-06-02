@@ -21,7 +21,7 @@ reference, this function will return a vector of the same length as the
 granges object, with percent of Cs and Gs.
 }
 \examples{
-\donttest{
+\dontrun{
 bsg = loadBSgenome('hg19')
 gcvec = calcGCContent(vistaEnhancers, bsg)
 }

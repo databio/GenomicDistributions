@@ -10,7 +10,7 @@
 #'     the query regions.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' bsg = loadBSgenome('hg19')
 #' gcvec = calcGCContent(vistaEnhancers, bsg)
 #' }
@@ -51,7 +51,7 @@ calcGCContent = function(query, ref) {
 #'     the query regions.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' refAssembly = 'hg19'
 #' GCcontent = calcGCContentRef(vistaEnhancers, refAssembly)
 #' } 

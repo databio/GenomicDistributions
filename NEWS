@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
-## [1.2.0] -- 2020-06-02
+## [1.2.0] -- 2020-06-03
 
   - Package now on Bioconductor under 1.0.0 (not dev version) - bump to 1.2.0
   - Added sorting option to feature distance plot
@@ -10,6 +10,7 @@ will document changes to major new releases only (not point releases).
   - Fixed ordering of chromosome distribution
   - Added possibility to calculate proportional overlap in partition plots
   - Expected partition distribution now calculated based on annotation class object sizes
+  - Improved definition of introns in gene partition lists
   - Improved memory and time performance
   - In full power vignette added option to add custom annotation classes in partition plots
   - Added functions to create annotations out of GTF files
