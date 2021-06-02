@@ -10,7 +10,7 @@
 #' @return A BSgenome object corresponding to the provided genome build.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' bsg = loadBSgenome('hg19')
 #' }
 loadBSgenome = function(genomeBuild, masked=TRUE) {
@@ -45,7 +45,7 @@ loadBSgenome = function(genomeBuild, masked=TRUE) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' loadEnsDb("hg19")
 #' }
 loadEnsDb = function(genomeBuild) {

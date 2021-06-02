@@ -797,8 +797,8 @@ overlapWidths = function(partition, query){
   
   # get the widths of the overlaps - get maximum start
   # value and minumum end value, get their difference
-  hits[, maxStart:=max(start, i.start), by=1:nrow(hits)]
-  hits[, minEnd:=min(end, i.end), by=1:nrow(hits)]
+  hits[, maxStart:=max(start, i.start), by=seq_len(nrow(hits))]
+  hits[, minEnd:=min(end, i.end), by=seq_len(nrow(hits))]
   hits[, overlap:=minEnd-maxStart+1]
   
   # get total number of overlapping bases

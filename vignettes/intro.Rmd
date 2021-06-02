@@ -167,10 +167,10 @@ If you wish, you can also plot the raw overlaps across a defined set of partitio
 plotPartitions(gp2, numbers=TRUE)
 ```
 
-In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In calcPartitionsRef function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets fall into each annotation class, you can just set the bpProportion=T.
+In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In calcPartitionsRef function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets fall into each annotation class, you can just set the bpProportion=TRUE.
 
 ```{r multiple-proportional-partition-plot, fig.cap="Proportional partition distribution plot for multiple query region sets.", fig.small=TRUE}
-gp3 = calcPartitionsRef(queryList, "hg19", bpProportion=T)
+gp3 = calcPartitionsRef(queryList, "hg19", bpProportion=TRUE)
 plotPartitions(gp3)
 ```
 
@@ -193,7 +193,7 @@ These plots would show all values aligning at 0 if your given regions perfectly 
 
 If you are again more interested at proportions how are your regions distributed among the different annotation classes (rather than classification with priority), it is very easy. Let’s see:
 ```{r multiple-corrected-proportional-partition-plot, fig.cap="Expected proportional partition distribution plots for multiple query region sets.", fig.small=TRUE}
-ep3 = calcExpectedPartitionsRef(queryList, "hg19", bpProportion=T)
+ep3 = calcExpectedPartitionsRef(queryList, "hg19", bpProportion=TRUE)
 plotExpectedPartitions(ep3)
 ```
 Here you can see that even though the differences in observed partition distribution with priority vs. proportional classification are in our example case subtle, the expected partition distribution changed drastically. Given that vistaEnhancers are enhancer regions, thus should be enriched in intergenic space, the proportional classification describes this dataset better.

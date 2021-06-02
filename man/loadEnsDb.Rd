@@ -16,7 +16,7 @@ loaded library
 Load selected EnsDb library
 }
 \examples{
-\dontrun{
+\donttest{
 loadEnsDb("hg19")
 }
 }

@@ -59,9 +59,8 @@ datasetList
 ```
 
 ```
-##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"              
-##  [5] "cellTypeMetadata"      "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"      
-##  [9] "chromSizes_mm9"        "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"      "chromSizes_hg19"      
+##  [7] "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
 ## [13] "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38" "openSignalMatrix_mm10"
 ```
 
@@ -166,11 +165,11 @@ plotPartitions(perc2)
 
 ![plot of chunk partition-plot](figures-full-power/partition-plot-1.png)
 
-In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In `calcPartitionsRef` function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets falls into each annotation class, you can just set the `bpProportion=T`. Let's have a look.
+In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In `calcPartitionsRef` function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets falls into each annotation class, you can just set the `bpProportion=TRUE`. Let's have a look.
 
 
 ```r
-propPerc = calcPartitionsRef(queryList, "hg38", bpProportion=T)
+propPerc = calcPartitionsRef(queryList, "hg38", bpProportion=TRUE)
 plotPartitions(propPerc)
 ```
 
@@ -243,7 +242,7 @@ Furthermore, we can do the same thing with the expected plots that we could with
 ```r
 chromSizes = getChromSizes('hg38')
 genomeSize = sum(chromSizes)
-ep3 = calcExpectedPartitions(queryList, partitionList, genomeSize, bpProportion=T)
+ep3 = calcExpectedPartitions(queryList, partitionList, genomeSize, bpProportion=TRUE)
 plotExpectedPartitions(ep3)
 ```
 

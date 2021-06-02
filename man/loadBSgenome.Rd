@@ -21,7 +21,7 @@ more complex annotation for a complete BSgenome object (e.g.
 BSgenome.Hsapiens.UCSC.hg38.masked)
 }
 \examples{
-\dontrun{
+\donttest{
 bsg = loadBSgenome('hg19')
 }
 }

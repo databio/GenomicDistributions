@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
+## [1.2.0] -- 2020-06-02
+
+  - Package now on Bioconductor under 1.0.0 (not dev version) - bump to 1.2.0
+  - Added sorting option to feature distance plot
+  - Added stack bar option to partition plots
+  - Fixed ordering of chromosome distribution
+  - Added possibility to calculate proportional overlap in partition plots
+  - Expected partition distribution now calculated based on annotation class object sizes
+  - Improved memory and time performance
+  - In full power vignette added option to add custom annotation classes in partition plots
+  - Added functions to create annotations out of GTF files
+  - New vignette - how to build custom reference data
+
 ## [0.99.0] -- 2020-05-26
 
         - Update R version to 4.0

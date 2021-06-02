@@ -12,21 +12,21 @@
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 #' CElegansGtf = retrieveFile(CElegansGtfUrl)
 retrieveFile <- function(source, destDir=NULL){
-    if (is.null(destDir)) destDir = tempdir()
+  if (is.null(destDir)) destDir = tempdir()
     # download file, if not local
-    if (!file.exists(source)) {
-        destFile = paste(destDir, basename(source), sep = "/")
-        if (file.exists(destFile)){
-            message("File exists: ", destFile)
-        } else{
-            message("File will be saved in: ", destFile)
-            download.file(url = source, destfile = destFile)    
-        }
-    } else{
-        destFile = source
-        message("Got local file: ", destFile)
+  if (!file.exists(source)) {
+    destFile = paste(destDir, basename(source), sep = "/")
+    if (file.exists(destFile)){
+      message("File exists: ", destFile)
+    }else{
+      message("File will be saved in: ", destFile)
+      download.file(url = source, destfile = destFile)    
     }
-    
+  }else{
+    destFile = source
+    message("Got local file: ", destFile)
+  }
+  
     return(destFile)
 }
 
@@ -50,11 +50,11 @@ retrieveFile <- function(source, destDir=NULL){
 getTssFromGTF <- function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
     subsetGtfDf = GtfDf %>% 
-        dplyr::filter(gene_biotype == "protein_coding", type == "gene")
-    gr = makeGRangesFromDataFrame(subsetGtfDf, keep.extra.columns = T)
+    dplyr::filter(gene_biotype == "protein_coding", type == "gene")
+    gr = makeGRangesFromDataFrame(subsetGtfDf, keep.extra.columns = TRUE)
     feats = promoters(gr, 1, 1) 
     if(convertEnsemblUCSC)
-        seqlevels(feats) = paste0("chr", seqlevels(feats))
+      seqlevels(feats) = paste0("chr", seqlevels(feats))
     feats
 }
 
@@ -82,25 +82,25 @@ getGeneModelsFromGTF <- function(source,
                                  features,
                                  convertEnsemblUCSC = FALSE,
                                  destDir = NULL) {
-    GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
-    subsetGtfDf = GtfDf %>%
-        filter(gene_biotype == "protein_coding")
-    retList = list()
-    message("Extracting features: ", paste(features, collapse = ", "))
-    for (feat in features) {
-        featGR = unique(GenomeInfoDb::keepStandardChromosomes(reduce(
-          GenomicRanges::makeGRangesFromDataFrame(
-                subsetGtfDf %>% filter(type == feat),
-                keep.extra.columns = T
-            )
-        ),
-        pruning.mode = "coarse"))
-        # change from Ensembl style chromosome annotation to UCSC style
-        if (convertEnsemblUCSC)
-            seqlevels(featGR) =  paste0("chr", seqlevels(featGR))
-        retList[[feat]] = featGR
-    }
-    retList
+  GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
+  subsetGtfDf = GtfDf %>%
+    filter(gene_biotype == "protein_coding")
+  retList = list()
+  message("Extracting features: ", paste(features, collapse = ", "))
+  for (feat in features) {
+    featGR = unique(GenomeInfoDb::keepStandardChromosomes(reduce(
+      GenomicRanges::makeGRangesFromDataFrame(
+        subsetGtfDf %>% filter(type == feat),
+        keep.extra.columns = TRUE
+      )
+    ),
+    pruning.mode = "coarse"))
+    # change from Ensembl style chromosome annotation to UCSC style
+    if (convertEnsemblUCSC)
+      seqlevels(featGR) =  paste0("chr", seqlevels(featGR))
+    retList[[feat]] = featGR
+  }
+  retList
 }
 
 
@@ -119,13 +119,13 @@ getGeneModelsFromGTF <- function(source,
 #' CElegansUrl = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
 #' CElegansChromSizes = getChromSizesFromFasta(CElegansUrl)
 getChromSizesFromFasta <- function(source, destDir=NULL) {
-    fastaPath = retrieveFile(source, destDir)
-    fastaStringSet = readDNAStringSet(fastaPath)
-    oriNames = fastaStringSet@ranges@NAMES
-    names = sapply(oriNames, function(x){
-        strsplit(x, " ")[[1]][1]
-    })
-    chromSizes = fastaStringSet@ranges@width
-    names(chromSizes) = names
-    chromSizes
+  fastaPath = retrieveFile(source, destDir)
+  fastaStringSet = readDNAStringSet(fastaPath)
+  oriNames = fastaStringSet@ranges@NAMES
+  names = vapply(oriNames, function(x){
+    strsplit(x, " ")[[1]][1]
+  }, character(1))
+  chromSizes = fastaStringSet@ranges@width
+  names(chromSizes) = names
+  chromSizes
 }

@@ -50,10 +50,8 @@ The function plotOpenSignal visualizes the signalMatrix obtained from
 calcOpenSignal.
 }
 \examples{
-\dontrun{
 openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 plotSignal = plotOpenSignal(openRegionSummary)
 plotSignal = plotOpenSignal(openRegionSummary, plotType = "jitter", 
 cellGroup = "blood")
-}
 }

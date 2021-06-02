@@ -98,12 +98,10 @@ calcOpenSignal = function(query, cellMatrix){
 #' 
 #' @export
 #' @examples
-#' \dontrun{
 #' openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 #' plotSignal = plotOpenSignal(openRegionSummary)
 #' plotSignal = plotOpenSignal(openRegionSummary, plotType = "jitter", 
 #' cellGroup = "blood")
-#' }
 plotOpenSignal = function(openRegionSummary, 
                           plotType = "barPlot", 
                           cellGroup = NA,
@@ -461,7 +459,7 @@ OpenSignalViolinPlot = function(plotSignalMatrix,plotBoxStats, myLabels, colorSc
     violinPlot = violinPlot + facet_grid(name ~ .)
   }
   violinPlot = violinPlot + 
-    geom_violin(aes(fill=tissueType), alpha=0.8, scale = "width", trim = T) +
+    geom_violin(aes(fill=tissueType), alpha=0.8, scale = "width", trim = TRUE) +
     geom_point(data = plotBoxStats[plotBoxStats$boxStats == "median",], 
                aes(x = mixedVar, y = value), color = "black", size = 2) +
     theme_bw() +

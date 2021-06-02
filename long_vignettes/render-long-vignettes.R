@@ -5,4 +5,3 @@ knitr::knit("long_vignettes/custom-reference-data.Rmd", "vignettes/custom-refere
 # knitr::opts_knit$set(base.dir = 'vignettes/', progress = TRUE, verbose = TRUE)
 # knitr::opts_chunk$set(fig.path="figures-GDData/")
 # knitr::knit("long_vignettes/GenomicDistributionsData.Rmd", "vignettes/GenomicDistributionsData.Rmd")
-  

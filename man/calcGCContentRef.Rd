@@ -23,7 +23,7 @@ reference, this function will return a vector of the same length as the
 granges object, with percent of Cs and Gs.
 }
 \examples{
-\dontrun{
+\donttest{
 refAssembly = 'hg19'
 GCcontent = calcGCContentRef(vistaEnhancers, refAssembly)
 } 
