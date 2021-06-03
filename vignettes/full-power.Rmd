@@ -28,7 +28,7 @@ BiocManager::install("GenomicDistributionsData")
 BiocManager::install("biomaRt")
 ```
 
-Or alternatively you can install from GitHub: 
+Or alternatively you can install the latest version from GitHub: 
 
 
 ```r

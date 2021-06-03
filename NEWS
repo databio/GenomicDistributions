@@ -4,7 +4,7 @@ will document changes to major new releases only (not point releases).
 
 ## [1.2.0] -- 2020-06-03
 
-  - Package now on Bioconductor under 1.0.0 (not dev version) - bump to 1.2.0
+  - Package now on Bioconductor under 1.0.0 (dev version 1.1.0) - bump to 1.1.1
   - Added sorting option to feature distance plot
   - Added stack bar option to partition plots
   - Fixed ordering of chromosome distribution
