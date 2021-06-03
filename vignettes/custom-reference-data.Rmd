@@ -1,7 +1,7 @@
 ---
 title: "Custom reference data in GenomicDistributions"
 author: "Michał Stolarczyk"
-date: "2021-06-02"
+date: "2021-06-03"
 output: 
   BiocStyle::html_document:
     toc: true
