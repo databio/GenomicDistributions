@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
-## [1.2.0] -- 2020-06-03
+## [1.1.1] -- 2020-06-03
 
   - Package now on Bioconductor under 1.0.0 (dev version 1.1.0) - bump to 1.1.1
   - Added sorting option to feature distance plot
