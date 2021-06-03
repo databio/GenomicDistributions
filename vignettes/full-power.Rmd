@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2021-06-02"
+date: "2021-06-03"
 output: 
   html_document:
     theme: sandstone
@@ -28,7 +28,7 @@ BiocManager::install("GenomicDistributionsData")
 BiocManager::install("biomaRt")
 ```
 
-Or alternatively you can install from GitHub: 
+Or alternatively you can install the latest version from GitHub: 
 
 
 ```r
