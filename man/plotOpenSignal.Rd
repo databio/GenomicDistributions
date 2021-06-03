@@ -18,10 +18,11 @@ plotOpenSignal(
 \arguments{
 \item{openRegionSummary}{Output list from \code{calcOpenSignal} function.}
 
-\item{plotType}{Options are: jitter - jitter plot with box plot on top
-boxPlot - box plot without individual points and outliers
-barPlot (default) - bar height represents the median signal value
-for a given cell type.}
+\item{plotType}{Options are: "jitter" - jitter plot with box plot on top,
+"boxPlot" - box plot without individual points and outliers,
+"barPlot" (default) - bar height represents the median signal value
+for a given cell type, 
+"violinPlot" - violin plot with medians.}
 
 \item{cellGroup}{- This option allows to selcet a tissue type to be 
 plotted, if NA (default) all available tissue types are ploted, 
@@ -49,10 +50,8 @@ The function plotOpenSignal visualizes the signalMatrix obtained from
 calcOpenSignal.
 }
 \examples{
-\dontrun{
 openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 plotSignal = plotOpenSignal(openRegionSummary)
 plotSignal = plotOpenSignal(openRegionSummary, plotType = "jitter", 
 cellGroup = "blood")
-}
 }

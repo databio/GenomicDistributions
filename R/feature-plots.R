@@ -161,6 +161,9 @@ genomeLabel = function(x) {
 #' @param infBins Include catch-all bins on the sides?
 #' @param tile Turn on a tile mode, which plots a tiled figure 
 #'     instead of a histogram.
+#' @param labelOrder -- Enter "default" to order by order of user input (default); 
+#'     Enter "center" to order by value in tile in the closest proximity to the center 
+#'     of features (in case TSS is used - center is TSS) (center).
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
@@ -168,11 +171,9 @@ genomeLabel = function(x) {
 #' f = plotFeatureDist(TSSdist, featureName="TSS")
 plotFeatureDist = function(dists, bgdists=NULL, featureName="features", 
                            numbers=FALSE, nbins=50, size=100000, 
-                           infBins=FALSE, tile=FALSE) {
+                           infBins=FALSE, tile=FALSE, labelOrder="default") {
     df = cutDists(dists, divisions=NULL, nbins, size, infBins)
     
-    # We could scale
-    # df$Freq = scale(df$Freq, center=FALSE)
     if(is.list(dists)){
         nplots = length(dists)
     } else {
@@ -186,11 +187,13 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
         df$bgFreq = rep(bgDistsDF$Freq, nplots)
         df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
     }
-
+    
     if ("name" %in% names(df)){
+        df$name = sortingFunction(df, labelOrder, nbins)
         if (!numbers)
             df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100), 
                          by = name]$"Freq.Per"
+            df$name = sortingFunction(df, labelOrder, nbins)
             # It has multiple regions
             g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
            facet_grid(. ~name)
@@ -259,6 +262,42 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
     return(g)
 }
 
+# Internal helper function for \code{plotFeatureDist}:
+# orderes datasets based on their order in the user provided list,
+# or based on the value around feature center (in TSS based on TSS)
+#
+# @param df A data.table with varibales "cuts" - based on created bins in 
+#    \code{plotFeatureDist} function , "Freq" - either frequency or raw 
+#   counts in aa given bin, "name" - name of the dataset
+# @param labelOrder The method used to order datasets. Options: "default"
+#    orderes datasets in a plot based on order of datasets in GRangesList
+#    provided by user; "center" orderes datasets based on value in a central 
+#    bin of the plot.
+# @param nbins Number of bins on each side of the center point - input in 
+#    \code{plotFeatureDist} function.
+# @return A factor of names in "df" input with levels sorted based on 
+#    sorting option.
+
+sortingFunction = function(df, labelOrder="default", nbins=50){
+    if(labelOrder == "default"){
+        orderedLabels = unique(df$name)
+        orderedNames = factor(df$name, levels = orderedLabels)
+        return(orderedNames)
+    }
+    if (labelOrder == "center"){
+      # get the value around center, sort lables based on 
+      # central values, use the labels as factor levels
+        centerIndex = seq(nbins, nrow(df), by = (nbins*2))
+        centerTiles = df[centerIndex,]
+        orderTiles = centerTiles[order(centerTiles$Freq, decreasing = TRUE),]
+        orderedLabels = orderTiles$name
+        orderedNames = factor(df$name, levels = orderedLabels)
+        return(orderedNames)
+        
+    }
+    
+}
+
 
 # Internal helper function for \code{plotFeatureDist}
 #
@@ -300,3 +339,4 @@ cutDists = function(dists, divisions=NULL, nbins=50,
     df = as.data.frame(table(cuts))
     return(df)
 }
+

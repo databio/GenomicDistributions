@@ -161,13 +161,26 @@ test_that("Partitions", {
     ################### old
     
     # test calcPartitions()
-    # GenomePartitionList
+    # GenomePartitionList 
+    promCore = trim(promoters(testGR2, upstream=100, downstream=0))
+    promProx = trim(promoters(testGR2, upstream=2000, downstream=0))
+    promoterProx = GenomicRanges::setdiff(promProx, promCore)
+    
+    # remove any possible overlaps between classes
+    testGR5 = GenomicRanges::setdiff(testGR5, testGR4)
+    testGR3 = GenomicRanges::setdiff(testGR3, testGR4)
+    testGR3 = GenomicRanges::setdiff(testGR3, testGR5)
+    
+    nonThree = GenomicRanges::setdiff(testGR2, testGR4)
+    nonThreeFive = GenomicRanges::setdiff(nonThree, testGR5)
+    intronGR = GenomicRanges::setdiff(nonThreeFive, testGR3)
+    
     partList = list(promoterCore=trim(promoters(testGR2, upstream=100, downstream=0)),
-                    promoterProx=trim(promoters(testGR2, upstream=2000, downstream=0)), 
+                    promoterProx=promoterProx, 
                     threeUTR=testGR4, 
                     fiveUTR=testGR5,
                     exon=testGR3,
-                    intron=testGR2)
+                    intron=intronGR)
   
     gp = genomePartitionList(testGR2, testGR3, testGR4, testGR5)
     expect_equal(gp, partList)

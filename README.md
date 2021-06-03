@@ -12,10 +12,18 @@ Functions for calculating and plotting the distribution of query features (*e.g.
 
 ### Main package
 
+With Bioconductor:
+
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
 BiocManager::install("GenomicDistributions")
+```
+
+Or from GitHub:
+
+```r
+devtools::install_github("databio/GenomicDistributions")
 ```
 
 ### Data package

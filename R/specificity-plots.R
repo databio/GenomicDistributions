@@ -74,10 +74,11 @@ calcOpenSignal = function(query, cellMatrix){
 #' calcOpenSignal.
 #'
 #' @param openRegionSummary Output list from \code{calcOpenSignal} function.
-#' @param  plotType Options are: jitter - jitter plot with box plot on top
-#'     boxPlot - box plot without individual points and outliers
-#'     barPlot (default) - bar height represents the median signal value
-#'     for a given cell type.
+#' @param  plotType Options are: "jitter" - jitter plot with box plot on top,
+#'     "boxPlot" - box plot without individual points and outliers,
+#'     "barPlot" (default) - bar height represents the median signal value
+#'     for a given cell type, 
+#'     "violinPlot" - violin plot with medians.
 #' @param cellGroup - This option allows to selcet a tissue type to be 
 #'     plotted, if NA (default) all available tissue types are ploted, 
 #'     available options: {"blood", "bone", "CNS", "embryonic", "eye", 
@@ -97,12 +98,10 @@ calcOpenSignal = function(query, cellMatrix){
 #' 
 #' @export
 #' @examples
-#' \dontrun{
 #' openRegionSummary = calcOpenSignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
 #' plotSignal = plotOpenSignal(openRegionSummary)
 #' plotSignal = plotOpenSignal(openRegionSummary, plotType = "jitter", 
 #' cellGroup = "blood")
-#' }
 plotOpenSignal = function(openRegionSummary, 
                           plotType = "barPlot", 
                           cellGroup = NA,
@@ -147,9 +146,14 @@ plotOpenSignal = function(openRegionSummary,
     barPlot = OpenSignalBarPlot(plotBoxStats, myLabels, colorScheme)
     return(barPlot)
     
+  } else if (plotType == "violinPlot"){
+    
+    violinPlot = OpenSignalViolinPlot(plotSignalMatrix,plotBoxStats, myLabels, colorScheme)
+    return(violinPlot)
+    
   } else {
     stop("Plot type does not match any of the available options. 
-         Available options: jitter, boxPlot, barPlot. ")
+         Available options: jitter, boxPlot, barPlot, violinPlot. ")
   }
   }
 
@@ -258,7 +262,7 @@ getMatrixStats = function(signalMatrix){
 reshapeDataToPlot = function(openRegionSummary, cellTypeMetadata){
   # reshape the signal matrix ans boxplotStats matrices into ggplot usable form
   # attach the metadata for coloring sort table alphabetically by 
-  #tissueType-cellType
+  # tissueType-cellType
   signalMatrix = openRegionSummary[["signalMatrix"]]
   boxStats = openRegionSummary[["matrixStats"]]
   
@@ -276,11 +280,12 @@ reshapeDataToPlot = function(openRegionSummary, cellTypeMetadata){
     plotBoxStats = reshape2::melt(boxStats, id.vars="boxStats",
                                   variable.name="cellType", value.name="value")
   }
-  data.table::setkey(cellTypeMetadata, cellType)
   
+  data.table::setkey(cellTypeMetadata, cellType)
   data.table::setDT(plotSignalMatrix)
   data.table::setkey(plotSignalMatrix, cellType)
-  plotSignalMatrix = merge(plotSignalMatrix, cellTypeMetadata, all = FALSE)
+
+  plotSignalMatrix = plotSignalMatrix[cellTypeMetadata, on = "cellType", nomatch=0]
   plotSignalMatrix[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotSignalMatrix, lowerCaseTissue, cellType)
   plotSignalMatrix[, mixedVar := paste(plotSignalMatrix[,tissueType], 
@@ -288,7 +293,7 @@ reshapeDataToPlot = function(openRegionSummary, cellTypeMetadata){
   
   data.table::setDT(plotBoxStats)
   data.table::setkey(plotBoxStats, cellType)
-  plotBoxStats = merge(plotBoxStats, cellTypeMetadata, all = FALSE)
+  plotBoxStats = plotBoxStats[cellTypeMetadata, on = "cellType", nomatch=0]
   plotBoxStats[, lowerCaseTissue := tolower(tissueType)]
   data.table::setorder(plotBoxStats, lowerCaseTissue, cellType)
   plotBoxStats[, mixedVar := paste(plotBoxStats[,tissueType], 
@@ -340,7 +345,7 @@ filterGroups = function(cellGroup, plotTables){
 # @param colorScheme Colors for tissue types - input to \code{plotOpenSignal}
 #        function
 #
-# @return ggplot object - bar plot
+# @return ggplot object - jitter plot
 OpenSignalJitterPlot = function(plotSignalMatrix, myLabels, colorScheme){
   
   jitterPlot = ggplot(plotSignalMatrix, aes(x = mixedVar, y = signal)) +
@@ -375,7 +380,7 @@ OpenSignalJitterPlot = function(plotSignalMatrix, myLabels, colorScheme){
 # @param colorScheme Colors for tissue types - input to \code{plotOpenSignal}
 #        function
 #
-# @return ggplot object - bar plot
+# @return ggplot object - box plot
 OpenSignalBoxPlot = function(plotSignalMatrix, plotBoxStats, myLabels, colorScheme){
   
   boxPlot = ggplot(plotSignalMatrix, aes(x = mixedVar, y = signal)) +
@@ -408,6 +413,7 @@ OpenSignalBoxPlot = function(plotSignalMatrix, plotBoxStats, myLabels, colorSche
 #        function
 #
 # @return ggplot object - bar plot
+
 OpenSignalBarPlot = function(plotBoxStats, myLabels, colorScheme){
   barPlot = ggplot(plotBoxStats[boxStats == "median"], 
                    aes(x=mixedVar, 
@@ -429,4 +435,40 @@ OpenSignalBarPlot = function(plotBoxStats, myLabels, colorScheme){
     theme_blank_facet_label() +
     theme(strip.text.y.right = element_text(angle=0))
   return(barPlot)
+}
+
+
+# Internal helper function to plot bar plot
+# 
+# @param plotSignalMatrix Result from \code{reshapeDataToPlot} function followed 
+#        by \code{filterGroups} function
+# @param plotBoxStats Result from \code{reshapeDataToPlot} function followed 
+#        by \code{filterGroups} function
+# @param myLabels Labels created to group corresponding tissue type together
+# @param colorScheme Colors for tissue types - input to \code{plotOpenSignal}
+#        function
+#
+# @return ggplot object - violin plot
+
+OpenSignalViolinPlot = function(plotSignalMatrix,plotBoxStats, myLabels, colorScheme){
+  violinPlot = ggplot(plotSignalMatrix, aes(x = mixedVar, y = signal)) +
+    theme_blank_facet_label() +
+    theme(strip.text.y.right = element_text(angle = 0))
+  
+  if ("name" %in% names(plotSignalMatrix)){
+    violinPlot = violinPlot + facet_grid(name ~ .)
+  }
+  violinPlot = violinPlot + 
+    geom_violin(aes(fill=tissueType), alpha=0.8, scale = "width", trim = TRUE) +
+    geom_point(data = plotBoxStats[plotBoxStats$boxStats == "median",], 
+               aes(x = mixedVar, y = value), color = "black", size = 2) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle=90, hjust=1),
+          text = element_text(size=10)) +
+    xlab("") +
+    ylab("normalized signal") + 
+    scale_x_discrete(labels=myLabels$spaceLabel) +
+    scale_fill_manual(values=colorScheme) + 
+    scale_color_manual(values=colorScheme)
+  return(violinPlot)
 }

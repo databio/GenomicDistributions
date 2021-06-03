@@ -1,0 +1,192 @@
+---
+title: "Custom reference data in GenomicDistributions"
+author: "Michał Stolarczyk"
+date: "2021-06-02"
+output: 
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{1. Custom reference data in GenomicDistributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+# Introduction
+
+`GenomicDistributions` package comes with a limited reference data set. There are only files that support `hg19` human reference genome. Other reference data can be generated with functions included in this package.
+
+# Generate non-standard reference data set
+
+In this vignette we'll go over the steps to generate reference data for a non-standard genome assembly: *C. Elegans* (Caenorhabditis_elegans.WBcel235.103).
+
+All we need to generate the custom reference data set are two local or remote files. We will use remote files from Ensembl FTP server:
+
+1. GTF - [http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz](http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz)
+2. FASTA - [http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz](http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz)
+
+
+```r
+fastaSource = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
+gtfSource = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
+```
+
+## Chromosome Sizes
+
+
+
+
+```r
+CEelegansChromSizes = getChromSizesFromFasta(source=fastaSource)
+```
+
+```
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz
+```
+Let's inspect the result:
+
+```r
+CEelegansChromSizes
+```
+
+```
+##        I       II      III       IV        V        X    MtDNA 
+## 15072434 15279421 13783801 17493829 20924180 17718942    13794
+```
+
+
+## Transcription Start Sites (TSS)
+
+
+```r
+CEelegansTSSs = getTssFromGTF(source=gtfSource, convertEnsemblUCSC=TRUE)
+```
+
+```
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.103.gtf.gz
+```
+
+Let's inspect the result:
+
+```r
+head(CEelegansTSSs)
+```
+
+```
+## GRanges object with 6 ranges and 15 metadata columns:
+##       seqnames      ranges strand |   source     type     score     phase        gene_id   gene_name gene_source   gene_biotype transcript_id
+##          <Rle>   <IRanges>  <Rle> | <factor> <factor> <numeric> <integer>    <character> <character> <character>    <character>   <character>
+##   [1]     chrV   1662-1663      + | WormBase     gene        NA      <NA> WBGene00015153     B0348.5    WormBase protein_coding          <NA>
+##   [2]     chrV   7822-7823      - | WormBase     gene        NA      <NA> WBGene00002061       ife-3    WormBase protein_coding          <NA>
+##   [3]     chrV   8739-8740      - | WormBase     gene        NA      <NA> WBGene00255704    B0348.10    WormBase protein_coding          <NA>
+##   [4]     chrV 20824-20825      + | WormBase     gene        NA      <NA> WBGene00001177       egl-8    WormBase protein_coding          <NA>
+##   [5]     chrV 45309-45310      + | WormBase     gene        NA      <NA> WBGene00015152     B0348.2    WormBase protein_coding          <NA>
+##   [6]     chrV 48921-48922      + | WormBase     gene        NA      <NA> WBGene00015151     B0348.1    WormBase protein_coding          <NA>
+##       transcript_source transcript_biotype exon_number     exon_id  protein_id         tag
+##             <character>        <character> <character> <character> <character> <character>
+##   [1]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [2]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [3]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [4]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [5]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   [6]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##   -------
+##   seqinfo: 7 sequences from an unspecified genome; no seqlengths
+```
+
+## Gene Models
+
+
+```r
+features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
+CEelegansGeneModels = getGeneModelsFromGTF(source=gtfSource, features=features, convertEnsemblUCSC=TRUE)
+```
+
+```
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.103.gtf.gz
+```
+
+```
+## Extracting features: gene, exon, three_prime_utr, five_prime_utr
+```
+
+Let's inspect the result:
+
+```r
+head(CEelegansGeneModels)
+```
+
+```
+## $gene
+## GRanges object with 19744 ranges and 0 metadata columns:
+##           seqnames      ranges strand
+##              <Rle>   <IRanges>  <Rle>
+##       [1]     chrI 11495-16837      +
+##       [2]     chrI 43733-44677      +
+##       [3]     chrI 47467-49857      +
+##       [4]     chrI 49919-54426      +
+##       [5]     chrI 71425-81071      +
+##       ...      ...         ...    ...
+##   [19740] chrMtDNA   5678-6449      +
+##   [19741] chrMtDNA   6506-7808      +
+##   [19742] chrMtDNA   7827-9428      +
+##   [19743] chrMtDNA  9649-10348      +
+##   [19744] chrMtDNA 11356-13272      +
+##   -------
+##   seqinfo: 7 sequences from an unspecified genome; no seqlengths
+## 
+## $exon
+## GRanges object with 126057 ranges and 0 metadata columns:
+##            seqnames      ranges strand
+##               <Rle>   <IRanges>  <Rle>
+##        [1]     chrI 11495-11561      +
+##        [2]     chrI 11618-11689      +
+##        [3]     chrI 14950-15160      +
+##        [4]     chrI 16473-16837      +
+##        [5]     chrI 43733-43961      +
+##        ...      ...         ...    ...
+##   [126053] chrMtDNA   5678-6449      +
+##   [126054] chrMtDNA   6506-7808      +
+##   [126055] chrMtDNA   7827-9428      +
+##   [126056] chrMtDNA  9649-10348      +
+##   [126057] chrMtDNA 11356-13272      +
+##   -------
+##   seqinfo: 7 sequences from an unspecified genome; no seqlengths
+## 
+## $three_prime_utr
+## GRanges object with 15955 ranges and 0 metadata columns:
+##           seqnames      ranges strand
+##              <Rle>   <IRanges>  <Rle>
+##       [1]     chrI 16586-16837      +
+##       [2]     chrI 49417-49857      +
+##       [3]     chrI 54361-54426      +
+##       [4]     chrI 80345-81071      +
+##       [5]     chrI 90608-90957      +
+##       ...      ...         ...    ...
+##   [15951] chrMtDNA   7733-7808      +
+##   [15952] chrMtDNA   9420-9428      +
+##   [15953] chrMtDNA 10342-10348      +
+##   [15954] chrMtDNA 11689-11691      +
+##   [15955] chrMtDNA       13272      +
+##   -------
+##   seqinfo: 7 sequences from an unspecified genome; no seqlengths
+## 
+## $five_prime_utr
+## GRanges object with 19618 ranges and 0 metadata columns:
+##           seqnames            ranges strand
+##              <Rle>         <IRanges>  <Rle>
+##       [1]     chrI       11495-11561      +
+##       [2]     chrI       11618-11686      +
+##       [3]     chrI       14950-15102      +
+##       [4]     chrI       47467-47471      +
+##       [5]     chrI       49919-49920      +
+##       ...      ...               ...    ...
+##   [19614]     chrX 17604545-17604612      -
+##   [19615]     chrX 17610045-17610048      -
+##   [19616]     chrX 17627969-17627975      -
+##   [19617] chrMtDNA         3389-3417      +
+##   [19618] chrMtDNA         7827-7844      +
+##   -------
+##   seqinfo: 7 sequences from an unspecified genome; no seqlengths
+```
