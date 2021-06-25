@@ -52,6 +52,12 @@ install.packages("BiocManager")
 BiocManager::install("GenomicDistributions")
 ```
 
+Or alternatively you can install from GitHub: 
+
+```{r, install, eval=FALSE}
+devtools::install_github("databio/GenomicDistributions")
+```
+
 ## Loading genomic range data
 
 Start by loading up the package and getting your query set of regions as a GenomicRanges object. I've included an example bed file to demonstrate how these plots look. You can load it up like this:
@@ -116,10 +122,10 @@ plotFeatureDist(TSSdist2, featureName="TSS")
 
 ```
 
-You can also plot a tiled version that aligns them all vertically:
+You can also plot a tiled version that aligns them all vertically, and you can sort the datasets based on the values in the center:
 
 ```{r tiled-distance-plot, fig.cap="Tiled feature distance plot. Distribution of query regions relative to arbitrary features", fig.small=TRUE}
-plotFeatureDist(TSSdist2, featureName="TSS", tile=TRUE)
+plotFeatureDist(TSSdist2, featureName="TSS", tile=TRUE, labelOrder = "center")
 ```
 
 If you want to check distances to other features, that's no problem; `calcFeatureDistRefTSS()` is really just a wrapper for the workhorse function, `calcFeatureDist()`. To show how this works, get some features you want to check the distance to. Here, let's just shift our query set by a normally distributed random number:
@@ -161,6 +167,12 @@ If you wish, you can also plot the raw overlaps across a defined set of partitio
 plotPartitions(gp2, numbers=TRUE)
 ```
 
+In this plot regions are classified based on overlaps with annotation classes that are given priority. Once an overlap is found between a query region and an annotation class of high priority, it is not tested for overlaps with annotation classes with lower priorities. In calcPartitionsRef function annotation classes are sorted from highest to lowest priority in following order: core promoter, proximal promoter, 3’untranslated region (3’UTR), 5’UTR, exon, intron and regions not falling into any of these are classified as intergenic. If you are more interested in proportional overlap, i.e. what percentage of bp from your region sets fall into each annotation class, you can just set the bpProportion=TRUE.
+
+```{r multiple-proportional-partition-plot, fig.cap="Proportional partition distribution plot for multiple query region sets.", fig.small=TRUE}
+gp3 = calcPartitionsRef(queryList, "hg19", bpProportion=TRUE)
+plotPartitions(gp3)
+```
 
 ### Expected partition distribution plots
  
@@ -179,9 +191,16 @@ plotExpectedPartitions(ep2)
 
 These plots would show all values aligning at 0 if your given regions perfectly match the expected genomic distribution. In this case, we see an 1.5-fold enrichment of introns over the background genome distribution, along with a concomitant decrease in other partitions.
 
+If you are again more interested at proportions how are your regions distributed among the different annotation classes (rather than classification with priority), it is very easy. Let’s see:
+```{r multiple-corrected-proportional-partition-plot, fig.cap="Expected proportional partition distribution plots for multiple query region sets.", fig.small=TRUE}
+ep3 = calcExpectedPartitionsRef(queryList, "hg19", bpProportion=TRUE)
+plotExpectedPartitions(ep3)
+```
+Here you can see that even though the differences in observed partition distribution with priority vs. proportional classification are in our example case subtle, the expected partition distribution changed drastically. Given that vistaEnhancers are enhancer regions, thus should be enriched in intergenic space, the proportional classification describes this dataset better.
+
 ### Cumulative partition distribution plots
 
-The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of reads relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
+The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of regions relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
 
 Now, we'll plot single and multiple cumulative distributions of regions in genomic partitions:
 ```{r cumulative-partition-plot, fig.cap="Cumulative partition distribution plot. Cumulative distribution of query regions across genomic features.", fig.small=TRUE}
@@ -205,7 +224,9 @@ If you want to see how your regions are distributed among other partitions, like
 
 One feature we are often interested in is the tissue specificity of a set of genomic ranges. To visualize this, GenomicDistributions provides functions to calculate and plot the tissue specificity. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix. This matrix should contain a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest. 
 
-We have produced example reference data matrixes based on ENCODE accessibility information, which can be downloaded from [big.databio.org](http://big.databio.org/open_chromatin_matrix/). Here, we'll demonstrate how this works with some tiny built-in example reference data.
+We have produced example reference data matrixes based on ENCODE accessibility information, which can be downloaded from [big.databio.org](http://big.databio.org/open_chromatin_matrix/). Here, we'll demonstrate how this works with some tiny built-in example reference data. For examples of use with the full size matrix see [full-power vignette](http://code.databio.org/GenomicDistributions/articles/full-power.html).
+
+In this example we show bar plots with median of signal values across regions being plotted. Otherr offered plotting options are jitter plot showing all signal values across query regions, box plot, and violin plot (with indicated medians).
 
 ```{r specificity-plot-single, fig.height = 6, fig.cap="Specificity of chromatin accessibility across cell types."}
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
@@ -219,6 +240,12 @@ To plot multiple datasets at a time:
 op2 = calcOpenSignal(queryList, cellMatrix)
 plotOpenSignal(op2)
 ```
+
+There are also multiple plotting options. Do you maybe prefer violin plots with highlighted medians? Here it is:
+```{r specificity-plot-multi-violin, fig.height = 7, fig.cap="Violijn plot: chromatin accessibility across cell types."}
+plotOpenSignal(op2, plotType = "violinPlot")
+```
+
 
 ## Neighboring regions distance plots
 
@@ -261,7 +288,6 @@ gc1 = calcGCContentRef(query, "hg19")
 # Plot the GC distribution
 plotGCContent(gc1)
 ```
-
 
 You can also plot the probability distribution for more than one query:
 

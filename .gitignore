@@ -22,3 +22,5 @@ Thumbs.db
 .~lock*
 doc
 Meta
+/doc/
+/Meta/

@@ -44,11 +44,10 @@ calcNeighborDist =  function(query) {
 #' @return A numeric vector with the distances in bp 
 neighbordt = function(querydt)  {
     # there should be at least 2 regions for each chr
-    if (length(rownames((querydt))) > 1) {
+    if (nrow(querydt) > 1) {
         endVect = abs(querydt[, diff(end)])
         regionWidth = querydt[, (end-start)]
-        widthVect = regionWidth[-1]
-        distancesVector = endVect - widthVect
+        distancesVector = endVect - regionWidth[-1]
         # neg values represent overlaps between neighbor regions, set those to 0
         distancesVector[which(distancesVector < 0)] = 0 
         return(distancesVector)
@@ -71,9 +70,18 @@ neighbordt = function(querydt)  {
 #' d = plotNeighborDist(numVector)
 plotNeighborDist = function(dcvec) {
     .validateInputs(list(dcvec=c("numeric","list")))
-    distdf = lapply(dcvec, as.data.frame)
-    distReshaped = reshape2::melt(distdf, id.vars=NULL)
-    colnames(distReshaped)[colnames(distReshaped) == "L1"] = "regionSet"
+    # if input is list, conver it to a data frame with 
+    # value and region set name, if input is vector - make a single
+    # columns data.frame
+    if (is(dcvec, "list")){
+      nameList = names(dcvec)
+      vectorLengths = unlist(lapply(dcvec, length))
+      distReshaped = data.frame(value = unlist(dcvec),
+                              regionSet = rep(nameList, vectorLengths))
+    } else {
+      distReshaped = data.frame(value = dcvec)
+    }
+  
     if (is(dcvec, "list")) {
         g = ggplot2::ggplot(distReshaped, aes(x=value, 
                                               fill=regionSet, 

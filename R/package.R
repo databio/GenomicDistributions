@@ -16,15 +16,15 @@
 #' @references \url{http://github.com/databio/GenomicDistributions}
 #' @import ggplot2
 #' @importFrom GenomicRanges GRanges GRangesList elementMetadata strand
-#'             seqnames granges
+#'             seqnames granges makeGRangesFromDataFrame
 #' @importFrom data.table ":=" setDT data.table setkey fread setnames 
 #'             setcolorder rbindlist setattr setorder copy is.data.table
 #'             tstrsplit as.data.table foverlaps
 #' @importFrom reshape2 melt
 #' @importFrom IRanges IRanges Views
-#' @importFrom Biostrings alphabetFrequency
+#' @importFrom Biostrings alphabetFrequency type
 #' @importFrom methods is
-#' @importFrom utils installed.packages getAnywhere data globalVariables
+#' @importFrom utils installed.packages getAnywhere data globalVariables download.file
 
 NULL
 
@@ -48,19 +48,23 @@ NULL
 # in order to pass some R CMD check NOTES.
 if(getRversion() >= "2.15.1") {
     utils::globalVariables(c(
-	"start", "end", "findOverlaps", "queryHits", "subjectHits", "buildJ",
-	"seqlengths", "IRanges", "seqlengths", "reduce", "seqlevels", "follow",
-	"trim", "error", "nlist", "aggregate", "median",  "bgDists", "Freq", "bgX",
-	"bgFreq", "value", "regionSet", "Group.1", "cellType", "spaceLabel", "signal",
-	"group", "medianBar", "partition", "Freq", "Freq", "cumsize", "frif", 
-	"aggregate", "withinGroupID", "lowerCaseTissue", "boxplot.stats", "median",
-	"barplot", "legend", "promoters", "seqlevels", "width", "precede",
-	"elementMetadata", ".N", ".SD", "colorRampPalette", "count", "countOverlaps",
-	"distance", "elementMetadata<-", "elementNROWS", "expected", "log10OE",
-	"pintersect", "plot_labels", "query", "regionGroupID", "seqlevels<-", "size",
-	"tableCount", "V1", "queryPeak", "xid", "yid", "na.omit", "peakName",
-	"mixedVar", "tissue", ".", "Percent", "Var1", "dinucleotide", "frequency", 
-	"boxStats", "cellTypeMetadata", "tissueType"))
+    "cuts", "mid", "J", "chr", "N", "regionID", "x", "name", "BSFilter", 
+    "start", "end", "findOverlaps", "queryHits", "subjectHits", "buildJ",
+    "seqlengths", "IRanges", "seqlengths", "reduce", "seqlevels", "follow",
+    "trim", "error", "nlist", "aggregate", "median",  "bgDists", "Freq", "bgX",
+    "bgFreq", "value", "regionSet", "Group.1", "cellType", "spaceLabel", 
+    "signal", "group", "medianBar", "partition", "Freq", "Freq", "cumsize", 
+    "frif", "aggregate", "withinGroupID", "lowerCaseTissue", "boxplot.stats", 
+    "median", "barplot", "legend", "promoters", "seqlevels", "width", 
+    "precede", "elementMetadata", ".N", ".SD", "colorRampPalette", "count", 
+    "countOverlaps", "distance", "elementMetadata<-", "elementNROWS", 
+    "expected", "log10OE", "pintersect", "plot_labels", "query", 
+    "regionGroupID", "seqlevels<-", "size", "tableCount", "V1", "queryPeak", 
+    "xid", "yid", "na.omit", "peakName", "mixedVar",
+    "cellTypeMetadata", "tissueType", "boxStats",
+    "tissue", ".", "Percent", "Var1", "maxStart", "start",
+    "dinucleotide", "frequency",
+    "i.start", "minEnd", "i.end", "overlap", "gene_biotype"))
 }
 
 

@@ -15,7 +15,7 @@
 #' gcvec = calcGCContent(vistaEnhancers, bsg)
 #' }
 calcGCContent = function(query, ref) {
-    .validateInputs(list(query=c("GRanges","GRangesList"),
+    GenomicDistributions:::.validateInputs(list(query=c("GRanges","GRangesList"),
                          ref="BSgenome"))
     if (is(query, "GRangesList")) {
         # Recurse over each GRanges object
@@ -29,7 +29,8 @@ calcGCContent = function(query, ref) {
         }
         return(x)
     }
-    seqlevels(query, pruning.mode="coarse") = seqlevels(ref)
+    # Restrict the seqnames to known chromosomes
+    query = GenomeInfoDb::keepStandardChromosomes(query, pruning.mode="coarse")
     v = IRanges::Views(ref, query)
     gcvec = apply(Biostrings::alphabetFrequency(v)[,c("C","G")],1, sum)/width(v)
     return(gcvec)
@@ -105,18 +106,20 @@ calcGCContentRef = function(query, refAssembly) {
 #' @examples
 #' numVector = rnorm(400, mean=0.5, sd=0.1)
 #' GCplot = plotGCContent(numVector)
-#' vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), example2 = rnorm(600, mean=0.5, sd=0.1))
-#' GCplot = plotGCContent(numVector)
+#' vecs = list(example1 = rnorm(400, mean=0.5, sd=0.1), 
+#'             example2 = rnorm(600, mean=0.5, sd=0.1))
+#' GCplot = plotGCContent(vecs)
 #' 
 plotGCContent = function(gcvectors) {
-    .validateInputs(list(gcvectors=c("numeric","list")))
-    gcdf = lapply(gcvectors, as.data.frame)
-    # reshape2 is deprecated, but there's no other way to do this easily...
-    gcdfReshaped = reshape2::melt(gcdf, id.vars=NULL)
-    colnames(gcdfReshaped)[colnames(gcdfReshaped) == "L1"] = "regionSet"
-    # plot multiple regionsets if gcvectors is a list
+    .validateInputs(list(gcvectors=c("numeric", "list")))
+
     if (is(gcvectors, "list")) {
-        meansdf = aggregate(gcdfReshaped$value, list(gcdfReshaped$regionSet), mean)
+        nameList = names(gcvectors)
+        vectorLengths = unlist(lapply(gcvectors, length))
+        gcdfReshaped = data.frame(value = unlist(gcvectors),
+                                  regionSet = rep(nameList, vectorLengths))
+        meansdf = aggregate(gcdfReshaped$value, 
+                            list(gcdfReshaped$regionSet), mean)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value, colour=regionSet)) +
             geom_density() +
             geom_vline(data=meansdf, aes(xintercept=x, colour=Group.1),
@@ -125,6 +128,7 @@ plotGCContent = function(gcvectors) {
             theme(legend.position = "bottom")
     } else {
         # plot a single regionset
+        gcdfReshaped = data.frame(value = gcvectors)
         g = ggplot2::ggplot(gcdfReshaped, aes(x=value)) + 
             geom_density() + 
             geom_vline(aes(xintercept=mean(value)),
@@ -134,7 +138,7 @@ plotGCContent = function(gcvectors) {
     g = g + 
         ggtitle("GC content distribution") + 
         theme(plot.title = element_text(hjust=0.5)) +
-        xlab("gc %") + 
+        xlab("GC content") + 
         xlim(0,1) 
     return(g)
 }

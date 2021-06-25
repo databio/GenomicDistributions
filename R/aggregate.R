@@ -24,75 +24,74 @@
 calcOLCount = function(queryRegionDT, regionsGRL) {
     jExpr = ".N"
     queryRegionDT = queryRegionDT
-    
+  
     # Assert that regionsGRL is a GRL.
     # If regionsGRL is given as a GRanges, we convert to GRL
     if(methods::is(regionsGRL,"GRanges")) {
-        regionsGRL = GRangesList(regionsGRL)
+      regionsGRL = GRangesList(regionsGRL)
     } else if (! methods::is(regionsGRL, "GRangesList")) {
-        stop("regionsGRL is not a GRanges or GRangesList object")
+      stop("regionsGRL is not a GRanges or GRangesList object")
     }
-    
+  
     # convert query regions to just the midpoint
     if ("end" %in% colnames(queryRegionDT)) {
-        # assign to "start" since BSdtToGRanges keeps the start coord
-        queryRegionDT$start = round((queryRegionDT$start + 
-                                        queryRegionDT$end)/2) 
+      # assign to "start" since BSdtToGRanges keeps the start coord
+      queryRegionDT$start = round((queryRegionDT$start + 
+                                   queryRegionDT$end)/2) 
     }
-    
+  
     # only keeps start column
     bsgr = BSdtToGRanges(list(queryRegionDT))
-
+  
     # It's required to do a findoverlaps on each region individually,
     # Not on a GRL, because of the way overlaps with GRLs work. So,
     # we must convert the GRL to a GR, but we must keep track of which
     # regions came from which group.
     regionsGR = unlist(regionsGRL)
-    
+  
     regionsGRL.length = lapply(regionsGRL, length)
-    
+  
     # Build a table to keep track of which regions belong to which group
     region2group = data.table(
-        regionID=seq_along(regionsGR), 
-        chr=as.vector(seqnames(regionsGR)), 
-        start=as.vector(start(regionsGR)), 
-        end=as.vector(end(regionsGR)),
-        withinGroupID= as.vector(unlist(lapply(regionsGRL.length, seq))),
-        regionGroupID=rep(seq_along(regionsGRL), regionsGRL.length))
+      regionID=seq_along(regionsGR), 
+      chr=as.vector(seqnames(regionsGR)), 
+      start=as.vector(start(regionsGR)), 
+      end=as.vector(end(regionsGR)),
+      withinGroupID= as.vector(unlist(lapply(regionsGRL.length, seq))),
+      regionGroupID=rep(seq_along(regionsGRL), regionsGRL.length))
     setkey(region2group, regionID)
-    
-    
+  
+  
     message("Finding overlaps...")
     fo = findOverlaps(bsgr[[1]], regionsGR)
-    
+  
     setkey(queryRegionDT, chr, start)
-    
-    
+  
     message("Setting regionIDs...")
     #restr to CpGs in any region.
     queryRegionDT = queryRegionDT[queryHits(fo),] 
-    
+  
     if (NROW(queryRegionDT) < 1) {
-        warning("No overlapping regions in the given region list; 
+    warning("No overlapping regions in the given region list; 
                 please expand your regionsGRL")
-        return(NULL)
-    }
+    return(NULL)
+  }
     #record which region they overlapped.
     queryRegionDT[,regionID:=subjectHits(fo)] 
     #queryRegionDT[queryHits(fo),regionID:=subjectHits(fo)]
     #if (!keep.na) {
     #queryRegionDT = queryRegionDT[queryHits(fo),]
     #}
-    
+  
     # Build the by string
     byString = paste0("list(regionID)")
-    
+  
     # Now actually do the aggregate:
     message("Combining...")
     bsCombined = queryRegionDT[,eval(parse(text=jExpr)), 
-                                by=eval(parse(text=byString))]
+                             by=eval(parse(text=byString))]
     setkey(bsCombined, regionID)
-    
+  
     e = region2group[bsCombined,]
     setkey(e, regionID)
     return(e)

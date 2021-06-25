@@ -2,40 +2,47 @@
 % Please edit documentation in R/partition-plots.R
 \name{calcExpectedPartitions}
 \alias{calcExpectedPartitions}
-\title{Calculates the distribution of overlaps between 
-query and arbitrary genomic partitions}
+\title{Calculates expected partiton overlap based on contribution of each
+feature (partition) to genome size. Expected and observed overlaps
+are then compared.}
 \usage{
 calcExpectedPartitions(
   query,
   partitionList,
   genomeSize = NULL,
-  remainder = "Intergenic"
+  remainder = "intergenic",
+  bpProportion = FALSE
 )
 }
 \arguments{
 \item{query}{GRanges or GRangesList with regions to classify.}
 
-\item{partitionList}{An ORDERED and NAMED list of genomic partitions
-GRanges. This list must be in priority order; the input will be assigned
-to the first partition it overlaps.}
+\item{partitionList}{An ORDERED (if bpProportion=FALSE) and NAMED 
+list of genomic partitions GRanges. This list must be in 
+priority order; the input will be assigned
+to the first partition it overlaps. However, if bpProportion=TRUE, 
+the list does not need ordering.}
 
 \item{genomeSize}{The number of bases in the query genome. In other words, 
 the sum of all chromosome sizes.}
 
 \item{remainder}{Which partition do you want to account for 'everything 
 else'?}
+
+\item{bpProportion}{logical indicating if overlaps should be calculated based
+on number of base pairs overlapping with each partition. 
+bpProportion=FALSE does overlaps in priority order, 
+bpProportion=TRUE counts number of overlapping
+base pairs between query and each partition.}
 }
 \value{
 A data.frame assigning each element of a GRanges object to a
     partition from a previously provided partitionList.
 }
 \description{
-Takes a GRanges object, then assigns each element to a partition from the
-provided partitionList, and then tallies the number of regions assigned to
-each partition. A typical example of partitions is promoter, exon, intron,
-etc; this function will yield the number of each for a query GRanges object
-There will be a priority order to these, to account for regions that may
-overlap multiple genomic partitions.
+Calculates expected partiton overlap based on contribution of each
+feature (partition) to genome size. Expected and observed overlaps
+are then compared.
 }
 \examples{
 partitionList = genomePartitionList(geneModels_hg19$genesGR,
@@ -45,4 +52,5 @@ partitionList = genomePartitionList(geneModels_hg19$genesGR,
 chromSizes = getChromSizes('hg19')
 genomeSize = sum(chromSizes)
 calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
+calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize, bpProportion=TRUE)
 }
