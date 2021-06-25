@@ -296,6 +296,15 @@ gc2 = calcGCContentRef(queryList, "hg19")
 plotGCContent(gc2)
 ```
 
+## Dinucleotide frequency plots
+
+*Dinucleotide frequency plots* provide a way to...
+
+```{r dinic-content-plots-multi, fig.cap="Multiple GC content plots.", eval=FALSE}
+
+```
+
+
 ## Width distribution plots
 
 *Width distribution plots* display a quantile-trimmed histogram (qthist) of widths of the genomic ranges in the query. These plots are quantile-trimmed to preserve the visual shape of the distribution in the face of extreme outliers which sometimes occur in genomic ranges.
