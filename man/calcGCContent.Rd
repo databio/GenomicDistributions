@@ -5,8 +5,6 @@
 \title{Calculate GC content over genomic ranges}
 \usage{
 calcGCContent(query, ref)
-
-calcGCContent(query, ref)
 }
 \arguments{
 \item{query}{A GenomicRanges or GenomicRangesList object with query regions.}
@@ -16,17 +14,8 @@ calcGCContent(query, ref)
 \value{
 A numeric vector of list of vectors with the GC percentage of 
     the query regions.
-
-A numeric vector of list of vectors with the GC percentage of the query regions.
 }
 \description{
-Given a reference genome as a BSgenome object and some ranges on that
-reference, this function will return a vector of the same length as the
-granges object, with percent of Cs and Gs.
-
-Calculate GC content over genomic ranges
-}
-\details{
 Given a reference genome as a BSgenome object and some ranges on that
 reference, this function will return a vector of the same length as the
 granges object, with percent of Cs and Gs.
@@ -35,11 +24,5 @@ granges object, with percent of Cs and Gs.
 \dontrun{
 bsg = loadBSgenome('hg19')
 gcvec = calcGCContent(vistaEnhancers, bsg)
-}
-\dontrun{
-query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
-GRquery = rtracklayer::import(query)
-bsg = loadBSgenome('hg19')
-gcvec = calcGCContent(GRquery, bsg)
 }
 }

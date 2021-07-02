@@ -298,12 +298,18 @@ plotGCContent(gc2)
 
 ## Dinucleotide frequency plots
 
-*Dinucleotide frequency plots* provide a way to...
+*Dinucleotide frequency plots* display the density of each dinucleotide over the genomic ranges in a GRanges query as a violin plot
 
-```{r dinic-content-plots-multi, fig.cap="Multiple GC content plots.", eval=FALSE}
-
+```{r dinic-content-plots, fig.cap="Dinucleotide frequency plots.", eval=FALSE}
+df1=calcDinuclFreqRef(query, "hg19")
+plotDinuclFreq(df1)
 ```
 
+You can also plot the density of each dinucleotide for more than one query:
+```{r dinic-content-plots-multi, fig.cap="Multiple finucleotide frequency plots.", eval=FALSE}
+df2=calcDinuclFreqRef(queryList, "hg19")
+plotDinuclFreq(df2)
+```
 
 ## Width distribution plots
 

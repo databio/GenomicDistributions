@@ -4,7 +4,7 @@
 \alias{calcDinuclFreq}
 \title{Calculate Dinuclotide content over genomic ranges}
 \usage{
-calcDinuclFreq(query, ref = bsg)
+calcDinuclFreq(query, ref)
 }
 \arguments{
 \item{query}{A GRanges object with query sets}
