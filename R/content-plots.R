@@ -132,14 +132,12 @@ calcDinuclFreq = function(query, ref) {
     if (is(query, "GRangesList")) {
         
         # Recurse over each GRanges object
-        
         x = lapply(query, calcDinuclFreq, ref)
         
         # return a list of dinucleotide dataframes across each GRanges object
-        
         return(x)
     }
-    seqlevels(query, pruning.mode="coarse")=seqlevels(ref)
+    seqlevels(query, pruning.mode="coarse") = seqlevels(ref)
     v = IRanges::Views(ref, query)
     dnvec= as.data.frame(Biostrings::dinucleotideFrequency(v))
     return(dnvec)
