@@ -1,7 +1,7 @@
 ---
 title: "Custom reference data in GenomicDistributions"
 author: "Michał Stolarczyk"
-date: "2021-06-03"
+date: "2021-07-07"
 output: 
   BiocStyle::html_document:
     toc: true
@@ -42,7 +42,7 @@ CEelegansChromSizes = getChromSizesFromFasta(source=fastaSource)
 ```
 
 ```
-## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//RtmpS5zlTU/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz
 ```
 Let's inspect the result:
 
@@ -64,7 +64,7 @@ CEelegansTSSs = getTssFromGTF(source=gtfSource, convertEnsemblUCSC=TRUE)
 ```
 
 ```
-## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.103.gtf.gz
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//RtmpS5zlTU/Caenorhabditis_elegans.WBcel235.103.gtf.gz
 ```
 
 Let's inspect the result:
@@ -75,22 +75,30 @@ head(CEelegansTSSs)
 
 ```
 ## GRanges object with 6 ranges and 15 metadata columns:
-##       seqnames      ranges strand |   source     type     score     phase        gene_id   gene_name gene_source   gene_biotype transcript_id
-##          <Rle>   <IRanges>  <Rle> | <factor> <factor> <numeric> <integer>    <character> <character> <character>    <character>   <character>
-##   [1]     chrV   1662-1663      + | WormBase     gene        NA      <NA> WBGene00015153     B0348.5    WormBase protein_coding          <NA>
-##   [2]     chrV   7822-7823      - | WormBase     gene        NA      <NA> WBGene00002061       ife-3    WormBase protein_coding          <NA>
-##   [3]     chrV   8739-8740      - | WormBase     gene        NA      <NA> WBGene00255704    B0348.10    WormBase protein_coding          <NA>
-##   [4]     chrV 20824-20825      + | WormBase     gene        NA      <NA> WBGene00001177       egl-8    WormBase protein_coding          <NA>
-##   [5]     chrV 45309-45310      + | WormBase     gene        NA      <NA> WBGene00015152     B0348.2    WormBase protein_coding          <NA>
-##   [6]     chrV 48921-48922      + | WormBase     gene        NA      <NA> WBGene00015151     B0348.1    WormBase protein_coding          <NA>
-##       transcript_source transcript_biotype exon_number     exon_id  protein_id         tag
-##             <character>        <character> <character> <character> <character> <character>
-##   [1]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
-##   [2]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
-##   [3]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
-##   [4]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
-##   [5]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
-##   [6]              <NA>               <NA>        <NA>        <NA>        <NA>        <NA>
+##       seqnames      ranges strand |   source     type     score     phase        gene_id   gene_name gene_source
+##          <Rle>   <IRanges>  <Rle> | <factor> <factor> <numeric> <integer>    <character> <character> <character>
+##   [1]     chrV   1662-1663      + | WormBase     gene        NA      <NA> WBGene00015153     B0348.5    WormBase
+##   [2]     chrV   7822-7823      - | WormBase     gene        NA      <NA> WBGene00002061       ife-3    WormBase
+##   [3]     chrV   8739-8740      - | WormBase     gene        NA      <NA> WBGene00255704    B0348.10    WormBase
+##   [4]     chrV 20824-20825      + | WormBase     gene        NA      <NA> WBGene00001177       egl-8    WormBase
+##   [5]     chrV 45309-45310      + | WormBase     gene        NA      <NA> WBGene00015152     B0348.2    WormBase
+##   [6]     chrV 48921-48922      + | WormBase     gene        NA      <NA> WBGene00015151     B0348.1    WormBase
+##         gene_biotype transcript_id transcript_source transcript_biotype exon_number     exon_id  protein_id
+##          <character>   <character>       <character>        <character> <character> <character> <character>
+##   [1] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
+##   [2] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
+##   [3] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
+##   [4] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
+##   [5] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
+##   [6] protein_coding          <NA>              <NA>               <NA>        <NA>        <NA>        <NA>
+##               tag
+##       <character>
+##   [1]        <NA>
+##   [2]        <NA>
+##   [3]        <NA>
+##   [4]        <NA>
+##   [5]        <NA>
+##   [6]        <NA>
 ##   -------
 ##   seqinfo: 7 sequences from an unspecified genome; no seqlengths
 ```
@@ -104,7 +112,7 @@ CEelegansGeneModels = getGeneModelsFromGTF(source=gtfSource, features=features, 
 ```
 
 ```
-## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//Rtmp803zVY/Caenorhabditis_elegans.WBcel235.103.gtf.gz
+## File exists: /var/folders/jt/kcfp49s5061b941g5013p8340000gn/T//RtmpS5zlTU/Caenorhabditis_elegans.WBcel235.103.gtf.gz
 ```
 
 ```

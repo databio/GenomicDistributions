@@ -1,6 +1,6 @@
 Package: GenomicDistributions
-Version: 1.1.1
-Date: 2021-06-03
+Version: 1.1.2
+Date: 2021-07-07
 Title: GenomicDistributions: fast analysis of genomic intervals with Bioconductor
 Description: If you have a set of genomic ranges, this package can help you with
  visualization and comparison. It produces several kinds of plots, for example:
@@ -20,6 +20,9 @@ Authors@R: c(
     person("Jose", "Verdezoto", role="ctb"),
     person("Michal", "Stolarczyk", role="ctb"),
     person("Jason", "Smith", role="ctb"),
+    person("Bingjie", "Xue", role="ctb"), 
+    person("Sophia", "Rogers", role="ctb"), 
+    person("John", "Stubbs", role="ctb"),
     person(given=c("Nathan", "C."), "Sheffield",
     email = "nathan@code.databio.org", role="aut"))
 Depends:

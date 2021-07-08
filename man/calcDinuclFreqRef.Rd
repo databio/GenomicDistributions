@@ -4,7 +4,7 @@
 \alias{calcDinuclFreqRef}
 \title{Calculate dinucleotide content over genomic ranges}
 \usage{
-calcDinuclFreqRef(query, refAssembly)
+calcDinuclFreqRef(query, refAssembly, rawCounts = FALSE)
 }
 \arguments{
 \item{query}{A GRanges object with query sets}
@@ -12,6 +12,9 @@ calcDinuclFreqRef(query, refAssembly)
 \item{refAssembly}{A character vector specifying the reference genome
 assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 \code{getTSSs}.}
+
+\item{rawCounts}{a logical indicating whether the raw numbers should be 
+displayed, rather than percentages (optional).}
 }
 \value{
 A numeric vector or list of vectors with the GC percentage of 

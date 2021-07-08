@@ -297,18 +297,23 @@ plotGCContent(gc2)
 ```
 
 ## Dinucleotide frequency plots
-
-*Dinucleotide frequency plots* display the density of each dinucleotide over the genomic ranges in a GRanges query as a violin plot
+With these set of functions you can calculate and plot what is the dinucleotide content within the regions of interest. The dinucleotide content is calculated for each query region and is then summarized in form of violin plot for the whole region set. These plots will not be shown here either, as they also require large BSgenome packages. Check out “full-power vignette” for examples of these plots.
 
 ```{r dinic-content-plots, fig.cap="Dinucleotide frequency plots.", eval=FALSE}
-df1=calcDinuclFreqRef(query, "hg19")
+df1 = calcDinuclFreqRef(query, "hg19")
 plotDinuclFreq(df1)
 ```
 
 You can also plot the density of each dinucleotide for more than one query:
-```{r dinic-content-plots-multi, fig.cap="Multiple finucleotide frequency plots.", eval=FALSE}
+```{r dinic-content-plots-multi, fig.cap="Multiple dinucleotide frequency plots.", eval=FALSE}
 df2=calcDinuclFreqRef(queryList, "hg19")
 plotDinuclFreq(df2)
+```
+
+Are you interested in the actual number of dinucleotides per region rather than dinucleotide frequencies? This can be easily done be setting the parameter *rawCounts=TRUE*.
+```{r dinic-content-plots-multi-raw-counts, fig.cap="Multiple dinucleotide frequency plots.", eval=FALSE}
+df3=calcDinuclFreqRef(queryList, "hg19", rawCounts=TRUE)
+plotDinuclFreq(df3)
 ```
 
 ## Width distribution plots

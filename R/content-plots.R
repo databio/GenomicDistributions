@@ -117,6 +117,8 @@ plotGCContent = function(gcvectors) {
 #' 
 #' @param query A GRanges object with query sets
 #' @param ref Reference genome BSgenome object
+#' @param rawCounts a logical indicating whether the raw numbers should be 
+#'     displayed, rather than percentages (optional).
 #' @return A data.table with counts of dinucleotides across the GRanges object
 #' @export
 #' @examples
@@ -125,21 +127,30 @@ plotGCContent = function(gcvectors) {
 #' DNF = calcDinuclFreq(vistaEnhancers, bsg)
 #' }
 
-calcDinuclFreq = function(query, ref) {
+calcDinuclFreq = function(query, ref, rawCounts=FALSE) {
     
     .validateInputs(list(query=c("GRanges","GRangesList"),
                          ref="BSgenome"))
     if (is(query, "GRangesList")) {
         
         # Recurse over each GRanges object
-        x = lapply(query, calcDinuclFreq, ref)
+        x = lapply(query, calcDinuclFreq, ref, rawCounts=rawCounts)
         
         # return a list of dinucleotide dataframes across each GRanges object
         return(x)
     }
-    seqlevels(query, pruning.mode="coarse") = seqlevels(ref)
+    # Restrict the seqnames to known chromosomes
+    query = GenomeInfoDb::keepStandardChromosomes(query, pruning.mode="coarse")
     v = IRanges::Views(ref, query)
-    dnvec= as.data.frame(Biostrings::dinucleotideFrequency(v))
+    regionNames = data.frame(region = paste(seqnames(query), 
+                                            start(query), 
+                                            end(query), sep="_"))
+    dnvec= Biostrings::dinucleotideFrequency(v)
+    # claculate frequencies if raw counts not required
+    if(!rawCounts){
+      dnvec = prop.table(dnvec, margin = 1)*100
+    }
+    dnvec = cbind(regionNames, as.data.frame(dnvec))
     return(dnvec)
 }
 
@@ -154,6 +165,8 @@ calcDinuclFreq = function(query, ref) {
 #' @param refAssembly A character vector specifying the reference genome
 #'     assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes with
 #'     \code{getTSSs}.
+#' @param rawCounts a logical indicating whether the raw numbers should be 
+#'     displayed, rather than percentages (optional).
 #' @return A numeric vector or list of vectors with the GC percentage of 
 #'     the query regions.
 #' @export
@@ -165,7 +178,7 @@ calcDinuclFreq = function(query, ref) {
 #'DNF = calcDinuclFreqRef(GRquery, refAssembly)
 #' } 
 
-calcDinuclFreqRef= function(query, refAssembly) {
+calcDinuclFreqRef= function(query, refAssembly, rawCounts=FALSE) {
     
     .validateInputs(list(query=c("GRanges","GRangesList"),
                          
@@ -173,17 +186,18 @@ calcDinuclFreqRef= function(query, refAssembly) {
     
     ref = loadBSgenome(refAssembly)
     
-    return(calcDinuclFreq(query, ref))
+    return(calcDinuclFreq(query, ref, rawCounts=rawCounts))
 }
 
 
-#' Plot dinuclotide content over genomic ranges
+#' Plot dinuclotide content within region set(s)
 #' 
-#' Given \code{calcDinuclFreq} results, this function 
+#' Given \code{calcDinuclFreq} or \code{calcDinuclFreqRef} results, this function 
 #' generates a violin plot of dinucleotide frequency
 #' 
-#' @param DNFDataTable A data.table of dinucleotide counts 
-#' @return A ggplot object plotting distribution of dinucleotide content per dinucleotide
+#' @param DNFDataTable A data.table, data.frame, or a list of dinucleotide counts - 
+#'                    results from \code{calcDinuclFreq} or \code{calcDinuclFreqRef}
+#' @return A ggplot object plotting distribution of dinucleotide content in query regions
 #' @export
 #' @examples
 #' 
@@ -191,83 +205,60 @@ calcDinuclFreqRef= function(query, refAssembly) {
 #' CG = rnorm(400, mean=0.5, sd=0.5), 
 #' AT = rnorm(400, mean=0.5, sd=1), 
 #' TA = rnorm(400, mean=0.5, sd=1.5))
-#' 
 #' DNFPlot =  plotDinuclFreq(DNFDataTable)
-
+#' 
+#' \dontrun{
+#' query = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' GRquery = rtracklayer::import(query)
+#' refAssembly = 'hg19'
+#' DNF = calcDinuclFreqRef(GRquery, refAssembly)
+#' DNFPlot2 =  plotDinuclFreq(DNF)
+#' } 
 
 plotDinuclFreq = function(DNFDataTable) {
-    .validateInputs(list(DNFDataTable=c("data.table", "list", "GRanges","GRangesList", "data.frame","matrix","array")))
-    # if already inputting a data table
-    if(is(DNFDataTable, "data.table")) {
-        g = DNFDataTable
-        ## for violinplot
-        g=reshape2::melt(g,id.vars = NULL) 
-        names(g)[names(g)=="variable"]="dinucleotide"
-        names(g)[names(g)=="value"]="frequency"
-        g$frequency=as.numeric(g$frequency)
-        g$dinucleotide=as.character(g$dinucleotide)
-        plot=ggplot2::ggplot(data=g, ggplot2::aes(dinucleotide, frequency))+
-            ggplot2::geom_violin(scale="width", trim=TRUE)+
-            ggplot2::geom_boxplot(width=0.1, color="grey", alpha=0.2)+
-            ggplot2::coord_flip()+
-            ggplot2::ggtitle("Dinucleotide Frequency") 
-        return(plot)}
-    # if already inputting a list
-    else if (is(DNFDataTable, "list")) {
-        # if inputting a converted GRangesList from calcDinuclFreq function 
-        g = DNFDataTable
-        ## for violinplot
-        g=reshape2::melt(g,id.vars = NULL) 
-        names(g)[names(g)=="variable"]="dinucleotide"
-        names(g)[names(g)=="value"]="frequency"
-        g$frequency=as.numeric(g$frequency)
-        g$dinucleotide=as.character(g$dinucleotide)
-        plot=ggplot2::ggplot(g, aes(dinucleotide, frequency)) + ggplot2::geom_violin(scale="width", trim=TRUE) + ggplot2::coord_flip() + ggplot2::facet_grid(~ L1) + ggplot2::ggtitle("Dinucleotide Frequency") 
-        return(plot)
-    }
-    # if already inputting a dataframe
-    else if (is(DNFDataTable, "data.frame")) {
-        # if inputting a converted GRangesList from calcDinuclFreq function 
-        g = DNFDataTable
-        ## for violinplot
-        g=reshape2::melt(g,id.vars = NULL) 
-        names(g)[names(g)=="variable"]="dinucleotide"
-        names(g)[names(g)=="value"]="frequency"
-        g$frequency=as.numeric(g$frequency)
-        g$dinucleotide=as.character(g$dinucleotide)
-        plot=ggplot2::ggplot(g, aes(dinucleotide, frequency)) + ggplot2::geom_violin(scale="width", trim=TRUE) + ggplot2::coord_flip() + ggplot2::ggtitle("Dinucleotide Frequency") 
-        return(plot)
-    }
-    # if already inputting a matrix
-    else if (is(DNFDataTable, "matrix")) {
-        # if inputting a converted GRangesList from calcDinuclFreq function 
-        g = DNFDataTable
-        ## for violinplot
-        g=reshape2::melt(g,id.vars = NULL) 
-        names(g)[names(g)=="variable"]="dinucleotide"
-        names(g)[names(g)=="value"]="frequency"
-        g$frequency=as.numeric(g$frequency)
-        g$dinucleotide=as.character(g$dinucleotide)
-        plot=ggplot2::ggplot(g, aes(dinucleotide, frequency)) + ggplot2::geom_violin(scale="width", trim=TRUE) + ggplot2::coord_flip() + ggplot2::ggtitle("Dinucleotide Frequency") 
-        return(plot)
-    }
-    # if already inputting an array
-    else if (is(DNFDataTable, "array")) {
-        # if inputting a converted GRangesList from calcDinuclFreq function 
-        g = DNFDataTable
-        ## for violinplot
-        g=reshape2::melt(g,id.vars = NULL) 
-        names(g)[names(g)=="variable"]="dinucleotide"
-        names(g)[names(g)=="value"]="frequency"
-        g$frequency=as.numeric(g$frequency)
-        g$dinucleotide=as.character(g$dinucleotide)
-        plot=ggplot2::ggplot(g, aes(dinucleotide, frequency)) + ggplot2::geom_violin(scale="width", trim=TRUE) + ggplot2::coord_flip() + ggplot2::ggtitle("Dinucleotide Frequency") 
-        return(plot)
-    }
-    # GRanges or GRangesLists should be calced prior to plotting
-    else if (is(DNFDataTable, "GRanges")) {
-        warning("This is a GRanges object. Please use calculate dinucleotide function first.")}
-    else if (is(DNFDataTable, "GRangesList")){
-        warning("This is a GRangesList object. Please use calculate dinucleotide function first.")
-    }
+  .validateInputs(list(DNFDataTable=c("data.table","data.frame","list")))
+  
+  # reshape the data for plotting
+  if (is(DNFDataTable, "list") && 
+      any(vapply(DNFDataTable, function(x) any(names(x) == "region"), logical(1)))){
+    g = reshape2::melt(DNFDataTable,id.vars="region", 
+                       variable.name="dinucleotide", value.name="frequency") 
+  } else if ((is(DNFDataTable, "data.frame") | is(DNFDataTable, "data.table"))&& 
+             ("region" %in% colnames(DNFDataTable))){
+    g = reshape2::melt(DNFDataTable,id.vars="region", 
+                       variable.name="dinucleotide", value.name="frequency") 
+  } else {
+    g = reshape2::melt(DNFDataTable, id.vars=NULL,
+                       variable.name="dinucleotide", value.name="frequency") 
+  }
+  
+  # plot data as violin plots
+  # if multiple inuts - make a facet for each dinucleotide to make the plot easier to read
+  if (is(DNFDataTable, "list")){
+    plot = ggplot2::ggplot(data=g, ggplot2::aes(x=L1, y=frequency, fill=L1)) +
+      facet_wrap(~dinucleotide, nrow=4)+
+      theme_bw() +
+      theme(axis.text.x = element_text(angle=90, hjust=1)) +
+      xlab(" ")
+  } else{
+    plot = ggplot2::ggplot(data=g, ggplot2::aes(x=dinucleotide, y=frequency))+
+      xlab("Dinucleotide")+
+      theme_bw()
+  }
+  plot = plot +
+    geom_violin(trim=TRUE, scale = "width") +
+    geom_boxplot(alpha=0.2, outlier.shape = NA)+
+    ggtitle("Dinucleotide Frequency")  
+  # check if we have raw counts or frequencies
+  if (is(g[,"frequency"], "integer")){
+    plot = plot + 
+      ylab("Dinucleotide counts per region [n]")
+      
+  } else {
+    plot = plot + 
+      ylab("Dinucleotide frequency per region [%]")
+  }
+  return(plot)
 }
+
+

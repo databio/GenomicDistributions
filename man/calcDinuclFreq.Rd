@@ -4,12 +4,15 @@
 \alias{calcDinuclFreq}
 \title{Calculate Dinuclotide content over genomic ranges}
 \usage{
-calcDinuclFreq(query, ref)
+calcDinuclFreq(query, ref, rawCounts = FALSE)
 }
 \arguments{
 \item{query}{A GRanges object with query sets}
 
 \item{ref}{Reference genome BSgenome object}
+
+\item{rawCounts}{a logical indicating whether the raw numbers should be 
+displayed, rather than percentages (optional).}
 }
 \value{
 A data.table with counts of dinucleotides across the GRanges object
