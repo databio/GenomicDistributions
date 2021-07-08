@@ -298,4 +298,13 @@ plotGCContent(gc)
 
 As you can see, as part of the plotting function, we also included a line indicating mean GC content for a given region set to make the comparison among the region sets easier.
 
+## Dinucleotide frequencies
+
+And finally, you can calculate 
+
+```{r dinuc-content, fig.fullwidth=TRUE, fig.height=12}
+df = calcDinuclFreqRef(queryList, "hg38")
+plotDinuclFreq(df)
+```
+
 That wraps it up! I hope this vignette convinces you that GenomicDistributions can calculate and plot some interesting data to compare genomic region sets.

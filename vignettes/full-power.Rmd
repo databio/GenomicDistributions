@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2021-06-03"
+date: "2021-07-07"
 output: 
   html_document:
     theme: sandstone
@@ -59,8 +59,9 @@ datasetList
 ```
 
 ```
-##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"      "chromSizes_hg19"      
-##  [7] "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"              
+##  [5] "cellTypeMetadata"      "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"      
+##  [9] "chromSizes_mm9"        "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
 ## [13] "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38" "openSignalMatrix_mm10"
 ```
 
@@ -353,5 +354,17 @@ plotGCContent(gc)
 ![plot of chunk GC-content](figures-full-power/GC-content-1.png)
 
 As you can see, as part of the plotting function, we also included a line indicating mean GC content for a given region set to make the comparison among the region sets easier.
+
+## Dinucleotide frequencies
+
+And finally, you can calculate 
+
+
+```r
+df = calcDinuclFreqRef(queryList, "hg38")
+plotDinuclFreq(df)
+```
+
+![plot of chunk dinuc-content](figures-full-power/dinuc-content-1.png)
 
 That wraps it up! I hope this vignette convinces you that GenomicDistributions can calculate and plot some interesting data to compare genomic region sets.
