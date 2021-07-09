@@ -30,9 +30,10 @@ If you have a set of genomic ranges, the GenomicDistributions R package can help
 - *specificity of accessibility plot* - visualizes tissue specificity of a set of genomic ranges. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix, which contains a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest.
 - *neighboring regions distance* - visualizes the distance between chromosomes neighboring regions.
 - *GC content plot* - visualizes a probability density function of GC content percentage over the genomic ranges in the query.
+- *dinucleotide frequency* - visualizes dinucleotide content within your regions.
 
 
-GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes and locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
+GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes and locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data (see the *Custom reference and features* section of this vignette).
 
 In this vignette, we'll go through examples of each of the plots using my common built-in features and partitions. If you want more control, there's another advanced vignette that will introduce you how to define your own features, partitions, and chromosome sizes for custom analysis.
 
@@ -342,6 +343,100 @@ Both the quantile and the bins can be manually adjusted. The quantile you indica
 plotQTHist(qt1, bins=7, quantile = .015, EndBarColor = 'black', MiddleBarColor='darkblue')
 ```
 
-# Conclusion
+# Custom reference and features
 
+## Custom reference
+`GenomicDistributions` package comes with a limited reference data set. There are only files that support `hg19` human reference genome (use `GenomicDistributionsData` for `hg19`, `hg38` and `mm10` genome reference data - see *full-power vignette*). If you need any reference data outside of this selection, these can be easily generated with functions included in this package.
+
+Here we'll go over the steps to generate reference data for a *C. Elegans* genome assembly (Caenorhabditis_elegans.WBcel235.103).
+
+All we need to generate the custom reference data set are two local or remote files. We will use remote files from Ensembl FTP server:
+
+1. GTF - [http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz](http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz)
+2. FASTA - [http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz](http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz)
+
+```{r}
+fastaSource = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
+gtfSource = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
+```
+
+### Get chromosome sizes
+Let's first have a look, how to extract chromosome sizes: 
+```{r message=TRUE, eval=FALSE}
+CEelegansChromSizes = getChromSizesFromFasta(source=fastaSource)
+```
+
+You can now these to a `getGenomeBins` function that will create equaly sized bins that can passed to `calcChromBins` function as `bins` argument:
+```{r message=TRUE, eval=FALSE}
+bins  = getGenomeBins(CEelegansChromSizes)
+```
+
+### Transcription start sites (TSS)
+Now, let's see, how to extract transcription start sites:
+```{r message=TRUE, eval=FALSE}
+CEelegansTSSs = getTssFromGTF(source=gtfSource, convertEnsemblUCSC=TRUE)
+```
+
+You can now pass the `CEelegansTSSs` to `calcFeatureDist` function as a `feature` argument to get the distances of your query regions to the nerest TSS.
+
+### Gene models
+What about gene models for partition plots?
+```{r message=TRUE, eval=FALSE}
+features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
+CEelegansGeneModels = getGeneModelsFromGTF(source=gtfSource, features=features, convertEnsemblUCSC=TRUE)
+```
+
+You can now pass the `CEelegansGeneModels` object to `genomePartitionList` function, which created list of genomic partitions that are then passed to `calcPartitions` function as `partitionList` argument.
+
+```{r message=TRUE, eval=FALSE}
+partitionList = genomePartitionList(CEelegansGeneModels$gene, 
+                                    CEelegansGeneModels$exon,
+                                    CEelegansGeneModels$three_prime_utr, 
+                                    CEelegansGeneModels$five_prime_utr)
+```
+
+## Custom features (partitions)
+
+Are you missing certain features (e.g. enhancers) in the list of provided partitions for partition plots? You can include custom partitions in few easy steps! In this example we'll add enhancers to the list of partitions. 
+
+First, we'll grab all of the Ensembl predicted enhancers for `hg19` from the ensembl regulatory build.
+```{r, eval=FALSE}
+funcgen = biomaRt::useMart("ENSEMBL_MART_FUNCGEN", host="grch37.ensembl.org")
+funcgen = biomaRt::useDataset("hsapiens_regulatory_feature", mart=funcgen)
+
+enhancers = biomaRt::getBM(attributes=c('chromosome_name', 
+                                        'chromosome_start',
+                                        'chromosome_end',
+                                        'feature_type_name'), 
+                  filters='regulatory_feature_type_name', 
+                  values='Enhancer', 
+                  mart=funcgen)
+```
+
+Then we'll convert chromosome names to the UCSC naming convention to match included partitions. Next, follow that up by converting this into a GenomicRanges object.
+
+```{r, eval=FALSE}
+enhancers$chromosome_name = paste("chr", enhancers$chromosome_name, sep="")
+
+gr1 = GenomicRanges::sort(GenomeInfoDb::sortSeqlevels(
+    GenomicDistributions::dtToGr(enhancers,
+                                 chr="chromosome_name",
+                                 start="chromosome_start",
+                                 end="chromosome_end")))
+```
+
+Now we can add our enhancers GenomicRanges object to the list of partitions we can obtain from the GenomicDistributions package itself.
+
+```{r, eval=FALSE}
+geneModels = GenomicDistributions::getGeneModels("hg19")
+partitionList = GenomicDistributions::genomePartitionList(geneModels$genesGR, 
+                                                          geneModels$exonsGR,
+                                                          geneModels$threeUTRGR, 
+                                                          geneModels$fiveUTRGR)
+partitionList[["enhancer"]] = gr1
+```
+
+You can now pass the newly generated `partitionList` that includes enhancers to `calcPartitions` function.
+
+# Conclusion
 GenomicDistributions provides a variety of ways to visualize your data. 3 key features make it very useful: First, it uses a modular, systematic way to name *calc* and *plot* functions, and the function names and interfaces are all consistent. Second, it is optimized for speed. You will find these functions to be much faster than other commonly accepted alternatives due to way we've written the functions under the hood. And finally, it provides a single, convenient package for many types of plots, so you don't have to look around in multiple places.
