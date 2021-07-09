@@ -120,9 +120,9 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
 
 # Internal helper function for \code{plotQTHist}
 # 
-# If the bins or quantiles for the hist. are specified by the user, those are 
-# used otherwise, calculates bins based on size of the dataset, and quantile 
-# based on bins.
+# If the bins or quantiles for the hist are specified by the user, those are 
+# used. Otherwise, this function is used to calculate 1) number of bins based
+# on size of the dataset, and 2) quantiles based on bins.
 #
 # @param x A vector of GRanges x.
 # @return A list of the divisions that will be used in plotting the histogram. 
@@ -141,11 +141,11 @@ calcDivisions = function(x, bins=NULL, quantile = NULL){
         if (n > 10000) {n = 10000}
         if (n < 500) {n = 500}
         # finding number of bins based on the size of dataset
-        b = round(n^.15 + (n/200) )
+        b = round(n^.15 + (n/200))
     }
     # calculating quantiles
     if(!is.null(quantile)){
-        if(quantile >= .2){
+        if(quantile > .2){
             stop("Quantile must be less than .2, Optimal size is under .1") }
         q = quantile
     }
@@ -153,7 +153,7 @@ calcDivisions = function(x, bins=NULL, quantile = NULL){
         # finding the quantile on each side based on number of bins
         q = round(25/(b))/100
         # minimum on each side is 1%
-        q = max(.01,q)
+        q = max(.01, q)
     }
     quant = unname(quantile(x, probs = c((q), (1-(q)))))
     seq_10 = seq(quant[1], quant[2], length = b+1)
