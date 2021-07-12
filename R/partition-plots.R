@@ -793,7 +793,7 @@ overlapWidths = function(partition, query){
   setkey(queryDT, chr, start, end)
   
   # find overlaps
-  hits = foverlaps(partitionDT, queryDT, nomatch=NULL,)
+  hits = foverlaps(partitionDT, queryDT, nomatch=NULL)
   
   # get the widths of the overlaps - get maximum start
   # value and minumum end value, get their difference
