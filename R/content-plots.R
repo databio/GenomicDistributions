@@ -236,8 +236,10 @@ plotDinuclFreq = function(DNFDataTable) {
   # if multiple inuts - make a facet for each dinucleotide to make the plot easier to read
   if (is(DNFDataTable, "list")){
     plot = ggplot2::ggplot(data=g, ggplot2::aes(x=L1, y=frequency, fill=L1)) +
-      facet_wrap(~dinucleotide, nrow=4)+
+      facet_wrap(~dinucleotide, nrow=4) +
       theme_bw() +
+      theme(strip.background =element_rect(fill="white"))+
+      theme(strip.text = element_text(face = "bold")) +
       theme(axis.text.x = element_text(angle=90, hjust=1)) +
       xlab(" ")
   } else{
@@ -248,17 +250,17 @@ plotDinuclFreq = function(DNFDataTable) {
   plot = plot +
     geom_violin(trim=TRUE, scale = "width") +
     geom_boxplot(alpha=0.2, outlier.shape = NA)+
-    ggtitle("Dinucleotide Frequency")  
+    ggtitle("Dinucleotide Frequency") +
+    guides(fill="none") + 
+    theme(plot.title = element_text(hjust = 0.5))
   # check if we have raw counts or frequencies
   if (is(g[,"frequency"], "integer")){
     plot = plot + 
       ylab("Dinucleotide counts per region [n]")
-      
+    
   } else {
     plot = plot + 
       ylab("Dinucleotide frequency per region [%]")
   }
   return(plot)
 }
-
-
