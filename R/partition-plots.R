@@ -52,10 +52,7 @@ calcPartitionsRef = function(query, refAssembly, bpProportion=FALSE){
 #'     several genomic partitions.
 #' @export
 #' @examples
-#' \dontrun{
 #' calcExpectedPartitionsRef(vistaEnhancers, "hg19")
-#' calcExpectedPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
-#' }
 calcExpectedPartitionsRef = function(query, refAssembly,
                                      bpProportion=FALSE) {
     .validateInputs(list(query=c("GRanges", "GRangesList"),
