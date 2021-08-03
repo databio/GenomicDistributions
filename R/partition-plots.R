@@ -290,7 +290,6 @@ calcPartitions = function(query, partitionList,
 #' chromSizes = getChromSizes('hg19')
 #' genomeSize = sum(chromSizes)
 #' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize)
-#' calcExpectedPartitions(vistaEnhancers, partitionList, genomeSize, bpProportion=TRUE)
 calcExpectedPartitions = function(query, partitionList,
                                   genomeSize=NULL, remainder="intergenic",
                                   bpProportion=FALSE) {
