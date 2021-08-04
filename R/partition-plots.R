@@ -605,8 +605,6 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #' @examples
 #' p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 #' expectedPlot = plotExpectedPartitions(p)
-#' pp = calcExpectedPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
-#' expectedPropPlot = plotExpectedPartitions(pp)
 plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
     .validateInputs(list(expectedPartitions="data.frame"))
     expectedPartitions = na.omit(expectedPartitions)
