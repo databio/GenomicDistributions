@@ -19,7 +19,6 @@
 #' @export
 #' @examples
 #' calcPartitionsRef(vistaEnhancers, "hg19")
-#' calcPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
 calcPartitionsRef = function(query, refAssembly, bpProportion=FALSE){
     .validateInputs(list(query=c("GRanges", "GRangesList"),
                          refAssembly="character"))
@@ -189,7 +188,6 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
 #'                                     geneModels_hg19$threeUTRGR,
 #'                                     geneModels_hg19$fiveUTRGR)
 #' calcPartitions(vistaEnhancers, partitionList)
-#' calcPartitions(vistaEnhancers, partitionList, bpProportion=TRUE)
 calcPartitions = function(query, partitionList,
                           remainder="intergenic", bpProportion=FALSE) {
   .validateInputs(list(query=c("GRanges", "GRangesList"),
@@ -688,10 +686,6 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
 #' partPlot = plotPartitions(p)
 #' partCounts = plotPartitions(p, numbers=TRUE)
 #' partPlot = plotPartitions(p, stacked=TRUE)
-#' pProp = calcPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
-#' partPlot = plotPartitions(pProp)
-#' partCounts = plotPartitions(pProp, numbers=TRUE)
-#' partPlot = plotPartitions(pProp, stacked=TRUE)
 plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
     .validateInputs(list(assignedPartitions="data.frame"))
 
