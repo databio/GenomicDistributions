@@ -11,15 +11,15 @@ calcCumulativePartitionsRef(query, refAssembly)
 \item{query}{A GenomicRanges or GenomicRangesList object with query regions}
 
 \item{refAssembly}{A character vector specifying the reference genome
-assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes 
+assembly (*e.g.* 'hg19'). This will be used to grab chromosome sizes
 with \code{getTSSs}.}
 }
 \value{
-A data.frame indicating the number of query region overlaps in   
+A data.frame indicating the number of query region overlaps in
     several genomic partitions.
 }
 \description{
-This function is a wrapper for \code{calcCumulativePartitions} that uses 
+This function is a wrapper for \code{calcCumulativePartitions} that uses
 built-in partitions for a given reference genome assembly.
 }
 \examples{

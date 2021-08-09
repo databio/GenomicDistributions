@@ -2,7 +2,7 @@
 % Please edit documentation in R/partition-plots.R
 \name{calcExpectedPartitionsRef}
 \alias{calcExpectedPartitionsRef}
-\title{Calculates the distribution of observed versus expected overlaps for a 
+\title{Calculates the distribution of observed versus expected overlaps for a
 query set to a reference assembly}
 \usage{
 calcExpectedPartitionsRef(query, refAssembly, bpProportion = FALSE)
@@ -11,24 +11,23 @@ calcExpectedPartitionsRef(query, refAssembly, bpProportion = FALSE)
 \item{query}{A GenomicRanges or GenomicRangesList object with query regions}
 
 \item{refAssembly}{A character vector specifying the reference genome
-assembly (*e.g.* 'hg19'). This will be used to grab annotation 
+assembly (*e.g.* 'hg19'). This will be used to grab annotation
 models with \code{getGeneModels}, and chromosome sizes with\code{getChromSizes}}
 
 \item{bpProportion}{logical indicating if overlaps should be calculated based
-on number of base pairs overlapping with each partition. 
-bpProportion=FALSE does overlaps in priority order, 
+on number of base pairs overlapping with each partition.
+bpProportion=FALSE does overlaps in priority order,
 bpProportion=TRUE counts number of overlapping
 base pairs between query and each partition.}
 }
 \value{
-A data.frame indicating the number of query region overlaps in   
+A data.frame indicating the number of query region overlaps in
     several genomic partitions.
 }
 \description{
-This function is a wrapper for \code{calcExpectedPartitions} that uses 
+This function is a wrapper for \code{calcExpectedPartitions} that uses
 built-in partitions for a given reference genome assembly.
 }
 \examples{
 calcExpectedPartitionsRef(vistaEnhancers, "hg19")
-calcExpectedPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
 }
