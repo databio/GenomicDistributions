@@ -64,7 +64,7 @@ if(getRversion() >= "2.15.1") {
         "cellTypeMetadata", "tissueType", "boxStats",
         "tissue", ".", "Percent", "Var1", "maxStart", "start",
         "i.start", "minEnd", "i.end", "overlap", "gene_biotype", "dinucleotide",
-        "frequency", "L1"))
+        "frequency", "L1", "V4"))
 }
 
 
