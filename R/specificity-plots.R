@@ -56,6 +56,13 @@ calcOpenSignal = function(query, cellMatrix){
   # get the genomic coordinates from the open chromatin signal matrix 
   openRegions = signalMatrixToOpenRegions(cellMatrix)
   
+  # if unknown chromosomes were tossed, update cellMatrix
+  if (nrow(openRegions) != nrow(cellMatrix)){
+    keepRegions = openRegions[, peakName:=paste(chr, start, end, sep="_")]
+    keepRegions = keepRegions[, peakName]
+    cellMatrix = cellMatrix[V1 %in% keepRegions, ]
+  }
+  
   # convert GRanges query to data.table
   queryTable = queryToDataTable(query)
   
@@ -170,9 +177,18 @@ plotOpenSignal = function(openRegionSummary,
 signalMatrixToOpenRegions = function(cellMatrix){
   # get the genomic coordinates from the open chromatin signal matrix - 
   # the first column convert the chr_start_end into a three column data.table
+  # unknown chromosomes are tossed
   openRegions = cellMatrix[,1]
   colnames(openRegions) = "V1"
-  openRegions[, c("chr", "start", "end") := tstrsplit(V1, "_", fixed=TRUE)]
+  #openRegions[, c("chr", "start", "end") := tstrsplit(V1, "_", fixed=TRUE)]
+  openRegions = setDT(tstrsplit(openRegions$V1, '[:_]', type.convert=TRUE))
+  
+  if(ncol(openRegions) > 3){
+    openRegions = openRegions[is.na(V4),]
+    openRegions = openRegions[,1:3]
+  }
+  
+  setnames(openRegions, c("chr", "start", "end"))
   numericColumns = c("start", "end")
   openRegions[, (numericColumns ) := lapply(.SD, as.numeric), 
               .SDcols = numericColumns]
