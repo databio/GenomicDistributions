@@ -41,7 +41,7 @@ calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
   query = sort(query)
   query$ng = "unknown"
   query$ng_type = "unknown"
-  query$ng_distance = "unknown"
+  query$ng_distance = 0
   
   # go through each chromosome
   for(chr in unique(seqnames(query))) {
@@ -54,9 +54,9 @@ calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
     query[seqnames(query) == chr]$ng_distance = as.data.frame(distanceToNearest(chrQuery))$distance
   }
   
-  query$ng_distance
-  query$ng_type
-  query$ng
+  # convert the distances to log_10
+  # values
+  query$ng_distance = log10(query$ng_distance)
   
   if(removeUnknowns) {
    query = query[query$ng != "unknown"] 
@@ -64,4 +64,22 @@ calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
   
   # dump a query to a data table and return
   return(grToDt(query))
+}
+
+plotNearestGenes = function(df) {
+  .validateInputs(list(df=c("data.frame")))
+  
+  g = ggplot2::ggplot(df, aes(x=ng_distance, group=ng_type, fill=ng_type)) +
+    geom_density(alpha=0.4) + 
+    theme_classic()
+  
+  g = g + 
+    xlab(expression(log[10]*("bp distance by nearest gene type"))) +
+    xlim(0, 10) +
+    theme(aspect.ratio=1) +
+    theme_blank_facet_label() +
+    ggtitle("Neighboring regions distance distribution by gene type") +
+    theme(plot.title = element_text(hjust=0.5))
+  
+  return(g)
 }
