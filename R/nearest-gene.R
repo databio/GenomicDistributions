@@ -15,7 +15,7 @@
 #' annotations = rtracklayer::import("data/hg38.refGene.gtf")
 #' 
 #' queryAnnotated = calcNearestGenesRef(query, annotations)
-#' calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
+calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
 {
   .validateInputs(list(query=c("GRanges","GRangesList")))
   # find overlaps between the query and
