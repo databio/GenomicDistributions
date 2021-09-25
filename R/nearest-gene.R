@@ -1,14 +1,21 @@
-# Find overlapping annotations for a given query and annotation
-# set. Annotate the query based on the distance to the nearest
-# gene, the gene name, and the gene type.
-#
-# @param query A GRanges or GRangesList object with query sets
-# @param annotatations A GRanges or GRangesList object with annotation sets
-# @param removeUnknowns Boolean value to indicate if you'd like to remove unannotaed ranges in the query.
-# 
-# @return A data table that contains observations for each genomic region
-#         and the associated aforementioned annotations.
-calcNearestGenes <- function(query, annotations, removeUnknowns=TRUE)
+#' Find overlapping annotations for a given query and annotation
+#' set. Annotate the query based on the distance to the nearest
+#' gene, the gene name, and the gene type.
+#'
+#' @param query A GRanges or GRangesList object with query sets
+#' @param annotatations A GRanges or GRangesList object with annotation sets
+#' @param removeUnknowns Boolean value to indicate if you'd like to remove unannotaed ranges in the query.
+#' 
+#' @return A data table that contains observations for each genomic region
+#'         and the associated aforementioned annotations.
+#' @export
+#' @examples
+#' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' query = rtracklayer::import(queryFile)
+#' annotations = rtracklayer::import("data/hg38.refGene.gtf")
+#' 
+#' queryAnnotated = calcNearestGenesRef(query, annotations)
+#' calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
 {
   .validateInputs(list(query=c("GRanges","GRangesList")))
   # find overlaps between the query and
