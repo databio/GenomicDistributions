@@ -4,10 +4,11 @@
 #
 # @param query A GRanges or GRangesList object with query sets
 # @param annotatations A GRanges or GRangesList object with annotation sets
+# @param removeUnknowns Boolean value to indicate if you'd like to remove unannotaed ranges in the query.
 # 
 # @return A data table that contains observations for each genomic region
 #         and the associated aforementioned annotations.
-calcNearestGenesRef <- function(query, annotations, removeUnknowns=TRUE)
+calcNearestGenes <- function(query, annotations, removeUnknowns=TRUE)
 {
   .validateInputs(list(query=c("GRanges","GRangesList")))
   # find overlaps between the query and
