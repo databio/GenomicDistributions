@@ -12,7 +12,7 @@
 #' @examples
 #' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
 #' query = rtracklayer::import(queryFile)
-#' annotationsFile = system.file("data", "TSS_hg19.rda", package="GenomicDistributions")
+#' annotationsFile = system.file("extdata", "TSS_hg19.rda", package="GenomicDistributions")
 #' load(annotationsFile)
 #' 
 #' queryAnnotated = calcNearestGenes(query, TSS_hg19)

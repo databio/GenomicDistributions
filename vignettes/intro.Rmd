@@ -279,15 +279,15 @@ dist2 = calcNeighborDist(queryList2)
 plotNeighborDist(dist2)
 ```
 
-As well, you can bring in a set of annotations for your reference genome to annotate your query with the nearest gene, the distance to the nearest gene, and the nearest gene type:
+As well, you can bring in a set of annotations for your reference genome to annotate your query with the nearest gene and the distance to that nearest gene.
 
-```{r nearest-neighbor-distance-and-type-plots, fig.cap="Nearest neighbor distance annotated by type", fig.small=TRUE}
-# load an annotations file
-annotations = rtracklayer::import(annotationsFile)
+```{r}
+# load annotations data
+annotationsFile = system.file("extdata", "TSS_hg19.rda", package="GenomicDistributions")
+load(annotationsFile)
 
-# calculate the nearest gene annotations and plot
-nearestGenes = calcNearestGenes(query, annotations)
-plotNearestGenes(nearestGenes)
+# annotate the query with the nearest gene
+queryAnnotated = calcNearestGenes(query, TSS_hg19)
 ```
 
 ## GC content plots 
