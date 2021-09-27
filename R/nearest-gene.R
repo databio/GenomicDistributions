@@ -12,9 +12,10 @@
 #' @examples
 #' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
 #' query = rtracklayer::import(queryFile)
-#' annotations = rtracklayer::import("data/hg38.refGene.gtf")
+#' annotationsFile = system.file("data", "TSS_hg19.rda", package="GenomicDistributions")
+#' load(annotationsFile)
 #' 
-#' queryAnnotated = calcNearestGenesRef(query, annotations)
+#' queryAnnotated = calcNearestGenes(query, TSS_hg19)
 calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
 {
   .validateInputs(list(query=c("GRanges","GRangesList")))
@@ -22,26 +23,21 @@ calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
   # the annotations and use to annotate
   # our query
   oLaps = findOverlaps(query, annotations)
-  
+
   # init the type column
   # as unknown. It could be
   # possible that our query had
   # a GRange that wasn't present
   # in the annotation file
-  query$type = "unknown"
-  query$gene_name = "unknown"
+  query$gene_id = "unknown"
   
   # map hits to gene type and the gene name
-  query[queryHits(oLaps)]$gene_name = annotations[subjectHits(oLaps)]$gene_name
-  
-  # mapped as.character to convert from factor to string
-  query[queryHits(oLaps)]$type = as.character(annotations[subjectHits(oLaps)]$type)
+  query[queryHits(oLaps)]$gene_id = annotations[subjectHits(oLaps)]$gene_id
   
   # sort the query so that we can then run the analysis
   query = sort(query)
-  query$ng = "unknown"
-  query$ng_type = "unknown"
-  query$ng_distance = 0
+  query$nearest_gene = "unknown"
+  query$nearest_gene_distance = 0
   
   # go through each chromosome
   for(chr in unique(seqnames(query))) {
@@ -49,37 +45,18 @@ calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)
     chrQuery = query[seqnames(query) == chr]
     
     # stuff back into query
-    query[seqnames(query) == chr]$ng = chrQuery[nearest(chrQuery)]$gene_name
-    query[seqnames(query) == chr]$ng_type = chrQuery[nearest(chrQuery)]$type
-    query[seqnames(query) == chr]$ng_distance = as.data.frame(distanceToNearest(chrQuery))$distance
+    query[seqnames(query) == chr]$nearest_gene = chrQuery[nearest(chrQuery)]$gene_id
+    query[seqnames(query) == chr]$nearest_gene_distance = as.data.frame(distanceToNearest(chrQuery))$distance
   }
   
-  # convert the distances to log_10
-  # values
-  query$ng_distance = log10(query$ng_distance)
   
   if(removeUnknowns) {
-   query = query[query$ng != "unknown"] 
+   query = query[query$nearest_gene != "unknown"] 
   }
   
   # dump a query to a data table and return
-  return(grToDt(query))
-}
-
-plotNearestGenes = function(df) {
-  .validateInputs(list(df=c("data.frame")))
+  dt = grToDt(query)
   
-  g = ggplot2::ggplot(df, aes(x=ng_distance, group=ng_type, fill=ng_type)) +
-    geom_density(alpha=0.4) + 
-    theme_classic()
-  
-  g = g + 
-    xlab(expression(log[10]*("bp distance by nearest gene type"))) +
-    xlim(0, 10) +
-    theme(aspect.ratio=1) +
-    theme_blank_facet_label() +
-    ggtitle("Neighboring regions distance distribution by gene type") +
-    theme(plot.title = element_text(hjust=0.5))
-  
-  return(g)
+  # remove the gene_id column and return
+  return(dt[,gene_id:=NULL])
 }
