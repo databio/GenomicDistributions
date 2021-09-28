@@ -38,6 +38,7 @@ Imports:
     Biostrings,
     plyr,
     dplyr,
+    scales,
     GenomeInfoDb
 Suggests:
     AnnotationFilter,
