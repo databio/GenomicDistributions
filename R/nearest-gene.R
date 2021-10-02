@@ -3,7 +3,7 @@
 #' gene, the gene name, and the gene type.
 #'
 #' @param query A GRanges or GRangesList object with query sets
-#' @param annotatations A GRanges or GRangesList object with annotation sets
+#' @param annotations A GRanges or GRangesList object with annotation sets
 #' @param removeUnknowns Boolean value to indicate if you'd like to remove unannotaed ranges in the query.
 #' 
 #' @return A data table that contains observations for each genomic region
@@ -12,8 +12,7 @@
 #' @examples
 #' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
 #' query = rtracklayer::import(queryFile)
-#' annotationsFile = system.file("extdata", "TSS_hg19.rda", package="GenomicDistributions")
-#' load(annotationsFile)
+#' data(TSS_hg19)
 #' 
 #' queryAnnotated = calcNearestGenes(query, TSS_hg19)
 calcNearestGenes = function(query, annotations, removeUnknowns=TRUE)

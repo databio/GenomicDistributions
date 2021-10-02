@@ -11,9 +11,9 @@ calcNearestGenes(query, annotations, removeUnknowns = TRUE)
 \arguments{
 \item{query}{A GRanges or GRangesList object with query sets}
 
-\item{removeUnknowns}{Boolean value to indicate if you'd like to remove unannotaed ranges in the query.}
+\item{annotations}{A GRanges or GRangesList object with annotation sets}
 
-\item{annotatations}{A GRanges or GRangesList object with annotation sets}
+\item{removeUnknowns}{Boolean value to indicate if you'd like to remove unannotaed ranges in the query.}
 }
 \value{
 A data table that contains observations for each genomic region
@@ -27,8 +27,7 @@ gene, the gene name, and the gene type.
 \examples{
 queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
 query = rtracklayer::import(queryFile)
-annotationsFile = system.file("extdata", "TSS_hg19.rda", package="GenomicDistributions")
-load(annotationsFile)
+data(TSS_hg19)
 
 queryAnnotated = calcNearestGenes(query, TSS_hg19)
 }
