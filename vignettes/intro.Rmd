@@ -279,12 +279,11 @@ dist2 = calcNeighborDist(queryList2)
 plotNeighborDist(dist2)
 ```
 
-As well, you can bring in a set of annotations for your reference genome to annotate your query with the nearest gene and the distance to that nearest gene.
+As well, you can bring in a set of annotations for your reference genome to annotate your query with the nearest gene and the **distance** to that nearest gene.
 
 ```{r}
 # load annotations data
-annotationsFile = system.file("extdata", "TSS_hg19.rda", package="GenomicDistributions")
-load(annotationsFile)
+data("TSS_hg19")
 
 # annotate the query with the nearest gene
 queryAnnotated = calcNearestGenes(query, TSS_hg19)
