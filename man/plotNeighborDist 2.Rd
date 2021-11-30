@@ -2,24 +2,35 @@
 % Please edit documentation in R/neighbor-distances.R
 \name{plotNeighborDist}
 \alias{plotNeighborDist}
-\title{Plot the distances between neighboring regions.The distance in the 
-x axis is log10 transformed for ease of comparison between 
-different regionsets and to account for outliers.}
+\title{Plot the distances from regions to their upstream/downstream neighbors
+or nearest neighbors. Distances can be passed as either raw bp or
+corrected for the number of regions (log10(obs/exp)), but this has
+to be specified in the function parameters.}
 \usage{
-plotNeighborDist(dcvec)
+plotNeighborDist(dcvec, correctedDist = FALSE, Nneighbors = FALSE)
 }
 \arguments{
-\item{dcvec}{A numeric vector or list with vectors containing distances 
-between neighbor regions. Produced by \code{calcNeighborDist}}
+\item{dcvec}{A numeric vector or list of vectors containing distances 
+to upstream/downstream neighboring regions or to nearest neighbors. 
+Produced by \code{calcNeighborDist} or \code{calcNearestNeighbors}}
+
+\item{correctedDist}{A logical indicating if the plot axis should
+be adjusted to show distances corrected for the number of regions
+in a regionset.}
+
+\item{Nneighbors}{A logical indicating whether legend should be adjusted
+if Nearest neighbors are being plotted. Default legend shows distances
+to upstream/downstream neighbors.}
 }
 \value{
 A ggplot density object showing the distribution of
-log10 transformed distances.
+raw or corrected distances.
 }
 \description{
-Plot the distances between neighboring regions.The distance in the 
-x axis is log10 transformed for ease of comparison between 
-different regionsets and to account for outliers.
+Plot the distances from regions to their upstream/downstream neighbors
+or nearest neighbors. Distances can be passed as either raw bp or
+corrected for the number of regions (log10(obs/exp)), but this has
+to be specified in the function parameters.
 }
 \examples{
 numVector = rnorm(400, mean=5, sd=0.1)
