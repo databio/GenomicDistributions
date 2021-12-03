@@ -16,6 +16,11 @@
 #' queryAnnotated = calcNearestGenes(query, TSS_hg19)
 calcNearestGenes =  function(query, annotations, gene_name_key="gene_id", gene_type_key="gene_biotype") {
   .validateInputs(list(query=c("GRanges","GRangesList")))
+  if (is(query, "GRangesList")) {
+    # Recurse over each GRanges object
+    x = lapply(query, calcFeatureDist, features)
+    return(x)
+  }
   
   # calculate the nearest annotations to given query
   nearestIds = nearest(query, annotations)
