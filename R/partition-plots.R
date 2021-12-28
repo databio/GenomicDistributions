@@ -386,7 +386,7 @@ calcExpectedPartitions = function(query, partitionList,
   # We should now have a list with contingency tables for each feature
   # Calculate p-val using a chi-square test
   chi.squareTests = lapply(contList, 
-                           function(x){tidy(chisq.test(x))})
+                           function(x){broom::tidy(chisq.test(x))})
   summaryResultsDT = data.table::rbindlist(chi.squareTests)
   
   expectedPartitions = cbind(expectedPartitions,
