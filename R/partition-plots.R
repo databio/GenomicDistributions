@@ -390,7 +390,7 @@ calcExpectedPartitions = function(query, partitionList,
   summaryResultsDT = data.table::rbindlist(chi.squareTests)
   
   expectedPartitions = cbind(expectedPartitions,
-                             Chi.square.pval = summaryResultsDT$p.value,
+                             Chi.square.pval = signif(summaryResultsDT$p.value, 3),
                              method = summaryResultsDT$method)
   #rownames(summaryResults) = names(contList)
   #part["p.val"] = summary_results$p.value
@@ -636,13 +636,16 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #'     \code{calcExpectedPartitions}.
 #' @param feature_names  Character vector with labels for the partitions
 #'     (optional). By default it will use the names from the first argument.
+#' @param pval Logical indicating whether Chi-square p-values should be added
+#'     for each partition.  
 #' @return A ggplot object using a barplot to show the distribution of the
 #'     query regions across a given partition list.
 #' @export
 #' @examples
 #' p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 #' expectedPlot = plotExpectedPartitions(p)
-plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
+plotExpectedPartitions = function(expectedPartitions, feature_names=NULL,
+                                  pval=FALSE) {
     .validateInputs(list(expectedPartitions="data.frame"))
     expectedPartitions = na.omit(expectedPartitions)
     if ("name" %in% names(expectedPartitions)){
@@ -693,6 +696,13 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
                                           size=0.5)
         ) +
         scale_fill_discrete(name="User set")
+    
+    if (pval) {
+      p = p + 
+          geom_text(data=expectedPartitions, aes(label=Chi.square.pval),
+                    size = 2, vjust = ifelse(expectedPartitions$log10OE>0, -1, 1.3),
+                    angle = 270)
+    }
 
     if (!exists("p")) {
         p = ggplot()

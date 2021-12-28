@@ -5,7 +5,7 @@
 \title{Produces a barplot showing how query regions of interest are distributed
 relative to the expected distribution across a given partition list}
 \usage{
-plotExpectedPartitions(expectedPartitions, feature_names = NULL)
+plotExpectedPartitions(expectedPartitions, feature_names = NULL, pval = FALSE)
 }
 \arguments{
 \item{expectedPartitions}{A data.frame holding the frequency of assignment
@@ -15,6 +15,9 @@ the log10 of the observed over expected. Produced by
 
 \item{feature_names}{Character vector with labels for the partitions
 (optional). By default it will use the names from the first argument.}
+
+\item{pval}{Logical indicating whether Chi-square p-values should be added
+for each partition.}
 }
 \value{
 A ggplot object using a barplot to show the distribution of the
