@@ -271,7 +271,9 @@ calcPartitions = function(query, partitionList,
 #' @param genomeSize The number of bases in the query genome. In other words,
 #'     the sum of all chromosome sizes.
 #' @return A data.frame assigning each element of a GRanges object to a
-#'     partition from a previously provided partitionList.
+#'     partition from a previously provided partitionList.The data.frame also
+#'     contains Chi-square p-values calculated for observed/expected
+#'     overlaps on each individual partition.  
 #' @param remainder  Which partition do you want to account for 'everything
 #'     else'?
 #' @param bpProportion logical indicating if overlaps should be calculated based
@@ -357,8 +359,45 @@ calcExpectedPartitions = function(query, partitionList,
   expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
   partitionNames = c(partitionNames, remainder)
-  return(expectedPartitions[match(partitionNames,
-                                  expectedPartitions$partition),])
+  
+  expectedPartitions = expectedPartitions[match(partitionNames,
+                                                expectedPartitions$partition),]
+  
+  # Create an empty list for storing contingency tables
+  contList = list()
+  
+  # Get the number of non-overlapping regions and bp per feature
+  for (i in seq_along(1:nrow(expectedPartitions))) {
+    olObs = expectedPartitions[i, ]$observed
+    olExp = expectedPartitions[i, ]$expected
+    # don't need to handle non-ol calc differently if bpProportions=TRUE
+    # since query_total accounts for both region and bp overlaps
+    nonOlObs = query_total - olObs
+    nonOlExp = query_total - olExp
+    # Create columns for contingency table
+    observedVals = c(olObs, nonOlObs)
+    expectedVals = c(olExp, nonOlExp)
+    contTable = data.frame(Observed=observedVals,
+                           Expected=expectedVals)
+    rownames(contTable) = c("Overlapping", "NonOverlapping")
+    contList[[i]] = contTable
+  }
+  
+  # We should now have a list with contingency tables for each feature
+  # Calculate p-val using a chi-square test
+  chi.squareTests = lapply(contList, 
+                           function(x){tidy(chisq.test(x))})
+  summaryResultsDT = data.table::rbindlist(chi.squareTests)
+  
+  expectedPartitions = cbind(expectedPartitions,
+                             Chi.square.pval = summaryResultsDT$p.value,
+                             method = summaryResultsDT$method)
+  #rownames(summaryResults) = names(contList)
+  #part["p.val"] = summary_results$p.value
+  #part
+  
+  # Return table with partition overlaps and p-value per partition
+  return(expectedPartitions)
 }
 
 #' Calculates the cumulative distribution of overlaps between query and
