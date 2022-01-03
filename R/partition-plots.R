@@ -700,7 +700,7 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL,
     if (pval) {
       p = p + 
           geom_text(data=expectedPartitions, aes(label=Chi.square.pval),
-                    size = 2, vjust = ifelse(expectedPartitions$log10OE>0, -1, 1.3),
+                    size = 3, vjust = ifelse(expectedPartitions$log10OE>0, -1, 1.5),
                     angle = 270)
     }
 
