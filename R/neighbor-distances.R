@@ -7,7 +7,7 @@
 #' Distances are then lumped into a numeric vector. 
 #'
 #' @param query A GRanges or GRangesList object.
-#' @param correctedRef A string indicating the reference genome
+#' @param correctRef A string indicating the reference genome
 #' to use if distances are corrected for the number of 
 #' regions in a regionSet. 
 #' 
@@ -76,7 +76,7 @@ neighbordt = function(querydt)  {
 #' Distances are then lumped into a numeric vector. 
 #'
 #' @param query A GRanges or GRangesList object.
-#' @param correctedRef A string indicating the reference genome
+#' @param correctRef A string indicating the reference genome
 #' to use if Nearest neighbor distances are corrected for the 
 #' number of regions in a regionSet. 
 #'

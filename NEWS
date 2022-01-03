@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
+## [1.3.2] -- 2020-01-01
+  - Bioconductor released new version
+  - Cell specificity plots are now more genric signal summary plots - the calc function is now "calcSummarySignal", plot function "plotSummarySignal" 
+  - Default plotting of neighbor distance is now on linear scale
+
 ## [1.1.2] -- 2020-07-07
   - Added functions to calculate and plot dinucleotide frequencies
 

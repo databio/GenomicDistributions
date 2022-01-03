@@ -1,6 +1,6 @@
 Package: GenomicDistributions
 Version: 1.3.2
-Date: 2021-11-30
+Date: 2022-01-01
 Title: GenomicDistributions: fast analysis of genomic intervals with Bioconductor
 Description: If you have a set of genomic ranges, this package can help you with
  visualization and comparison. It produces several kinds of plots, for example:
@@ -57,7 +57,7 @@ VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
 biocViews: Software, GenomeAnnotation, GenomeAssembly, DataRepresentation, Sequencing, 
             Coverage, FunctionalGenomics, Visualization
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 URL: http://code.databio.org/GenomicDistributions
 BugReports: http://github.com/databio/GenomicDistributions
 Encoding: UTF-8

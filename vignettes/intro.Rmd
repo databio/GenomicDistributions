@@ -27,7 +27,7 @@ If you have a set of genomic ranges, the GenomicDistributions R package can help
 - *width distribution plot* - visualizes the distribution of range widths
 - *feature distance distribution plot* - visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
 - *partition distribution plot* - visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
-- *specificity of accessibility plot* - visualizes tissue specificity of a set of genomic ranges. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix, which contains a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest.
+- *signal in regions plot* - visualizes signal of interest summary in a set of genomic ranges. In addition to your input genomic ranges, this plot type requires a data matrix with signal values for conditions of interest. As part of associated GenomicDistributionsData package, we have precompiled open chromatin signal matrices, which contain open chromatin signal values across genome from diverse set of cell types.
 - *neighboring regions distance* - visualizes the distance between chromosomes neighboring regions.
 - *GC content plot* - visualizes a probability density function of GC content percentage over the genomic ranges in the query.
 - *dinucleotide frequency* - visualizes dinucleotide content within your regions.
@@ -201,7 +201,7 @@ Here you can see that even though the differences in observed partition distribu
 
 ### Cumulative partition distribution plots
 
-The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of regions relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
+The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of regions relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by region count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
 
 Now, we'll plot single and multiple cumulative distributions of regions in genomic partitions:
 ```{r cumulative-partition-plot, fig.cap="Cumulative partition distribution plot. Cumulative distribution of query regions across genomic features.", fig.small=TRUE}
@@ -217,11 +217,20 @@ plotCumulativePartitions(cp2)
 
 If you're not familiar with these plots, interpreting them can take a minute to familiarize yourself. Each curve represents a partition type. Then terminal (rightmost) endpoint of each curve is the percentage of query regions that overlap this partition type in total. The shape of the curve, and when it arises on the x-axis, demonstrates the size in terms of raw nucleotide coverage that must be accumulated in order to achieve the corresponding percent coverage.
 
-In this plot, we see that intergenic regions reach a higher total point than intronic regions -- which is also reflected in the raw partition plot above. What we see additionally in this plot is that the intergenic spaces also cover a much larger portion of the genome, as indicated by their more more left shifted in the plot.
+In this plot, we see that intergenic regions reach a higher total point than intronic regions -- which is also reflected in the raw partition plot above. What we see additionally in this plot is that the intergenic spaces also cover a much larger portion of the genome, as indicated by their more more left shifted in the plot. Because of this intergenic regions and introns tend to dominate these plots. To gain an increased resolution about the behavior of other features you can simply filter out introns and intergenic features (or any other) from the `calcCumulativePartitions` output and plot the rest. Let's see how that can be done:
+
+```{r multiple-cumulative-partition-plot-filtered, fig.cap="Cumulative partition distribution plots for multiple query region sets.", fig.small=TRUE}
+cp2 = calcCumulativePartitionsRef(queryList, "hg19")
+filtOut = c("intron", "intergenic")
+cp2Filt = cp2[!(partition %in% filtOut),]
+plotCumulativePartitions(cp2Filt)
+```
 
 If you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else, GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
-## Specificity of accessibility plots
+## Signal in regions plots
+
+The set of functions from this section are designed to summarize and plot signal in query regions across conditions of interest. These functions require an additional input in form of a signal matrix, that contains signal values for conditions of interest. An example of such matrix can be an open chromatin signal from diverse cell types (see below).
 
 One feature we are often interested in is the tissue specificity of a set of genomic ranges. To visualize this, GenomicDistributions provides functions to calculate and plot the tissue specificity. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix. This matrix should contain a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest. 
 
@@ -232,19 +241,26 @@ In this example we show bar plots with median of signal values across regions be
 ```{r specificity-plot-single, fig.height = 6, fig.cap="Specificity of chromatin accessibility across cell types."}
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
-op = calcOpenSignal(query, cellMatrix)
-plotOpenSignal(op)
+op = calcSummarySignal(query, cellMatrix)
+plotSummarySignal(op)
 ```
 
 To plot multiple datasets at a time:
 ```{r specificity-plot-multi, fig.height = 7, fig.cap="Specificity of chromatin accessibility across cell types."}
-op2 = calcOpenSignal(queryList, cellMatrix)
-plotOpenSignal(op2)
+op2 = calcSummarySignal(queryList, cellMatrix)
+plotSummarySignal(op2)
+```
+You can also provide metadata to the plot function in order to add color to different groups. For example, in GenomicDistributions we provide metadata table that assigns cell types to a tissue of origin:
+```{r specificity-plot-multi-color, fig.height = 7, fig.cap="Specificity of chromatin accessibility across cell types."}
+op2 = calcSummarySignal(queryList, cellMatrix)
+# get cell type metadata from GenomicDistributions
+cellTypeMetadata = cellTypeMetadata
+plotSummarySignal(op2, metadata = cellTypeMetadata, colorColumn = "tissueType")
 ```
 
 There are also multiple plotting options. Do you maybe prefer violin plots with highlighted medians? Here it is:
-```{r specificity-plot-multi-violin, fig.height = 7, fig.cap="Violijn plot: chromatin accessibility across cell types."}
-plotOpenSignal(op2, plotType = "violinPlot")
+```{r specificity-plot-multi-violin, fig.height = 7, fig.cap="Violin plot: chromatin accessibility across cell types."}
+plotSummarySignal(signalSummaryList = op2, plotType = "violinPlot", metadata = cellTypeMetadata, colorColumn = "tissueType")
 ```
 
 
