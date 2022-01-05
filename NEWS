@@ -6,6 +6,7 @@ will document changes to major new releases only (not point releases).
   - Bioconductor released new version
   - Cell specificity plots are now more genric signal summary plots - the calc function is now "calcSummarySignal", plot function "plotSummarySignal" 
   - Default plotting of neighbor distance is now on linear scale
+  - Corrected plotting of partition overlap for multiple region sets - now sums to 100 by group
 
 ## [1.1.2] -- 2020-07-07
   - Added functions to calculate and plot dinucleotide frequencies
