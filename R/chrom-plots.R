@@ -169,10 +169,9 @@ calcChromBins = function(query, bins) {
 #' @param binCount Number of bins to divide the chromosomes into
 #' @return A data.table showing the distribution of regions across bins of the
 #' reference genome.
-#' @export
 #' @examples 
 #' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
-calcChromBinsRef = function(query, refAssembly, binCount=10000) {
+calcChromBinsRefSlow = function(query, refAssembly, binCount=3000) {
     .validateInputs(list(refAssembly="character", 
                            query=c("GRanges","GRangesList")))
     # Bin the genome
@@ -183,6 +182,39 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
     genomeBins =  GRangesList(listGR)
     return(calcChromBins(query, genomeBins))
 }
+
+
+#' Returns the distribution of query over a reference assembly
+
+#' Given a query set of elements (a GRanges object) and a reference assembly
+#' (*e.g. 'hg38'), this will aggregate and count the distribution of the query
+#' elements across bins of the reference genome. This is a helper function to
+#' create features for common genomes. It is a wrapper of
+#' \code{calcChromBins}, which is more general.
+
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector that will be used to grab chromosome
+#'     sizes with \code{getChromSizes}
+#' @param binCount Number of bins to divide the chromosomes into
+#' @return A data.table showing the distribution of regions across bins of the
+#' reference genome.
+#' @export
+#' @examples 
+#' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
+calcChromBinsRef = function(query, refAssembly, binCount=3000) {
+   # Bin the genome
+    chromSizes = getChromSizes(refAssembly)
+    binnedDT = binChroms(binCount, chromSizes)
+    queryDT = GenomicDistributions:::grToDt(query)
+    setnames(binnedDT, "idCol", "chr")
+    queryDT[, midpoint:=start + (end-start)]
+    # Here I use a non-equi join to get the overlaps
+    res = binnedDT[queryDT, .(chr, regionID=ubinID, withinGroupID=x.binID, start=x.start, end=x.end), on=.(chr, start<=midpoint, end>=midpoint), nomatch=0L][, list(.N), by=list(chr, start, end, regionID, withinGroupID)][order(regionID),]
+    res[, chr:=factor(chr, levels=unique(res$chr))]
+    return(res)
+}
+
+
 
 #' Plot distribution over chromosomes
 #' 
