@@ -699,9 +699,15 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL,
     
     if (pval) {
       p = p + 
-          geom_text(data=expectedPartitions, aes(label=Chi.square.pval),
-                    size = 3, vjust = ifelse(expectedPartitions$log10OE>0, -1, 1.5),
-                    angle = 270)
+        geom_text(data=expectedPartitions, 
+                  aes(label=ifelse(Chi.square.pval < 0.001, "***", 
+                                   ifelse(Chi.square.pval >= 0.001 & Chi.square.pval < 0.01, "**",
+                                          ifelse(Chi.square.pval >= 0.01 & Chi.square.pval < 0.05, "*", "n.s")))),
+                  position = position_dodge(width = 1),
+                  size=2, 
+                  hjust=ifelse(expectedPartitions$log10OE>0, -0.4, 1.1),
+                  angle=0)
+
     }
 
     if (!exists("p")) {
