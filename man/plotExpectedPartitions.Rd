@@ -8,16 +8,16 @@ relative to the expected distribution across a given partition list}
 plotExpectedPartitions(expectedPartitions, feature_names = NULL)
 }
 \arguments{
-\item{expectedPartitions}{A data.frame holding the frequency of assignment 
+\item{expectedPartitions}{A data.frame holding the frequency of assignment
 to each of the partitions, the expected number of each partition, and
-the log10 of the observed over expected. Produced by 
+the log10 of the observed over expected. Produced by
 \code{calcExpectedPartitions}.}
 
-\item{feature_names}{Character vector with labels for the partitions 
+\item{feature_names}{Character vector with labels for the partitions
 (optional). By default it will use the names from the first argument.}
 }
 \value{
-A ggplot object using a barplot to show the distribution of the 
+A ggplot object using a barplot to show the distribution of the
     query regions across a given partition list.
 }
 \description{
@@ -27,6 +27,4 @@ relative to the expected distribution across a given partition list
 \examples{
 p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 expectedPlot = plotExpectedPartitions(p)
-pp = calcExpectedPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
-expectedPropPlot = plotExpectedPartitions(pp)
 }

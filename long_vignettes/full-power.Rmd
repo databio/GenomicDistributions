@@ -245,21 +245,25 @@ chromBins = calcChromBinsRef(queryList, "hg38")
 plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
 ```
 
-## Open chromatin signal specificity
+## Signal in regions - open chromatin signal specificity
 
-Next, we'll explore the chromatin accessibility by cell type. Using the `calcOpenSignal` function requires an open signal matrix that is included with `GenomicDistributionsData`. Now, you just need to load in into the workspace, like this:
+Next, we'll explore the chromatin accessibility by cell type. Using the `calcSummarySignal` function requires an open signal matrix that is included with `GenomicDistributionsData`. The matrices are available for hg19 (openSignalMatrix_hg19), hg38 (openSignalMatrix_hg38) and mm10 (openSignalMatrix_mm10). We further include metadata for these matrices in `GenomicDistributions` that assign cell type to the tissue of origin for coloring purposes (inlcuding metadata for plotting is optional). Now, you just need to load in into the workspace, like this:
 
 
 ```{r open-signal, fig.height=12}
 
 library(GenomicDistributionsData)
 data(openSignalMatrix_hg38)
-op = calcOpenSignal(queryList, openSignalMatrix_hg38)
-opp = plotOpenSignal(op)
+op = calcSummarySignal(queryList, openSignalMatrix_hg38)
+# get cell type metadata from GenomicDistributions
+cellTypeMetadata = cellTypeMetadata
+opp = plotSummarySignal(op, metadata = cellTypeMetadata, colorColumn = "tissueType")
 opp
 ```
 
 As expected, the active marks have greater overall signal. We also see some specificity, with regions derived from blood cells showing more openness in blood cell types.
+
+This type of plot is not restricted to open chromatin signal from different cell types. You can plot any kind of signal from different conditions, as long as you provide your own signal matrix to the `calcSummarySignal` function.
 
 # Neighbor distance
 

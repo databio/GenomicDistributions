@@ -27,12 +27,13 @@ If you have a set of genomic ranges, the GenomicDistributions R package can help
 - *width distribution plot* - visualizes the distribution of range widths
 - *feature distance distribution plot* - visualizes how your regions are distributed in distance to the nearest feature of interest, like Transcription Start Sites (TSSs).
 - *partition distribution plot* - visualizes how your regions are distributed across a genomic partitioning, such as frequency of overlapping a gene body, exon, promoter, intronic, or intergenic segment.
-- *specificity of accessibility plot* - visualizes tissue specificity of a set of genomic ranges. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix, which contains a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest.
+- *signal in regions plot* - visualizes signal of interest summary in a set of genomic ranges. In addition to your input genomic ranges, this plot type requires a data matrix with signal values for conditions of interest. As part of associated GenomicDistributionsData package, we have precompiled open chromatin signal matrices, which contain open chromatin signal values across genome from diverse set of cell types.
 - *neighboring regions distance* - visualizes the distance between chromosomes neighboring regions.
 - *GC content plot* - visualizes a probability density function of GC content percentage over the genomic ranges in the query.
+- *dinucleotide frequency* - visualizes dinucleotide content within your regions.
 
 
-GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes and locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data.
+GenomicDistributions can work with any reference genome, as long as you have some annotation data for it (like chromosome sizes and locations of genes). To make things easier for the common use cases, I've included in the package basic metadata for the most commonly used features from the reference genomes I use most (hg19, hg38, and mm10). If you need to produce similar plots with different features, partitions, or reference assemblies, that's also possible, and not much more difficult; GenomicDistributions is very modular and will work with other bioconductor packages to process that data, but it requires one or two additional steps to curate your reference data (see the *Custom reference and features* section of this vignette).
 
 In this vignette, we'll go through examples of each of the plots using my common built-in features and partitions. If you want more control, there's another advanced vignette that will introduce you how to define your own features, partitions, and chromosome sizes for custom analysis.
 
@@ -200,7 +201,7 @@ Here you can see that even though the differences in observed partition distribu
 
 ### Cumulative partition distribution plots
 
-The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of regions relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by read count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
+The final type of partition plot is the *cumulative partition distribution* plots. These are a relatively less widespread type of plot that we recently developed. The cumulative partition plot provides an information-dense look into the genomic distribution of regions relative to genomic features. This analysis uses a cumulative distribution to visualize how quickly the final region count is accumulated in features of a given type. To calculate, we overlap each region with a feature set of genomic annotations, as before. The individual feature elements are then sorted by region count, and for each feature, we traverse the sorted list and calculate the cumulative sum of regions found in that feature divided by the total number of regions. We plot the fraction against the $log_{10}$ transformed cumulative size of all loci for each feature. This allows the identification of enriched features while correcting for total features and total genomic space.
 
 Now, we'll plot single and multiple cumulative distributions of regions in genomic partitions:
 ```{r cumulative-partition-plot, fig.cap="Cumulative partition distribution plot. Cumulative distribution of query regions across genomic features.", fig.small=TRUE}
@@ -216,11 +217,20 @@ plotCumulativePartitions(cp2)
 
 If you're not familiar with these plots, interpreting them can take a minute to familiarize yourself. Each curve represents a partition type. Then terminal (rightmost) endpoint of each curve is the percentage of query regions that overlap this partition type in total. The shape of the curve, and when it arises on the x-axis, demonstrates the size in terms of raw nucleotide coverage that must be accumulated in order to achieve the corresponding percent coverage.
 
-In this plot, we see that intergenic regions reach a higher total point than intronic regions -- which is also reflected in the raw partition plot above. What we see additionally in this plot is that the intergenic spaces also cover a much larger portion of the genome, as indicated by their more more left shifted in the plot.
+In this plot, we see that intergenic regions reach a higher total point than intronic regions -- which is also reflected in the raw partition plot above. What we see additionally in this plot is that the intergenic spaces also cover a much larger portion of the genome, as indicated by their more more left shifted in the plot. Because of this intergenic regions and introns tend to dominate these plots. To gain an increased resolution about the behavior of other features you can simply filter out introns and intergenic features (or any other) from the `calcCumulativePartitions` output and plot the rest. Let's see how that can be done:
+
+```{r multiple-cumulative-partition-plot-filtered, fig.cap="Cumulative partition distribution plots for multiple query region sets.", fig.small=TRUE}
+cp2 = calcCumulativePartitionsRef(queryList, "hg19")
+filtOut = c("intron", "intergenic")
+cp2Filt = cp2[!(partition %in% filtOut),]
+plotCumulativePartitions(cp2Filt)
+```
 
 If you want to see how your regions are distributed among other partitions, like CpG islands, enhancers, or something else, GenomicDistributions also has functions to produce priority lists from any GRanges objects.
 
-## Specificity of accessibility plots
+## Signal in regions plots
+
+The set of functions from this section are designed to summarize and plot signal in query regions across conditions of interest. These functions require an additional input in form of a signal matrix, that contains signal values for conditions of interest. An example of such matrix can be an open chromatin signal from diverse cell types (see below).
 
 One feature we are often interested in is the tissue specificity of a set of genomic ranges. To visualize this, GenomicDistributions provides functions to calculate and plot the tissue specificity. In addition to your input genomic ranges, this plot type requires a tissue specificity data matrix. This matrix should contain a set of genomic regions that have been annotated for tissue specificity signal levels for tissues of interest. 
 
@@ -231,19 +241,26 @@ In this example we show bar plots with median of signal values across regions be
 ```{r specificity-plot-single, fig.height = 6, fig.cap="Specificity of chromatin accessibility across cell types."}
 exampleCellMatrixFile = system.file("extdata", "example_cell_matrix.txt", package="GenomicDistributions")
 cellMatrix = data.table::fread(exampleCellMatrixFile)
-op = calcOpenSignal(query, cellMatrix)
-plotOpenSignal(op)
+op = calcSummarySignal(query, cellMatrix)
+plotSummarySignal(op)
 ```
 
 To plot multiple datasets at a time:
 ```{r specificity-plot-multi, fig.height = 7, fig.cap="Specificity of chromatin accessibility across cell types."}
-op2 = calcOpenSignal(queryList, cellMatrix)
-plotOpenSignal(op2)
+op2 = calcSummarySignal(queryList, cellMatrix)
+plotSummarySignal(op2)
+```
+You can also provide metadata to the plot function in order to add color to different groups. For example, in GenomicDistributions we provide metadata table that assigns cell types to a tissue of origin:
+```{r specificity-plot-multi-color, fig.height = 7, fig.cap="Specificity of chromatin accessibility across cell types."}
+op2 = calcSummarySignal(queryList, cellMatrix)
+# get cell type metadata from GenomicDistributions
+cellTypeMetadata = cellTypeMetadata
+plotSummarySignal(op2, metadata = cellTypeMetadata, colorColumn = "tissueType")
 ```
 
 There are also multiple plotting options. Do you maybe prefer violin plots with highlighted medians? Here it is:
-```{r specificity-plot-multi-violin, fig.height = 7, fig.cap="Violijn plot: chromatin accessibility across cell types."}
-plotOpenSignal(op2, plotType = "violinPlot")
+```{r specificity-plot-multi-violin, fig.height = 7, fig.cap="Violin plot: chromatin accessibility across cell types."}
+plotSummarySignal(signalSummaryList = op2, plotType = "violinPlot", metadata = cellTypeMetadata, colorColumn = "tissueType")
 ```
 
 
@@ -342,6 +359,100 @@ Both the quantile and the bins can be manually adjusted. The quantile you indica
 plotQTHist(qt1, bins=7, quantile = .015, EndBarColor = 'black', MiddleBarColor='darkblue')
 ```
 
-# Conclusion
+# Custom reference and features
 
+## Custom reference
+`GenomicDistributions` package comes with a limited reference data set. There are only files that support `hg19` human reference genome (use `GenomicDistributionsData` for `hg19`, `hg38` and `mm10` genome reference data - see *full-power vignette*). If you need any reference data outside of this selection, these can be easily generated with functions included in this package.
+
+Here we'll go over the steps to generate reference data for a *C. Elegans* genome assembly (Caenorhabditis_elegans.WBcel235.103).
+
+All we need to generate the custom reference data set are two local or remote files. We will use remote files from Ensembl FTP server:
+
+1. GTF - [http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz](http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz)
+2. FASTA - [http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz](http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz)
+
+```{r}
+fastaSource = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
+gtfSource = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
+```
+
+### Get chromosome sizes
+Let's first have a look, how to extract chromosome sizes: 
+```{r message=TRUE, eval=FALSE}
+CEelegansChromSizes = getChromSizesFromFasta(source=fastaSource)
+```
+
+You can now these to a `getGenomeBins` function that will create equaly sized bins that can passed to `calcChromBins` function as `bins` argument:
+```{r message=TRUE, eval=FALSE}
+bins  = getGenomeBins(CEelegansChromSizes)
+```
+
+### Transcription start sites (TSS)
+Now, let's see, how to extract transcription start sites:
+```{r message=TRUE, eval=FALSE}
+CEelegansTSSs = getTssFromGTF(source=gtfSource, convertEnsemblUCSC=TRUE)
+```
+
+You can now pass the `CEelegansTSSs` to `calcFeatureDist` function as a `feature` argument to get the distances of your query regions to the nerest TSS.
+
+### Gene models
+What about gene models for partition plots?
+```{r message=TRUE, eval=FALSE}
+features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
+CEelegansGeneModels = getGeneModelsFromGTF(source=gtfSource, features=features, convertEnsemblUCSC=TRUE)
+```
+
+You can now pass the `CEelegansGeneModels` object to `genomePartitionList` function, which created list of genomic partitions that are then passed to `calcPartitions` function as `partitionList` argument.
+
+```{r message=TRUE, eval=FALSE}
+partitionList = genomePartitionList(CEelegansGeneModels$gene, 
+                                    CEelegansGeneModels$exon,
+                                    CEelegansGeneModels$three_prime_utr, 
+                                    CEelegansGeneModels$five_prime_utr)
+```
+
+## Custom features (partitions)
+
+Are you missing certain features (e.g. enhancers) in the list of provided partitions for partition plots? You can include custom partitions in few easy steps! In this example we'll add enhancers to the list of partitions. 
+
+First, we'll grab all of the Ensembl predicted enhancers for `hg19` from the ensembl regulatory build.
+```{r, eval=FALSE}
+funcgen = biomaRt::useMart("ENSEMBL_MART_FUNCGEN", host="grch37.ensembl.org")
+funcgen = biomaRt::useDataset("hsapiens_regulatory_feature", mart=funcgen)
+
+enhancers = biomaRt::getBM(attributes=c('chromosome_name', 
+                                        'chromosome_start',
+                                        'chromosome_end',
+                                        'feature_type_name'), 
+                  filters='regulatory_feature_type_name', 
+                  values='Enhancer', 
+                  mart=funcgen)
+```
+
+Then we'll convert chromosome names to the UCSC naming convention to match included partitions. Next, follow that up by converting this into a GenomicRanges object.
+
+```{r, eval=FALSE}
+enhancers$chromosome_name = paste("chr", enhancers$chromosome_name, sep="")
+
+gr1 = GenomicRanges::sort(GenomeInfoDb::sortSeqlevels(
+    GenomicDistributions::dtToGr(enhancers,
+                                 chr="chromosome_name",
+                                 start="chromosome_start",
+                                 end="chromosome_end")))
+```
+
+Now we can add our enhancers GenomicRanges object to the list of partitions we can obtain from the GenomicDistributions package itself.
+
+```{r, eval=FALSE}
+geneModels = GenomicDistributions::getGeneModels("hg19")
+partitionList = GenomicDistributions::genomePartitionList(geneModels$genesGR, 
+                                                          geneModels$exonsGR,
+                                                          geneModels$threeUTRGR, 
+                                                          geneModels$fiveUTRGR)
+partitionList[["enhancer"]] = gr1
+```
+
+You can now pass the newly generated `partitionList` that includes enhancers to `calcPartitions` function.
+
+# Conclusion
 GenomicDistributions provides a variety of ways to visualize your data. 3 key features make it very useful: First, it uses a modular, systematic way to name *calc* and *plot* functions, and the function names and interfaces are all consistent. Second, it is optimized for speed. You will find these functions to be much faster than other commonly accepted alternatives due to way we've written the functions under the hood. And finally, it provides a single, convenient package for many types of plots, so you don't have to look around in multiple places.

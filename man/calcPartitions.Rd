@@ -2,7 +2,7 @@
 % Please edit documentation in R/partition-plots.R
 \name{calcPartitions}
 \alias{calcPartitions}
-\title{Calculates the distribution of overlaps between 
+\title{Calculates the distribution of overlaps between
 query and arbitrary genomic partitions}
 \usage{
 calcPartitions(
@@ -15,8 +15,8 @@ calcPartitions(
 \arguments{
 \item{query}{GRanges or GRangesList with regions to classify}
 
-\item{partitionList}{an ORDERED (if bpProportion=FALSE) and NAMED list of 
-genomic partitions GRanges. This list must be in priority order; the 
+\item{partitionList}{an ORDERED (if bpProportion=FALSE) and NAMED list of
+genomic partitions GRanges. This list must be in priority order; the
 input will be assigned to the first partition it overlaps.
 bpProportion=TRUE, the list does not need ordering.}
 
@@ -24,8 +24,8 @@ bpProportion=TRUE, the list does not need ordering.}
 not overlap with anything in the partitionList. Defaults to "intergenic"}
 
 \item{bpProportion}{logical indicating if overlaps should be calculated based
-on number of base pairs overlapping with each partition. 
-bpProportion=FALSE does overlaps in priority order, 
+on number of base pairs overlapping with each partition.
+bpProportion=FALSE does overlaps in priority order,
 bpProportion=TRUE counts number of overlapping
 base pairs between query and each partition.}
 }
@@ -42,10 +42,9 @@ There will be a priority order to these, to account for regions that may
 overlap multiple genomic partitions.
 }
 \examples{
-partitionList = genomePartitionList(geneModels_hg19$genesGR, 
+partitionList = genomePartitionList(geneModels_hg19$genesGR,
                                     geneModels_hg19$exonsGR,
-                                    geneModels_hg19$threeUTRGR, 
+                                    geneModels_hg19$threeUTRGR,
                                     geneModels_hg19$fiveUTRGR)
 calcPartitions(vistaEnhancers, partitionList)
-calcPartitions(vistaEnhancers, partitionList, bpProportion=TRUE)
 }

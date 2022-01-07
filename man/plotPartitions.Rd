@@ -11,19 +11,19 @@ plotPartitions(assignedPartitions, numbers = FALSE, stacked = FALSE)
 \item{assignedPartitions}{A table holding the frequency of assignment to
 each of the partitions. Produced by \code{calcPartitions}}
 
-\item{numbers}{logical indicating whether raw overlaps should be 
+\item{numbers}{logical indicating whether raw overlaps should be
 plotted instead of the default percentages}
 
-\item{stacked}{logical indicating that data should be plotted as stacked 
+\item{stacked}{logical indicating that data should be plotted as stacked
 bar plot}
 }
 \value{
-A ggplot object using a barplot to show the distribution 
-    of the query 
+A ggplot object using a barplot to show the distribution
+    of the query
  regions across a given partition list.
 }
 \description{
-This function can be used to test a GRanges object against any arbitrary 
+This function can be used to test a GRanges object against any arbitrary
 list of genome partitions. The partition list is a priority-ordered list of
 GRanges objects. Each region in the query will be assigned to a given
 partition that it overlaps with the highest priority.
@@ -33,8 +33,4 @@ p = calcPartitionsRef(vistaEnhancers, "hg19")
 partPlot = plotPartitions(p)
 partCounts = plotPartitions(p, numbers=TRUE)
 partPlot = plotPartitions(p, stacked=TRUE)
-pProp = calcPartitionsRef(vistaEnhancers, "hg19", bpProportion=TRUE)
-partPlot = plotPartitions(pProp)
-partCounts = plotPartitions(pProp, numbers=TRUE)
-partPlot = plotPartitions(pProp, stacked=TRUE)
 }

@@ -24,6 +24,11 @@ You must provide binned regions. Only the midpoint of each query region is
 used to test for overlap with the bin regions.
 }
 \examples{
+
+chromSizes = getChromSizes("hg19")
+genomeBins  = getGenomeBins(chromSizes)
+chromDistribution = calcChromBins(vistaEnhancers, genomeBins)
+
 vistaSftd = GenomicRanges::shift(vistaEnhancers, 100000)
 vistaSftd2 = GenomicRanges::shift(vistaEnhancers, 200000)
 calcChromBins(vistaEnhancers, GRangesList(vistaSftd, vistaSftd2))

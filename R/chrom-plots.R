@@ -124,6 +124,11 @@ binChroms = function(binCount, chromSizes) {
 #'    ranges are distributed.
 #' @export
 #' @examples
+#' 
+#' chromSizes = getChromSizes("hg19")
+#' genomeBins  = getGenomeBins(chromSizes)
+#' chromDistribution = calcChromBins(vistaEnhancers, genomeBins)
+#' 
 #' vistaSftd = GenomicRanges::shift(vistaEnhancers, 100000)
 #' vistaSftd2 = GenomicRanges::shift(vistaEnhancers, 200000)
 #' calcChromBins(vistaEnhancers, GRangesList(vistaSftd, vistaSftd2))
@@ -265,4 +270,29 @@ plotChromBins = function(genomeAggregate, binCount=10000,
     ggtitle(plotTitle) +
     theme(legend.position="bottom")
     return(g)
+}
+
+#' Returns bins used in `calcChromBins` function
+
+#' Given a named vector of chromosome sizes, the function returns
+#' GRangesList object with bins for each chromosome.
+
+#' @param chromSizes a named list of size (length) for each chromosome.
+#' @param binCount number of bins (total; *not* per chromosome), 
+#'        defaults to 10,000
+#' @return A GRangesList object with bins that separate chromosomes
+#'         into equal parts.
+#' @export
+#' @examples 
+#' chromSizes = getChromSizes("hg19")
+#' chromBins  = getGenomeBins(chromSizes)
+#' 
+getGenomeBins = function(chromSizes, binCount=10000) {
+  .validateInputs(list(chromSizes="integer"))
+  
+  binnedDT = binChroms(binCount, chromSizes)
+  splitBinnedDT = splitDataTable(binnedDT, "id")
+  listGR = lapply(splitBinnedDT, dtToGr, chr="idCol")
+  genomeBins =  GRangesList(listGR)
+  return(genomeBins)
 }
