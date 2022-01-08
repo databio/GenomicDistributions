@@ -207,14 +207,31 @@ calcChromBinsRefSlow = function(query, refAssembly, binCount=3000) {
 #' @examples 
 #' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
 calcChromBinsRef = function(query, refAssembly, binCount=3000) {
+   .validateInputs(list(refAssembly="character",
+                           query=c("GRanges","GRangesList")))
+    if (is(query, "GRangesList"))  {
+        # Recurse over each GRanges object
+        x = lapply(query, calcChromBinsRef, refAssembly)
+        # To accommodate multiple regions, we'll need to introduce a new 'name'
+        # column to distinguish them.
+        nameList = names(query)
+       if(is.null(nameList)) {
+            nameList = seq_along(query) # Fallback to sequential numbers
+        }
+        # Append names
+        xb = rbindlist(x)
+        xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+        return(xb)
+    }        
    # Bin the genome
     chromSizes = getChromSizes(refAssembly)
     binnedDT = binChroms(binCount, chromSizes)
-    queryDT = GenomicDistributions:::grToDt(query)
+    queryDT = grToDt(query)
     setnames(binnedDT, "idCol", "chr")
     queryDT[, midpoint:=start + (end-start)]
     # Here I use a non-equi join to get the overlaps
-    res = binnedDT[queryDT, .(chr, regionID=ubinID, withinGroupID=x.binID, start=x.start, end=x.end), on=.(chr, start<=midpoint, end>=midpoint), nomatch=0L][, list(.N), by=list(chr, start, end, regionID, withinGroupID)][order(regionID),]
+    res = binnedDT[queryDT, .(chr, regionID=ubinID, withinGroupID=x.binID, start=x.start, end=x.end), 
+                    on=.(chr, start<=midpoint, end>=midpoint), nomatch=0L][, list(.N), by=list(chr, start, end, regionID, withinGroupID)][order(regionID),]
     res[, chr:=factor(chr, levels=unique(res$chr))]
     return(res)
 }

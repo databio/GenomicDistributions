@@ -28,10 +28,9 @@
 
 NULL
 
-# You can either use 'import X' or 'importFrom X abcdefg'. importFrom 
-# is better practice,
-# but for ggplot2 we were simply importing so many functions that it makes 
-# sense to just import the whole package
+# You can either use 'import X' or 'importFrom X abcdefg'. importFrom  is
+# better practice, but for ggplot2 we were simply importing so many functions
+# that it makes  sense to just import the whole package
 # @importFrom ggplot2 ggplot aes facet_grid geom_jitter geom_line
 #             geom_bar theme_classic xlab ylab geom_hline ylim 
 #             scale_color_discrete scale_x_discrete scale_y_discrete 
@@ -64,7 +63,8 @@ if(getRversion() >= "2.15.1") {
         "cellTypeMetadata", "tissueType", "boxStats",
         "tissue", ".", "Percent", "Var1", "maxStart", "start",
         "i.start", "minEnd", "i.end", "overlap", "gene_biotype", "dinucleotide",
-        "frequency", "L1", "V4", "colName", "i", "j", ".x", "lowerColorColumn"))
+        "frequency", "L1", "V4", "colName", "i", "j", ".x", "lowerColorColumn",
+        "midpoint", "ubinID", "x.binID", "x.start", "x.end", "FreqPercent"))
 }
 
 
