@@ -90,6 +90,8 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
         g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
             facet_wrap(. ~name)
     } else {
+        if (!numbers)
+            df$Freq = df[, .(Freq.Per = (Freq / sum(Freq)) * 100)]$"Freq.Per"
         g = ggplot(df, aes(x=cuts, y=Freq))
     }
     # Create a vector for the colors
@@ -114,6 +116,10 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
         theme(legend.position="bottom") +
         geom_text(aes(label= paste((output[["quantile"]]*100),"%", sep='')),
             data=df[qbaridx,], hjust=-1, angle=90, size=2.5)
+
+    if (!numbers)
+        g = g + ylab("Percentage")
+    
     return(g)
 }
 
