@@ -245,6 +245,7 @@ calcChromBinsRef = function(query, refAssembly, binCount=3000) {
 #' @param binCount Number of bins (should match the call to
 #'     \code{genomicDistribution})
 #' @param plotTitle Title for plot.
+#' @param ylim Limit of y-axes. Default "max" sets limit to N of biggest bin.
 #' @return A ggplot object showing the distribution of the query 
 #'     regions over bins of
 #' the reference genome.
@@ -255,7 +256,7 @@ calcChromBinsRef = function(query, refAssembly, binCount=3000) {
 #' ChromBins = plotChromBins(agg)
 #' 
 plotChromBins = function(genomeAggregate, binCount=10000, 
-                           plotTitle="Distribution over chromosomes") {
+                           plotTitle="Distribution over chromosomes", ylim="max") {
     .validateInputs(list(genomeAggregate=c("data.table","data.frame")))
     
     if ("name" %in% names(genomeAggregate)){
@@ -280,8 +281,13 @@ plotChromBins = function(genomeAggregate, binCount=10000,
         theme(panel.spacing=unit(0, "lines")) + # Reduce whitespace
         theme(strip.text.y=element_text(size=12, angle=0)) + # Rotate labels
         geom_hline(yintercept=0, color="#EEEEEE") + # Light chrom lines
-        scale_y_continuous(breaks=c(max(genomeAggregate$N)), 
-                            limits=c(0, max(genomeAggregate$N))) +
+        {if (ylim == "max") {
+            scale_y_continuous(breaks = c(max(genomeAggregate$N)),
+                               limits = c(0, max(genomeAggregate$N)))
+        } else {
+            scale_y_continuous(breaks = ylim,
+                               limits = c(0, ylim))
+        }} +
     scale_x_continuous(breaks=c(0, binCount), labels=c("Start", "End")) +
     theme(plot.title=element_text(hjust=0.5)) + # Center title
     ggtitle(plotTitle) +
