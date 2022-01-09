@@ -25,9 +25,21 @@ calcNearestGenes =  function(query, annotations, gene_name_key="gene_id", gene_t
   # calculate the nearest annotations to given query
   nearestIds = nearest(query, annotations)
   
-  # annotate neaest gene and type
-  query$nearest_gene = annotations[nearestIds]$gene_id
-  query$nearest_gene_type = annotations[nearestIds]$gene_biotype
+  # annotate nearest gene and type
+  nearestGenes = annotations[nearestIds]
+  
+  #
+  # convert nearestGenes GRange object to data-table
+  # and dynamically access the column that way...
+  # this is used to circumvent the fact that we cannot
+  # dynamically access metadata columns inside a GRanges
+  # object like we can a datatable:
+  #   col = "gene_id"
+  #   dt[[col]]
+  #   ^^^ This doesnt work in a GRanges object.
+  #
+  query$nearest_gene = grToDt(nearestGenes)[[gene_name_key]]
+  query$nearest_gene_type = grToDt(nearestGenes)[[gene_type_key]]
   
   # annotate on the distance as well
   query$nearest_distance = distance(query, annotations[nearestIds])
