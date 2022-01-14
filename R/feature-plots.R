@@ -244,7 +244,7 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
         geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
         geom_point(aes(x=midx, y=0), color="tan2", size=2, 
                    shape=17, alpha=0.8) +
-        guides(fill=FALSE) + # remove legend for geom_point
+        guides(fill="none") + # remove legend for geom_point
         theme_classic() + 
         theme(aspect.ratio=1) + 
         theme_blank_facet_label() + 
