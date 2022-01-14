@@ -25,7 +25,7 @@ calcWidth = function(query) {
 #' x-axis breaks for the frequency calculations are based on the "divisions" 
 #' results from helper function \code{calcDivisions}.
 #' 
-#' @param x Data values to plot
+#' @param x Data values to plot - vector or list of vectors
 #' @param EndBarColor Color for the quantile bars on both ends of the graph
 #'     (optional)
 #' @param MiddleBarColor Color for the bars in the middle of the graph

@@ -15,7 +15,7 @@ plotQTHist(
 )
 }
 \arguments{
-\item{x}{Data values to plot}
+\item{x}{Data values to plot - vector or list of vectors}
 
 \item{EndBarColor}{Color for the quantile bars on both ends of the graph
 (optional)}
