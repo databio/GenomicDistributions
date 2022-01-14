@@ -5,12 +5,12 @@
 #' Multiuple strings in the vector are treated as OR.
 #' @return A warning if the wrong input class is provided.
 #' @examples
-#' x <- function(var1) {
+#' x = function(var1) {
 #'     cl = list(var1=c("numeric","character"))
 #'     .validateInputs(cl)
 #'     return(var1^2)
 #' }
-.validateInputs <- function(checkList) {
+.validateInputs = function(checkList) {
     nms = names(checkList)
     for(i in seq_along(checkList)){
         fail = FALSE

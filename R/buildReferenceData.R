@@ -11,7 +11,7 @@
 #' @examples
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 #' CElegansGtf = retrieveFile(CElegansGtfUrl)
-retrieveFile <- function(source, destDir=NULL){
+retrieveFile = function(source, destDir=NULL){
   if (is.null(destDir)) destDir = tempdir()
     # download file, if not local
   if (!file.exists(source)) {
@@ -47,7 +47,7 @@ retrieveFile <- function(source, destDir=NULL){
 #' @examples
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 #' CElegansTss = getTssFromGTF(CElegansGtfUrl, TRUE)
-getTssFromGTF <- function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
+getTssFromGTF = function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
     subsetGtfDf = GtfDf %>% 
     dplyr::filter(gene_biotype == "protein_coding", type == "gene")
@@ -78,7 +78,7 @@ getTssFromGTF <- function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
 #' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
 #' features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
 #' CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfUrl, features, TRUE)
-getGeneModelsFromGTF <- function(source,
+getGeneModelsFromGTF = function(source,
                                  features,
                                  convertEnsemblUCSC = FALSE,
                                  destDir = NULL) {
@@ -118,7 +118,7 @@ getGeneModelsFromGTF <- function(source,
 #' @examples
 #' CElegansUrl = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
 #' CElegansChromSizes = getChromSizesFromFasta(CElegansUrl)
-getChromSizesFromFasta <- function(source, destDir=NULL) {
+getChromSizesFromFasta = function(source, destDir=NULL) {
   fastaPath = retrieveFile(source, destDir)
   fastaStringSet = readDNAStringSet(fastaPath)
   oriNames = fastaStringSet@ranges@NAMES

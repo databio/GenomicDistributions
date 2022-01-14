@@ -18,7 +18,7 @@ A warning if the wrong input class is provided.
 Checks class of the list of variables. To be used in functions
 }
 \examples{
-x <- function(var1) {
+x = function(var1) {
     cl = list(var1=c("numeric","character"))
     .validateInputs(cl)
     return(var1^2)
