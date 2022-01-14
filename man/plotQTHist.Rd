@@ -8,7 +8,7 @@ plotQTHist(
   x,
   EndBarColor = "gray57",
   MiddleBarColor = "gray27",
-  quantile = NULL,
+  quantThresh = NULL,
   bins = NULL,
   indep = FALSE,
   numbers = FALSE
@@ -23,8 +23,8 @@ plotQTHist(
 \item{MiddleBarColor}{Color for the bars in the middle of the graph
 (optional)}
 
-\item{quantile}{Quantile of data to be contained in each end bar (optional)
-Quantiles must be under .2, optimal size is under .1}
+\item{quantThresh}{Quantile of data to be contained in each end bar (optional)
+quantThresh values must be under .2, optimal size is under .1}
 
 \item{bins}{The number of bins for the histogram to allocate data to.
 (optional)}
@@ -48,6 +48,7 @@ x-axis breaks for the frequency calculations are based on the "divisions"
 results from helper function \code{calcDivisions}.
 }
 \examples{
-plotQTHist(runif(500)*1000)
-plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
+regWidths = calcWidth(vistaEnhancers)
+qtHist = plotQTHist(regWidths)
+qtHist2 = plotQTHist(regWidths, quantThresh=0.1)
 }

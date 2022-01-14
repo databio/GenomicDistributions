@@ -7,8 +7,7 @@
 #' @return A vector of the widths (end-start coordinates) of GRanges objects.
 #' @export
 #' @examples
-#' TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
-#' plotFeatureDist(TSSdist, featureName="TSS")
+#' regWidths = calcWidth(vistaEnhancers)
 calcWidth = function(query) { 
     if (is(query, "GRangesList")) {
         # Recurse over each GRanges object
@@ -31,8 +30,8 @@ calcWidth = function(query) {
 #'     (optional)
 #' @param MiddleBarColor Color for the bars in the middle of the graph
 #'     (optional)
-#' @param quantile Quantile of data to be contained in each end bar (optional)
-#' Quantiles must be under .2, optimal size is under .1
+#' @param quantThresh Quantile of data to be contained in each end bar (optional)
+#' quantThresh values must be under .2, optimal size is under .1
 #' @param bins The number of bins for the histogram to allocate data to.
 #'     (optional)
 #' @param indep logical value which returns a list of plots that have had their
@@ -43,10 +42,11 @@ calcWidth = function(query) {
 #' @return A ggplot2 plot object
 #' @export
 #' @examples
-#' plotQTHist(runif(500)*1000)
-#' plotQTHist(list(q1=runif(500)*1000, q2=runif(500)*1000))
+#' regWidths = calcWidth(vistaEnhancers)
+#' qtHist = plotQTHist(regWidths)
+#' qtHist2 = plotQTHist(regWidths, quantThresh=0.1)
 plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
-    quantile=NULL, bins=NULL, indep=FALSE, numbers=FALSE) {
+    quantThresh=NULL, bins=NULL, indep=FALSE, numbers=FALSE) {
     if (indep) {
         if (is(x, "list") | is(x, "List")) {
             x = lapply(x, plotQTHist)
@@ -59,7 +59,7 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
         # do.call("grid.arrange", x)
         }
     }
-    output = calcDivisions(x, quantile=quantile, bins=bins)
+    output = calcDivisions(x, quantThresh=quantThresh, bins=bins)
     # if all x are the same - recalculate divisions
     divisionCheck = output[["divisions"]]
     if (length(divisionCheck) > length(unique(divisionCheck))){
@@ -117,8 +117,9 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
         geom_text(aes(label= paste((output[["quantile"]]*100),"%", sep='')),
             data=df[qbaridx,], hjust=-1, angle=90, size=2.5)
 
-    if (!numbers)
-        g = g + ylab("Percentage")
+    if (!numbers){
+      g = g + ylab("Percentage")
+    }
     
     return(g)
 }
@@ -134,36 +135,35 @@ plotQTHist = function(x, EndBarColor = "gray57", MiddleBarColor = "gray27",
 # @return A list of the divisions that will be used in plotting the histogram. 
 # @examples
 # calcDivisions(runif(500)*1000)
-calcDivisions = function(x, bins=NULL, quantile = NULL){
-    if(is.list(x))
-        x=unlist(x)
-        
-    # calculating bins
-    if(!is.null(bins)){
-        b = bins
-    } 
-    else {
-        n = length(x)
-        if (n > 10000) {n = 10000}
-        if (n < 500) {n = 500}
-        # finding number of bins based on the size of dataset
-        b = round(n^.15 + (n/200))
-    }
-    # calculating quantiles
-    if(!is.null(quantile)){
-        if(quantile > .2){
-            stop("Quantile must be less than .2, Optimal size is under .1") }
-        q = quantile
-    }
-    else{
-        # finding the quantile on each side based on number of bins
-        q = round(25/(b))/100
-        # minimum on each side is 1%
-        q = max(.01, q)
-    }
-    quant = unname(quantile(x, probs = c((q), (1-(q)))))
-    seq_10 = seq(quant[1], quant[2], length = b+1)
-    div = c(-Inf, round(seq_10), Inf)
-    listOutput <- list("bins"= b,"quantile"= q, "divisions" = div)
-    return(listOutput)
+calcDivisions = function(x, bins=NULL, quantThresh = NULL){
+  if(is.list(x)){
+    x=unlist(x)
+  }
+  
+  # calculating bins
+  if(!is.null(bins)){
+    b = bins
+  } else {
+    n = length(x)
+    if (n > 10000) {n = 10000}
+    if (n < 500) {n = 500}
+    # finding number of bins based on the size of dataset
+    b = round(n^.15 + (n/200))
+  }
+  # calculating quantiles
+  if(!is.null(quantThresh)){
+    if(quantThresh > .2){
+      stop("quantThresh value must be less than .2, Optimal size is under .1") }
+    q = quantThresh
+  } else {
+    # finding the quantile on each side based on number of bins
+    q = round(25/(b))/100
+    # minimum on each side is 1%
+    q = max(.01, q)
+  }
+  quant = unname(stats::quantile(x, probs = c((q), (1-(q)))))
+  seq_10 = seq(quant[1], quant[2], length = b+1)
+  div = c(-Inf, round(seq_10), Inf)
+  listOutput <- list("bins"= b,"quantile"= q, "divisions" = div)
+  return(listOutput)
 }
