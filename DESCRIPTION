@@ -39,6 +39,7 @@ Imports:
     plyr,
     dplyr,
     scales,
+    broom,
     GenomeInfoDb
 Suggests:
     AnnotationFilter,

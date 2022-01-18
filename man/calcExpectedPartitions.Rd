@@ -37,7 +37,9 @@ base pairs between query and each partition.}
 }
 \value{
 A data.frame assigning each element of a GRanges object to a
-    partition from a previously provided partitionList.
+    partition from a previously provided partitionList.The data.frame also
+    contains Chi-square p-values calculated for observed/expected
+    overlaps on each individual partition.
 }
 \description{
 Calculates expected partiton overlap based on contribution of each

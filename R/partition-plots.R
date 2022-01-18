@@ -271,7 +271,9 @@ calcPartitions = function(query, partitionList,
 #' @param genomeSize The number of bases in the query genome. In other words,
 #'     the sum of all chromosome sizes.
 #' @return A data.frame assigning each element of a GRanges object to a
-#'     partition from a previously provided partitionList.
+#'     partition from a previously provided partitionList.The data.frame also
+#'     contains Chi-square p-values calculated for observed/expected
+#'     overlaps on each individual partition.  
 #' @param remainder  Which partition do you want to account for 'everything
 #'     else'?
 #' @param bpProportion logical indicating if overlaps should be calculated based
@@ -357,8 +359,45 @@ calcExpectedPartitions = function(query, partitionList,
   expectedPartitions[,log10OE:=log10(expectedPartitions$observed/
                                        expectedPartitions$expected)]
   partitionNames = c(partitionNames, remainder)
-  return(expectedPartitions[match(partitionNames,
-                                  expectedPartitions$partition),])
+  
+  expectedPartitions = expectedPartitions[match(partitionNames,
+                                                expectedPartitions$partition),]
+  
+  # Create an empty list for storing contingency tables
+  contList = list()
+  
+  # Get the number of non-overlapping regions and bp per feature
+  for (i in seq_along(1:nrow(expectedPartitions))) {
+    olObs = expectedPartitions[i, ]$observed
+    olExp = expectedPartitions[i, ]$expected
+    # don't need to handle non-ol calc differently if bpProportions=TRUE
+    # since query_total accounts for both region and bp overlaps
+    nonOlObs = query_total - olObs
+    nonOlExp = query_total - olExp
+    # Create columns for contingency table
+    observedVals = c(olObs, nonOlObs)
+    expectedVals = c(olExp, nonOlExp)
+    contTable = data.frame(Observed=observedVals,
+                           Expected=expectedVals)
+    rownames(contTable) = c("Overlapping", "NonOverlapping")
+    contList[[i]] = contTable
+  }
+  
+  # We should now have a list with contingency tables for each feature
+  # Calculate p-val using a chi-square test
+  chi.squareTests = lapply(contList, 
+                           function(x){broom::tidy(chisq.test(x))})
+  summaryResultsDT = data.table::rbindlist(chi.squareTests)
+  
+  expectedPartitions = cbind(expectedPartitions,
+                             Chi.square.pval = signif(summaryResultsDT$p.value, 3),
+                             method = summaryResultsDT$method)
+  #rownames(summaryResults) = names(contList)
+  #part["p.val"] = summary_results$p.value
+  #part
+  
+  # Return table with partition overlaps and p-value per partition
+  return(expectedPartitions)
 }
 
 #' Calculates the cumulative distribution of overlaps between query and
@@ -597,13 +636,16 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 #'     \code{calcExpectedPartitions}.
 #' @param feature_names  Character vector with labels for the partitions
 #'     (optional). By default it will use the names from the first argument.
+#' @param pval Logical indicating whether Chi-square p-values should be added
+#'     for each partition.  
 #' @return A ggplot object using a barplot to show the distribution of the
 #'     query regions across a given partition list.
 #' @export
 #' @examples
 #' p = calcExpectedPartitionsRef(vistaEnhancers, "hg19")
 #' expectedPlot = plotExpectedPartitions(p)
-plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
+plotExpectedPartitions = function(expectedPartitions, feature_names=NULL,
+                                  pval=FALSE) {
     .validateInputs(list(expectedPartitions="data.frame"))
     expectedPartitions = na.omit(expectedPartitions)
     if ("name" %in% names(expectedPartitions)){
@@ -654,6 +696,19 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL) {
                                           size=0.5)
         ) +
         scale_fill_discrete(name="User set")
+    
+    if (pval) {
+      p = p + 
+        geom_text(data=expectedPartitions, 
+                  aes(label=ifelse(Chi.square.pval < 0.001, "***", 
+                                   ifelse(Chi.square.pval >= 0.001 & Chi.square.pval < 0.01, "**",
+                                          ifelse(Chi.square.pval >= 0.01 & Chi.square.pval < 0.05, "*", "n.s")))),
+                  position = position_dodge(width = 1),
+                  size=2, 
+                  hjust=ifelse(expectedPartitions$log10OE>0, -0.4, 1.1),
+                  angle=0)
+
+    }
 
     if (!exists("p")) {
         p = ggplot()
