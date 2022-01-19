@@ -13,7 +13,8 @@ vignette: >
 
 ```{r, echo=FALSE}
 # These settings make the vignette prettier
-knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE)
+knitr::opts_chunk$set(results="hold", collapse=FALSE, message=FALSE, 
+                      warning = FALSE)
 #refreshPackage("GenomicDistributions")
 #devtools::build_vignettes("code/GenomicDistributions")
 #devtools::test("code/GenomicDistributions")
@@ -190,6 +191,11 @@ ep2 = calcExpectedPartitionsRef(queryList, "hg19")
 plotExpectedPartitions(ep2)
 ```
 
+Additionally, we have implemented a way to look at the significance of each partition enrichment using a Chi-square test of independence for each partition (categorizing regions as observed/expected and overlapping/non-overlapping). Chi-square p-values are output by the `calcExpectedPartitionsRef` function and can be optionally displayed as stars using the following convention: `***p<0.001; ** 0.001<=p<0.01; * 0.01<=p<0.05; ns p>=0.05`
+```{r multiple-corrected-partition-plot-pvals, fig.cap="Expected partition distribution plots for multiple query region sets with p-values displayed.", fig.small=TRUE}
+plotExpectedPartitions(ep2, pval=TRUE)
+```
+
 These plots would show all values aligning at 0 if your given regions perfectly match the expected genomic distribution. In this case, we see an 1.5-fold enrichment of introns over the background genome distribution, along with a concomitant decrease in other partitions.
 
 If you are again more interested at proportions how are your regions distributed among the different annotation classes (rather than classification with priority), it is very easy. Let’s see:
@@ -267,7 +273,7 @@ plotSummarySignal(signalSummaryList = op2, plotType = "violinPlot", metadata = c
 ## Neighboring regions distance plots
 
 Genomic Distributions can also generate some basic stats about your regionset. One of those includes the distance between chromosomes neighboring regions. Distances 
-are calculated for each specific chromosome and then lumped together to get a more comprehensive view of the entire regionset. Distances have been log10 transformed to 
+are calculated for each specific chromosome and then lumped together to get a more comprehensive view of the entire regionset. The scale of the X-axis has been log10 transformed to 
 ease comparison between different regionsets and account for outliers.
 
 ```{r neighbor-distance-plots, fig.cap="Distances between neighboring intervals of a regionset", fig.small=TRUE}
@@ -356,7 +362,7 @@ plotQTHist(qt2)
 Both the quantile and the bins can be manually adjusted. The quantile you indicate should be the proportion of the data that you want in each end bar of the histogram. You can also adjust the colors of these plots:
 
 ```{r width-distribution-colors, fig.cap="Width distribution plot with color options.", fig.small=TRUE}
-plotQTHist(qt1, bins=7, quantile = .015, EndBarColor = 'black', MiddleBarColor='darkblue')
+plotQTHist(qt1, bins=7, EndBarColor = 'black', MiddleBarColor='darkblue')
 ```
 
 # Custom reference and features
