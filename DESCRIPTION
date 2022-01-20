@@ -40,7 +40,8 @@ Imports:
     dplyr,
     scales,
     broom,
-    GenomeInfoDb
+    GenomeInfoDb,
+    stats
 Suggests:
     AnnotationFilter,
     rtracklayer,

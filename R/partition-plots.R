@@ -367,7 +367,7 @@ calcExpectedPartitions = function(query, partitionList,
   contList = list()
   
   # Get the number of non-overlapping regions and bp per feature
-  for (i in seq_along(1:nrow(expectedPartitions))) {
+  for (i in seq_len(nrow(expectedPartitions))) {
     olObs = expectedPartitions[i, ]$observed
     olExp = expectedPartitions[i, ]$expected
     # don't need to handle non-ol calc differently if bpProportions=TRUE
