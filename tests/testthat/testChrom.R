@@ -34,6 +34,6 @@ test_that("binRegion returns result of correct length", {
 test_that("calcChromBinsRef returns a proper object type, length ad includes all the regions", {
     result = calcChromBinsRef(query, "hg19")
     expect_is(result, "data.table")
-    expect_length(result, 7)
+    expect_length(result, 6)
     expect_equal(sum(result$N), length(query))
 })

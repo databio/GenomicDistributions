@@ -3,21 +3,27 @@
 \name{calcNeighborDist}
 \alias{calcNeighborDist}
 \title{Group regions from the same chromosome together and
-calculate the distances between neighboring regions. 
+calculate the distances of a region to its upstream and
+downstream neighboring regions.  
 Distances are then lumped into a numeric vector.}
 \usage{
-calcNeighborDist(query)
+calcNeighborDist(query, correctRef = "None")
 }
 \arguments{
 \item{query}{A GRanges or GRangesList object.}
+
+\item{correctRef}{A string indicating the reference genome
+to use if distances are corrected for the number of 
+regions in a regionSet.}
 }
 \value{
 A numeric vector or list with different vectors containing the
- distances within neighboring regions.
+ distances of regions to their upstream/downstream neighbors.
 }
 \description{
 Group regions from the same chromosome together and
-calculate the distances between neighboring regions. 
+calculate the distances of a region to its upstream and
+downstream neighboring regions.  
 Distances are then lumped into a numeric vector.
 }
 \examples{

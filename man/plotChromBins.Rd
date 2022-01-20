@@ -7,7 +7,8 @@
 plotChromBins(
   genomeAggregate,
   binCount = 10000,
-  plotTitle = "Distribution over chromosomes"
+  plotTitle = "Distribution over chromosomes",
+  ylim = "max"
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ plotChromBins(
 \code{genomicDistribution})}
 
 \item{plotTitle}{Title for plot.}
+
+\item{ylim}{Limit of y-axes. Default "max" sets limit to N of biggest bin.}
 }
 \value{
 A ggplot object showing the distribution of the query 

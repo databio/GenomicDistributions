@@ -18,6 +18,5 @@ is called the width
 When given a query set of genomic regions, this function returns the width
 }
 \examples{
-TSSdist = calcFeatureDistRefTSS(vistaEnhancers, "hg19")
-plotFeatureDist(TSSdist, featureName="TSS")
+regWidths = calcWidth(vistaEnhancers)
 }

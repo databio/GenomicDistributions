@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
+## [1.3.2] -- 2022-01-19
+  - Bioconductor released new version
+  - Cell specificity plots are now more generic signal summary plots - the calc function is now "calcSummarySignal", plot function "plotSummarySignal" 
+  - Added calculation of Chi-square p-values of expected partitions as default output of "calcExpectedPartitionsRef"
+  - Chi-square p-values are now optionally shown as stars on top of each partition output by "plotExpectedPartitions"
+  - Chromosome distribution calculations have been optimized to substantially reduce running time 
+  - Default plotting of neighbor distance now includes an X-axis log scale to account for outliers more intuitively 
+  - Corrected plotting of partition overlap for multiple region sets - now sums to 100 by group
+  - Intro vignette has been updated to include "calcSummarySignal" and "plotSummarySignal" functions along with expected partitions p-values calculation and updated X-axis scale of neighbor dist plots
+
 ## [1.1.2] -- 2020-07-07
   - Added functions to calculate and plot dinucleotide frequencies
 

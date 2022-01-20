@@ -22,6 +22,8 @@ a list of GRanges objects
 Get transcription start sites (TSSs) from a remote or local GTF file
 }
 \examples{
-CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-CElegansTss = getTssFromGTF(CElegansGtfUrl, TRUE)
+CElegansGtfCropped = system.file("extdata", 
+                                 "C_elegans_cropped_example.gtf.gz", 
+                                 package="GenomicDistributions")
+CElegansTss = getTssFromGTF(CElegansGtfCropped, TRUE)
 }
