@@ -453,7 +453,6 @@ calcCumulativePartitions = function(query, partitionList,
                                   cumsize=as.numeric(),
                                   frif=as.numeric())
     for (pi in seq_along(partitionList)) {
-        #message(partitionNames[pi],":")
         # Find overlaps
         hits  = suppressWarnings(findOverlaps(query, partitionList[[pi]]))
         olap  = suppressWarnings(pintersect(query[queryHits(hits)],
@@ -468,9 +467,6 @@ calcCumulativePartitions = function(query, partitionList,
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
         h = nrow(hits)
-        #message("\tfound ", h)
-
-
         # Make mutually exclusive; remove hits from query
         query = query[-hits$xid]
         # Isolate hits
@@ -479,7 +475,7 @@ calcCumulativePartitions = function(query, partitionList,
         x = data.table::data.table(partition=partitionNames[pi],
                                 size=if (h!=0) size=hits$size else size=0,
                                 count=if (h!=0) count=hits$count else count=0)
-        x = x[order(x$count, x$size),]
+        x = x[order(x$count, x$size, decreasing = TRUE),]
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
         x$frif    = x$cumsum/query_total
@@ -550,7 +546,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
                                  "#CAB2D6", "#57069E", "#F0FC03", "#B15928"))
     if ("name" %in% names(assignedPartitions)){
         # It has multiple regions
-        p = ggplot(assignedPartitions, aes(x=log10(cumsize), y=frif,
+        p = ggplot(assignedPartitions, aes(x=cumsize, y=frif,
                    group=partition, color=partition)) +
             facet_wrap(. ~name)
         plot_labels = setLabels(splitDataTable(assignedPartitions, "name"))
@@ -561,7 +557,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
                             , by = name]
     } else {
         p = ggplot(assignedPartitions,
-               aes(x=log10(cumsize), y=frif, group=partition, color=partition))
+               aes(x=cumsize, y=frif, group=partition, color=partition))
         plot_labels = setLabels(assignedPartitions)
         partition_sizes = assignedPartitions[, .N, by=partition]
         plot_labels[, label:=sprintf(" %s:%s", plot_labels$partition,
@@ -592,12 +588,17 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
     }
 
     p = p +
-        geom_line(size=2, alpha=0.5) +
-        labs(x=expression(log[10]("number of bases")),
-             y="Cumulative distribution across genomic partitions") +
+        geom_line(size=1, alpha=0.5) +
+        labs(x="Number of bases",
+             y="Cumulative proportion") +
+        scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+              labels = scales::trans_format("log10",
+                                            scales::math_format(10^.x))) +
+        annotation_logticks(base = 10, outside = TRUE) +
+        coord_cartesian(clip = "off") +
         theme_classic() +
         theme(axis.line = element_line(size = 0.5),
-              axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
+              axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=-0.5),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
               strip.background = element_blank(),
