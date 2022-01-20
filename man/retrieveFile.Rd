@@ -20,6 +20,6 @@ data.frame retrieved file path
 Read local or remote file
 }
 \examples{
-CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-CElegansGtf = retrieveFile(CElegansGtfUrl)
+CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+CElegansGtf = retrieveFile(CElegansGtfCropped)
 }

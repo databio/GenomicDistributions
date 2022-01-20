@@ -20,6 +20,6 @@ a named vector of sequence lengths
 Get gene models from a remote or local FASTA file
 }
 \examples{
-CElegansUrl = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
-CElegansChromSizes = getChromSizesFromFasta(CElegansUrl)
+CElegansFasteCropped = system.file("extdata", "C_elegans_cropped_example.fa.gz", package="GenomicDistributions")
+CElegansChromSizes = getChromSizesFromFasta(CElegansFasteCropped)
 }

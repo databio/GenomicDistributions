@@ -9,8 +9,8 @@
 #' @export
 #'
 #' @examples
-#' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-#' CElegansGtf = retrieveFile(CElegansGtfUrl)
+#' CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+#' CElegansGtf = retrieveFile(CElegansGtfCropped)
 retrieveFile = function(source, destDir=NULL){
   if (is.null(destDir)) destDir = tempdir()
     # download file, if not local
@@ -45,8 +45,8 @@ retrieveFile = function(source, destDir=NULL){
 #' @export
 #'
 #' @examples
-#' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
-#' CElegansTss = getTssFromGTF(CElegansGtfUrl, TRUE)
+#' CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+#' CElegansTss = getTssFromGTF(CElegansGtfCropped, TRUE)
 getTssFromGTF = function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
     subsetGtfDf = GtfDf %>% 
@@ -75,9 +75,9 @@ getTssFromGTF = function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
 #' @export
 #'
 #' @examples
-#' CElegansGtfUrl = "http://ftp.ensembl.org/pub/release-103/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.103.gtf.gz"
+#' CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
 #' features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
-#' CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfUrl, features, TRUE)
+#' CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfCropped, features, TRUE)
 getGeneModelsFromGTF = function(source,
                                  features,
                                  convertEnsemblUCSC = FALSE,
@@ -116,8 +116,8 @@ getGeneModelsFromGTF = function(source,
 #' @export
 #'
 #' @examples
-#' CElegansUrl = "http://ftp.ensembl.org/pub/release-103/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz"
-#' CElegansChromSizes = getChromSizesFromFasta(CElegansUrl)
+#' CElegansFasteCropped = system.file("extdata", "C_elegans_cropped_example.fa.gz", package="GenomicDistributions")
+#' CElegansChromSizes = getChromSizesFromFasta(CElegansFasteCropped)
 getChromSizesFromFasta = function(source, destDir=NULL) {
   fastaPath = retrieveFile(source, destDir)
   fastaStringSet = readDNAStringSet(fastaPath)
