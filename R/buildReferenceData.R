@@ -9,7 +9,9 @@
 #' @export
 #'
 #' @examples
-#' CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+#' CElegansGtfCropped = system.file("extdata", 
+#'                                  "C_elegans_cropped_example.gtf.gz", 
+#'                                  package="GenomicDistributions")
 #' CElegansGtf = retrieveFile(CElegansGtfCropped)
 retrieveFile = function(source, destDir=NULL){
   if (is.null(destDir)) destDir = tempdir()
@@ -45,7 +47,9 @@ retrieveFile = function(source, destDir=NULL){
 #' @export
 #'
 #' @examples
-#' CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+#' CElegansGtfCropped = system.file("extdata", 
+#'                                  "C_elegans_cropped_example.gtf.gz", 
+#'                                  package="GenomicDistributions")
 #' CElegansTss = getTssFromGTF(CElegansGtfCropped, TRUE)
 getTssFromGTF = function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
     GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
@@ -75,7 +79,9 @@ getTssFromGTF = function(source, convertEnsemblUCSC=FALSE, destDir=NULL){
 #' @export
 #'
 #' @examples
-#' CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+#' CElegansGtfCropped = system.file("extdata", 
+#'                                  "C_elegans_cropped_example.gtf.gz", 
+#'                                  package="GenomicDistributions")
 #' features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
 #' CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfCropped, features, TRUE)
 getGeneModelsFromGTF = function(source,
@@ -116,7 +122,9 @@ getGeneModelsFromGTF = function(source,
 #' @export
 #'
 #' @examples
-#' CElegansFasteCropped = system.file("extdata", "C_elegans_cropped_example.fa.gz", package="GenomicDistributions")
+#' CElegansFasteCropped = system.file("extdata", 
+#'                                    "C_elegans_cropped_example.fa.gz", 
+#'                                    package="GenomicDistributions")
 #' CElegansChromSizes = getChromSizesFromFasta(CElegansFasteCropped)
 getChromSizesFromFasta = function(source, destDir=NULL) {
   fastaPath = retrieveFile(source, destDir)

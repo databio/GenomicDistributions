@@ -20,6 +20,8 @@ data.frame retrieved file path
 Read local or remote file
 }
 \examples{
-CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+CElegansGtfCropped = system.file("extdata", 
+                                 "C_elegans_cropped_example.gtf.gz", 
+                                 package="GenomicDistributions")
 CElegansGtf = retrieveFile(CElegansGtfCropped)
 }

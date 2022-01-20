@@ -24,6 +24,7 @@
 #' @importFrom IRanges IRanges Views
 #' @importFrom Biostrings alphabetFrequency type
 #' @importFrom methods is
+#' @importFrom stats chisq.test
 #' @importFrom utils installed.packages getAnywhere data globalVariables download.file
 
 NULL
@@ -64,7 +65,8 @@ if(getRversion() >= "2.15.1") {
         "tissue", ".", "Percent", "Var1", "maxStart", "start",
         "i.start", "minEnd", "i.end", "overlap", "gene_biotype", "dinucleotide",
         "frequency", "L1", "V4", "colName", "i", "j", ".x", "lowerColorColumn",
-        "midpoint", "ubinID", "x.binID", "x.start", "x.end", "FreqPercent"))
+        "midpoint", "ubinID", "x.binID", "x.start", "x.end", "FreqPercent",
+        "Chi.square.pval"))
 }
 
 

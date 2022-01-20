@@ -30,7 +30,9 @@ a list of GRanges objects
 Get gene models from a remote or local GTF file
 }
 \examples{
-CElegansGtfCropped = system.file("extdata", "C_elegans_cropped_example.gtf.gz", package="GenomicDistributions")
+CElegansGtfCropped = system.file("extdata", 
+                                 "C_elegans_cropped_example.gtf.gz", 
+                                 package="GenomicDistributions")
 features = c("gene", "exon", "three_prime_utr", "five_prime_utr")
 CElegansGeneModels = getGeneModelsFromGTF(CElegansGtfCropped, features, TRUE)
 }
