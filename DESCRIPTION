@@ -12,7 +12,7 @@ Description: If you have a set of genomic ranges, this package can help you with
  exons, or intergenic regions. It also makes it easy to compare one set of
  ranges to another.
 Authors@R: c(
-	  person("Kristyna", "Kupkova", role=c("aut", "cre"), 
+	  person("Kristyna", "Kupkova", role=c("aut", "cre"),
     email = "kristynakupkova@gmail.com"),
     person("Jose", "Verdezoto", role="aut"),
     person("Tessa", "Danehy", role="aut"),
@@ -20,8 +20,8 @@ Authors@R: c(
     person("Jose", "Verdezoto", role="aut"),
     person("Michal", "Stolarczyk", role="aut"),
     person("Jason", "Smith", role="aut"),
-    person("Bingjie", "Xue", role="aut"), 
-    person("Sophia", "Rogers", role="aut"), 
+    person("Bingjie", "Xue", role="aut"),
+    person("Sophia", "Rogers", role="aut"),
     person("John", "Stubbs", role="aut"),
     person(given=c("Nathan", "C."), "Sheffield",
     email = "nathan@code.databio.org", role="aut"))
@@ -57,7 +57,7 @@ Enhances:
 LazyData: true
 VignetteBuilder: knitr
 License: BSD_2_clause + file LICENSE
-biocViews: Software, GenomeAnnotation, GenomeAssembly, DataRepresentation, Sequencing, 
+biocViews: Software, GenomeAnnotation, GenomeAssembly, DataRepresentation, Sequencing,
             Coverage, FunctionalGenomics, Visualization
 RoxygenNote: 7.1.2
 URL: http://code.databio.org/GenomicDistributions
