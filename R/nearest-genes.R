@@ -18,10 +18,14 @@ calcNearestGenes =  function(query, annotations, gene_name_key="gene_id", gene_t
   .validateInputs(list(query=c("GRanges","GRangesList")))
   if (is(query, "GRangesList")) {
     # Recurse over each GRanges object
-    x = lapply(query, calcFeatureDist, features)
-    return(x)
+    annots = lapply(
+      query,
+      function(x) {
+        calcNearestGenes(x, annotations, gene_name_key=gene_name_key, gene_type_key=gene_type_key)
+        }
+      )
+    return(annots)
   }
-  
   # calculate the nearest annotations to given query
   nearestIds = nearest(query, annotations)
   
