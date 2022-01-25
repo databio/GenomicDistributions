@@ -581,12 +581,14 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
             plot_labels[,partition:=feature_names]
             assignedPartitions[,partition:=rep(feature_names,
                                each=partition_sizes$num_feats)]
+            label = plot_labels[, list(label = paste(label, collapse="\n"))]
         } else {
             if (!"partition" %in% colnames(plot_labels)) {
                 plot_labels[,partition:=seq_len(nrow(partition_sizes))]
                 assignedPartitions[,
                     partition:=rep(seq_len(nrow(partition_sizes)),
                                    partition_sizes$num_feats)]
+                label = plot_labels[, list(label = paste(label, collapse="\n"))]
             }
         }
     } else {
@@ -594,6 +596,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
             plot_labels[,partition:=seq_len(nrow(partition_sizes))]
             assignedPartitions[,partition:=rep(seq_len(nrow(partition_sizes)),
                                partition_sizes$num_feats)]
+            label = plot_labels[, list(label = paste(label, collapse="\n"))]
         }
     }
 
@@ -627,8 +630,9 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 
     # Add label text
     p = p +
-        geom_text(data=label, mapping=aes(x=-Inf, y=Inf, label=label),
-        hjust="inward", vjust=1.05, inherit.aes=FALSE)
+        geom_text(data=label, size = 0.5*p$theme$text$size/.pt, 
+                  mapping=aes(x=1, y=Inf, label=label),
+                  hjust="inward", vjust=1.05, inherit.aes=FALSE)
 
     if (!exists("p")) {
         p = ggplot()
