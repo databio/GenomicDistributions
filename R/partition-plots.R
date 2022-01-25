@@ -526,7 +526,7 @@ setLabels = function(assignedPartitions) {
     partition = assignedPartitions[, partition, by=partition]
     xPos = assignedPartitions[, 0.95*max(log10(cumsize)), by=partition]
     yPos = assignedPartitions[, max(score)+0.001, by=partition]
-    val  = assignedPartitions[, sprintf(max(score),fmt="%#.2f"), by=partition]
+    val  = assignedPartitions[, sprintf(max(score),fmt="%#.3f"), by=partition]
     return(data.table::data.table(partition=partition$partition,
                                   xPos=xPos$V1,
                                   yPos=yPos$V1,
@@ -630,7 +630,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 
     # Add label text
     p = p +
-        geom_text(data=label, size = 0.5*p$theme$text$size/.pt, 
+        geom_text(data=label, size = 0.7*p$theme$text$size/.pt, 
                   mapping=aes(x=1, y=Inf, label=label),
                   hjust="inward", vjust=1.05, inherit.aes=FALSE)
 
