@@ -454,17 +454,17 @@ calcCumulativePartitions = function(query, partitionList,
                                   frif=as.numeric(),
                                   ffir=as.numeric(),
                                   score=as.numeric())
-    for (pi in seq_along(partitionList)) {
+    for (parti in seq_along(partitionList)) {
         # Find overlaps
-        hits  = suppressWarnings(GenomicRanges::findOverlaps(query, partitionList[[pi]]))
+        hits  = suppressWarnings(GenomicRanges::findOverlaps(query, partitionList[[parti]]))
         olap  = suppressWarnings(IRanges::pintersect(query[queryHits(hits)],
-                                 partitionList[[pi]][subjectHits(hits)]))
-        polap = width(olap) / width(partitionList[[pi]][subjectHits(hits)])
+                                 partitionList[[parti]][subjectHits(hits)]))
+        polap = width(olap) / width(partitionList[[parti]][subjectHits(hits)])
         hits  = data.table::data.table(xid=queryHits(hits),
                                        yid=subjectHits(hits),
                                        polap=polap)
         # Grab hits
-        pHits = partitionList[[pi]][hits$yid]
+        pHits = partitionList[[parti]][hits$yid]
         hits[, size:=width(pHits)]
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
@@ -474,16 +474,16 @@ calcCumulativePartitions = function(query, partitionList,
         # Isolate hits
         hits = unique(hits, by="yid")
         # Link to positional data for feature of interest
-        x = data.table::data.table(partition=partitionNames[pi],
+        x = data.table::data.table(partition=partitionNames[parti],
                                 size=if (h!=0) size=hits$size else size=0,
                                 count=if (h!=0) count=hits$count else count=0)
         x = x[order(x$count, x$size, decreasing=TRUE),]
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
         x$frif = x$cumsum/query_total  # original
-        x$ffir = x$cumsum/sum(width(partitionList[[pi]]))
+        x$ffir = x$cumsum/sum(width(partitionList[[parti]]))
         x$score = sqrt(x$frif * x$ffir)
-        # x$score  = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
+        # x$score  = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[parti]]))/x$cumsum))/2)
         result = rbind(result, x)
     }
     # Create remainder...
@@ -496,10 +496,10 @@ calcCumulativePartitions = function(query, partitionList,
     x$cumsum  = cumsum(x$count)
     x$cumsize = cumsum(x$size)
     # harmonic mean:
-    # x$score    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
+    # x$score    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[parti]]))/x$cumsum))/2)
     # geometric mean:
 	x$frif = x$cumsum/query_total  # original
-	x$ffir = x$cumsum/sum(width(partitionList[[pi]]))
+	x$ffir = x$cumsum/sum(width(partitionList[[parti]]))
 	x$score = sqrt(x$frif * x$ffir)
     return(rbind(result, x))
 }
