@@ -446,12 +446,14 @@ calcCumulativePartitions = function(query, partitionList,
     partitionNames = names(partitionList)
     # Need total number of bases (not regions)
     query_total = sum(width(query))
-    frif = data.table::data.table(partition=as.character(),
+    result = data.table::data.table(partition=as.character(),
                                   size=as.numeric(),
                                   count=as.numeric(),
                                   cumsum=as.numeric(),
                                   cumsize=as.numeric(),
-                                  frif=as.numeric())
+                                  frif=as.numeric(),
+                                  ffir=as.numeric(),
+                                  score=as.numeric())
     for (pi in seq_along(partitionList)) {
         # Find overlaps
         hits  = suppressWarnings(GenomicRanges::findOverlaps(query, partitionList[[pi]]))
@@ -478,8 +480,11 @@ calcCumulativePartitions = function(query, partitionList,
         x = x[order(x$count, x$size, decreasing=TRUE),]
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
-        x$frif    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
-        frif = rbind(frif, x)
+        x$frif = x$cumsum/query_total  # original
+        x$ffir = x$cumsum/sum(width(partitionList[[pi]]))
+        x$score = sqrt(x$frif * x$ffir)
+        # x$score  = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
+        result = rbind(result, x)
     }
     # Create remainder...
     #message(remainder,":")
@@ -490,8 +495,13 @@ calcCumulativePartitions = function(query, partitionList,
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
     x$cumsize = cumsum(x$size)
-    x$frif    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
-    return(rbind(frif, x))
+    # harmonic mean:
+    # x$score    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
+    # geometric mean:
+	x$frif = x$cumsum/query_total  # original
+	x$ffir = x$cumsum/sum(width(partitionList[[pi]]))
+	x$score = sqrt(x$frif * x$ffir)
+    return(rbind(result, x))
 }
 
 
@@ -546,7 +556,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
                                  "#CAB2D6", "#57069E", "#F0FC03", "#B15928"))
     if ("name" %in% names(assignedPartitions)){
         # It has multiple regions
-        p = ggplot(assignedPartitions, aes(x=cumsize, y=frif,
+        p = ggplot(assignedPartitions, aes(x=cumsize, y=score,
                    group=partition, color=partition)) +
             facet_wrap(. ~name)
         plot_labels = setLabels(splitDataTable(assignedPartitions, "name"))
@@ -557,7 +567,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
                             , by = name]
     } else {
         p = ggplot(assignedPartitions,
-               aes(x=cumsize, y=frif, group=partition, color=partition))
+               aes(x=cumsize, y=score, group=partition, color=partition))
         plot_labels = setLabels(assignedPartitions)
         partition_sizes = assignedPartitions[, .N, by=partition]
         plot_labels[, label:=sprintf(" %s:%s", plot_labels$partition,
@@ -590,7 +600,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
     p = p +
         geom_line(size=1, alpha=0.5) +
         labs(x="Number of bases",
-             y="Cumulative proportion") +
+             y="Cumulative enrichment") +
         scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
               labels = scales::trans_format("log10",
                                             scales::math_format(10^.x))) +
