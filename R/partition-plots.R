@@ -525,8 +525,8 @@ setLabels = function(assignedPartitions) {
     }
     partition = assignedPartitions[, partition, by=partition]
     xPos = assignedPartitions[, 0.95*max(log10(cumsize)), by=partition]
-    yPos = assignedPartitions[, max(frif)+0.001, by=partition]
-    val  = assignedPartitions[, sprintf(max(frif),fmt="%#.2f"), by=partition]
+    yPos = assignedPartitions[, max(score)+0.001, by=partition]
+    val  = assignedPartitions[, sprintf(max(score),fmt="%#.2f"), by=partition]
     return(data.table::data.table(partition=partition$partition,
                                   xPos=xPos$V1,
                                   yPos=yPos$V1,
