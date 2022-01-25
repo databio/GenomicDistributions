@@ -10,32 +10,32 @@ queryList = GRangesList(q1=query, q2=querySftd)
 
 # tests
 context("general")
-test_that("calcOpenSignal works", {
-    expect_visible(calcOpenSignal(query, cellMatrix))
-    expect_visible(calcOpenSignal(querySftd, cellMatrix))
+test_that("calcSummarySignal works", {
+    expect_visible(calcSummarySignal(query, cellMatrix))
+    expect_visible(calcSummarySignal(querySftd, cellMatrix))
 })
 
-test_that("calcOpenSignal works with multiple queries", {
-    expect_visible(calcOpenSignal(queryList, cellMatrix))
+test_that("ccalcSummarySignal works with multiple queries", {
+    expect_visible(calcSummarySignal(queryList, cellMatrix))
 })
 
 context("result")
-test_that("calcOpenSignal returns a result of a proper class", {
-    expect_true(is(calcOpenSignal(query, cellMatrix), "list"))
-    expect_true(is(calcOpenSignal(query, cellMatrix)[[1]], "data.table"))
-    expect_true(is(calcOpenSignal(query, cellMatrix)[[2]], "data.frame"))
+test_that("calcSummarySignal returns a result of a proper class", {
+    expect_true(is(calcSummarySignal(query, cellMatrix), "list"))
+    expect_true(is(calcSummarySignal(query, cellMatrix)[[1]], "data.table"))
+    expect_true(is(calcSummarySignal(query, cellMatrix)[[2]], "data.frame"))
 })
 
-test_that("calcOpenSignal returns different results for different queries", {
-    expect_false(identical(calcOpenSignal(query, cellMatrix)[[1]], 
-                           calcOpenSignal(querySftd, cellMatrix)[[1]]))
+test_that("calcSummarySignal returns different results for different queries", {
+    expect_false(identical(calcSummarySignal(query, cellMatrix)[[1]], 
+                           calcSummarySignal(querySftd, cellMatrix)[[1]]))
 })
 
-test_that("calcOpenSignal combines results from multi-query runs", {
+test_that("calcSummarySignal combines results from multi-query runs", {
     ql = GRangesList(q1=query, q2=query)
-    expect_true(NROW(calcOpenSignal(query, cellMatrix)[[1]])*2 == 
-                    NROW(calcOpenSignal(ql, cellMatrix)[[1]]))
-    expect_true(NROW(calcOpenSignal(query, cellMatrix)[[2]])*2 == 
-                  NROW(calcOpenSignal(ql, cellMatrix)[[2]]))
+    expect_true(NROW(calcSummarySignal(query, cellMatrix)[[1]])*2 == 
+                    NROW(calcSummarySignal(ql, cellMatrix)[[1]]))
+    expect_true(NROW(calcSummarySignal(query, cellMatrix)[[2]])*2 == 
+                  NROW(calcSummarySignal(ql, cellMatrix)[[2]]))
 })
 

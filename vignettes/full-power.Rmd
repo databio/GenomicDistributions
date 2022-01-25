@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2021-08-28"
+date: "2022-01-20"
 output: 
   html_document:
     theme: sandstone
@@ -59,9 +59,10 @@ datasetList
 ```
 
 ```
-##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"      "chromSizes_hg19"      
-##  [7] "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
-## [13] "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38" "openSignalMatrix_mm10"
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"     
+##  [6] "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"      
+## [11] "geneModels_hg38"       "geneModels_mm10"       "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38"
+## [16] "openSignalMatrix_mm10"
 ```
 
 With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
@@ -285,28 +286,32 @@ plotChromBins(chromBins[!grepl("_", chr, fixed=TRUE),])
 ```
 
 ```
-## Warning: Removed 4203 rows containing missing values (geom_bar).
+## Warning: Removed 3890 rows containing missing values (geom_bar).
 ```
 
 ![plot of chunk chrom-bin-plot](figures-full-power/chrom-bin-plot-1.png)
 
-## Open chromatin signal specificity
+## Signal in regions - open chromatin signal specificity
 
-Next, we'll explore the chromatin accessibility by cell type. Using the `calcOpenSignal` function requires an open signal matrix that is included with `GenomicDistributionsData`. Now, you just need to load in into the workspace, like this:
+Next, we'll explore the chromatin accessibility by cell type. Using the `calcSummarySignal` function requires an open signal matrix that is included with `GenomicDistributionsData`. The matrices are available for hg19 (openSignalMatrix_hg19), hg38 (openSignalMatrix_hg38) and mm10 (openSignalMatrix_mm10). We further include metadata for these matrices in `GenomicDistributions` that assign cell type to the tissue of origin for coloring purposes (inlcuding metadata for plotting is optional). Now, you just need to load in into the workspace, like this:
 
 
 
 ```r
 library(GenomicDistributionsData)
 data(openSignalMatrix_hg38)
-op = calcOpenSignal(queryList, openSignalMatrix_hg38)
-opp = plotOpenSignal(op)
+op = calcSummarySignal(queryList, openSignalMatrix_hg38)
+# get cell type metadata from GenomicDistributions
+cellTypeMetadata = cellTypeMetadata
+opp = plotSummarySignal(op, metadata = cellTypeMetadata, colorColumn = "tissueType")
 opp
 ```
 
 ![plot of chunk open-signal](figures-full-power/open-signal-1.png)
 
 As expected, the active marks have greater overall signal. We also see some specificity, with regions derived from blood cells showing more openness in blood cell types.
+
+This type of plot is not restricted to open chromatin signal from different cell types. You can plot any kind of signal from different conditions, as long as you provide your own signal matrix to the `calcSummarySignal` function.
 
 # Neighbor distance
 

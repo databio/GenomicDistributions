@@ -17,7 +17,7 @@
 # @return A vector of genomic distances for each query region relative to its 
 #         closest feature.
 calcFeatureDistBioc = function(query, features) {
-    .validateInputs(list(query=x("GRangesList","GRanges")))
+    .validateInputs(list(query=c("GRangesList","GRanges")))
     if (is(query, "GRangesList")) {
         # Recurse over each GRanges object
         x = lapply(query, calcFeatureDist, features)
@@ -244,7 +244,7 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
         geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
         geom_point(aes(x=midx, y=0), color="tan2", size=2, 
                    shape=17, alpha=0.8) +
-        guides(fill=FALSE) + # remove legend for geom_point
+        guides(fill="none") + # remove legend for geom_point
         theme_classic() + 
         theme(aspect.ratio=1) + 
         theme_blank_facet_label() + 
@@ -337,6 +337,7 @@ cutDists = function(dists, divisions=NULL, nbins=50,
     labels = labelCuts(sort(divisions), collapse=" to ", infBins=infBins)
     cuts = cut(dists, divisions, labels)
     df = as.data.frame(table(cuts))
+    setDT(df)
     return(df)
 }
 

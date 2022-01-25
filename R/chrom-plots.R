@@ -174,10 +174,9 @@ calcChromBins = function(query, bins) {
 #' @param binCount Number of bins to divide the chromosomes into
 #' @return A data.table showing the distribution of regions across bins of the
 #' reference genome.
-#' @export
 #' @examples 
 #' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
-calcChromBinsRef = function(query, refAssembly, binCount=10000) {
+calcChromBinsRefSlow = function(query, refAssembly, binCount=3000) {
     .validateInputs(list(refAssembly="character", 
                            query=c("GRanges","GRangesList")))
     # Bin the genome
@@ -189,6 +188,56 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
     return(calcChromBins(query, genomeBins))
 }
 
+
+#' Returns the distribution of query over a reference assembly
+
+#' Given a query set of elements (a GRanges object) and a reference assembly
+#' (*e.g. 'hg38'), this will aggregate and count the distribution of the query
+#' elements across bins of the reference genome. This is a helper function to
+#' create features for common genomes. It is a wrapper of
+#' \code{calcChromBins}, which is more general.
+
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector that will be used to grab chromosome
+#'     sizes with \code{getChromSizes}
+#' @param binCount Number of bins to divide the chromosomes into
+#' @return A data.table showing the distribution of regions across bins of the
+#' reference genome.
+#' @export
+#' @examples 
+#' ChromBins = calcChromBinsRef(vistaEnhancers, "hg19")
+calcChromBinsRef = function(query, refAssembly, binCount=3000) {
+   .validateInputs(list(refAssembly="character",
+                           query=c("GRanges","GRangesList")))
+    if (is(query, "GRangesList"))  {
+        # Recurse over each GRanges object
+        x = lapply(query, calcChromBinsRef, refAssembly)
+        # To accommodate multiple regions, we'll need to introduce a new 'name'
+        # column to distinguish them.
+        nameList = names(query)
+       if(is.null(nameList)) {
+            nameList = seq_along(query) # Fallback to sequential numbers
+        }
+        # Append names
+        xb = rbindlist(x)
+        xb$name = rep(nameList, vapply(x, nrow, integer(1)))
+        return(xb)
+    }        
+   # Bin the genome
+    chromSizes = getChromSizes(refAssembly)
+    binnedDT = binChroms(binCount, chromSizes)
+    queryDT = grToDt(query)
+    setnames(binnedDT, "idCol", "chr")
+    queryDT[, midpoint:=start + (end-start)]
+    # Here I use a non-equi join to get the overlaps
+    res = binnedDT[queryDT, .(chr, regionID=ubinID, withinGroupID=x.binID, start=x.start, end=x.end), 
+                    on=.(chr, start<=midpoint, end>=midpoint), nomatch=0L][, list(.N), by=list(chr, start, end, regionID, withinGroupID)][order(regionID),]
+    res[, chr:=factor(chr, levels=unique(res$chr))]
+    return(res)
+}
+
+
+
 #' Plot distribution over chromosomes
 #' 
 #' Plots result from \code{genomicDistribution} calculation
@@ -196,6 +245,7 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 #' @param binCount Number of bins (should match the call to
 #'     \code{genomicDistribution})
 #' @param plotTitle Title for plot.
+#' @param ylim Limit of y-axes. Default "max" sets limit to N of biggest bin.
 #' @return A ggplot object showing the distribution of the query 
 #'     regions over bins of
 #' the reference genome.
@@ -206,7 +256,7 @@ calcChromBinsRef = function(query, refAssembly, binCount=10000) {
 #' ChromBins = plotChromBins(agg)
 #' 
 plotChromBins = function(genomeAggregate, binCount=10000, 
-                           plotTitle="Distribution over chromosomes") {
+                           plotTitle="Distribution over chromosomes", ylim="max") {
     .validateInputs(list(genomeAggregate=c("data.table","data.frame")))
     
     if ("name" %in% names(genomeAggregate)){
@@ -231,8 +281,13 @@ plotChromBins = function(genomeAggregate, binCount=10000,
         theme(panel.spacing=unit(0, "lines")) + # Reduce whitespace
         theme(strip.text.y=element_text(size=12, angle=0)) + # Rotate labels
         geom_hline(yintercept=0, color="#EEEEEE") + # Light chrom lines
-        scale_y_continuous(breaks=c(max(genomeAggregate$N)), 
-                            limits=c(0, max(genomeAggregate$N))) +
+        {if (ylim == "max") {
+            scale_y_continuous(breaks = c(max(genomeAggregate$N)),
+                               limits = c(0, max(genomeAggregate$N)))
+        } else {
+            scale_y_continuous(breaks = ylim,
+                               limits = c(0, ylim))
+        }} +
     scale_x_continuous(breaks=c(0, binCount), labels=c("Start", "End")) +
     theme(plot.title=element_text(hjust=0.5)) + # Center title
     ggtitle(plotTitle) +

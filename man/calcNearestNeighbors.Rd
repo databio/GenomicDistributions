@@ -11,7 +11,7 @@ calcNearestNeighbors(query, correctRef = "None")
 \arguments{
 \item{query}{A GRanges or GRangesList object.}
 
-\item{correctedRef}{A string indicating the reference genome
+\item{correctRef}{A string indicating the reference genome
 to use if Nearest neighbor distances are corrected for the 
 number of regions in a regionSet.}
 }
