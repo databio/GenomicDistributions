@@ -453,10 +453,6 @@ calcCumulativePartitions = function(query, partitionList,
                                   cumsize=as.numeric(),
                                   frif=as.numeric())
     for (pi in seq_along(partitionList)) {
-<<<<<<< Updated upstream
-=======
-        # message(partitionNames[pi],":")
->>>>>>> Stashed changes
         # Find overlaps
         hits  = suppressWarnings(GenomicRanges::findOverlaps(query, partitionList[[pi]]))
         olap  = suppressWarnings(IRanges::pintersect(query[queryHits(hits)],
@@ -479,17 +475,11 @@ calcCumulativePartitions = function(query, partitionList,
         x = data.table::data.table(partition=partitionNames[pi],
                                 size=if (h!=0) size=hits$size else size=0,
                                 count=if (h!=0) count=hits$count else count=0)
-<<<<<<< Updated upstream
-        x = x[order(x$count, x$size, decreasing = TRUE),]
-=======
         x = x[order(x$count, x$size, decreasing=TRUE),]
->>>>>>> Stashed changes
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
         x$frif    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
-        # x$frif2    = x$cumsum/sum(width(partitionList[[pi]])) 
         frif = rbind(frif, x)
-    message(query_total, " " ,sum(width(partitionList[[pi]])))
     }
     # Create remainder...
     #message(remainder,":")
@@ -500,9 +490,7 @@ calcCumulativePartitions = function(query, partitionList,
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
     x$cumsize = cumsum(x$size)
-    # x$frif    = x$cumsum/(query_total+sum(width(partitionList[[pi]])))
     x$frif    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[pi]]))/x$cumsum))/2)
-    # x$frif2    = x$cumsum/sum(width(partitionList[[pi]]))
     return(rbind(frif, x))
 }
 
