@@ -1,3 +1,20 @@
+.directionalDistanceToNearest = function(x, y) {
+  # get distance to upsream and downstream
+  # with proper sign
+  distToUpstream = -1 * distance(x, y[precede(query, y)])
+  distToDownstream = distance(x, y[follow(query, y)])
+  
+  # calculate absolute distance and find nearest
+  nearestDist = pmin(abs(distToUpstream), abs(distToDownstream))
+  
+  # coerce upstream back to negative by
+  # finding where the upstream distance was
+  # chosen and force it back to negative
+  nearestDist[nearestDist == abs(distToUpstream)] = -1 * nearestDist[nearestDist == abs(distToUpstream)]
+  
+  return(nearestDist)
+}
+
 #' Given a query and set of annotations, this function will calculate
 #' the nearest annotation to each region in the region set, as well
 #' as the nearest gene type and the distance to the nearest gene.
@@ -48,6 +65,9 @@ calcNearestGenes =  function(query, annotations, gene_name_key="gene_id", gene_t
   
   # annotate on the distance as well
   query$nearest_distance = distance(query, annotations[nearestIds])
+  
+  # test directional distance
+  query$TEST_nearest_distance = .directionalDistanceToNearest(query, annotations[nearestIds])
   
   # dump a query to a data table and return
   dt = grToDt(query)
