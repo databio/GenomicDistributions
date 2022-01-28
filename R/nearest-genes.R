@@ -1,3 +1,12 @@
+#' Returns the distance for each range in x to its nearest neighbor 
+#' in y with directionality. That is, if the nearest neighbor is 
+#' upstream, it is denoted with a negative distance. Likewise, 
+#' downstream distances are reported as positive.
+#'
+#' @param x A GRanges object
+#' @param y A Granges object
+#' 
+#' @return A vector of nearest distances with directionality
 .directionalDistanceToNearest = function(x, y) {
   # get distance to upsream and downstream
   # with proper sign
@@ -64,13 +73,34 @@ calcNearestGenes =  function(query, annotations, gene_name_key="gene_id", gene_t
   query$nearest_gene_type = mcols(nearestGenes)[[gene_type_key]]
   
   # annotate on the distance as well
-  query$nearest_distance = distance(query, annotations[nearestIds])
-  
-  # test directional distance
-  query$TEST_nearest_distance = .directionalDistanceToNearest(query, annotations[nearestIds])
+  query$nearest_distance = .directionalDistanceToNearest(query, annotations[nearestIds])
   
   # dump a query to a data table and return
   dt = grToDt(query)
   
   return(dt)
+}
+
+#' Given a query and reference assembly, this function will calculate
+#' the nearest TSS to each region in the region set, as well
+#' as the nearest gene type and the distance to the nearest gene.
+#'
+#' It is a wrapper around \code{calcFeatureDist} that uses built-in TSS 
+#' features for a reference assembly.
+#' 
+#' @param query A GenomicRanges or GenomicRangesList object with query regions
+#' @param refAssembly A character vector specifying the reference genome
+#'     assembly (*e.g.* 'hg19').
+#'     
+#' @return A data table that contains observations for each genomic region
+#'         and the associated aforementioned TSSs.
+#' @export
+#' @examples 
+#' queryFile = system.file("extdata", "vistaEnhancers.bed.gz", package="GenomicDistributions")
+#' query = rtracklayer::import(queryFile)
+#' 
+#' queryAnnotated = calcNearestGenesRef(query, "hg19")
+calcNearestGenestRef = function(query, refAssembly) {
+  features = getTSSs(refAssembly)
+  return(calcNearestGenes(query, features))
 }
