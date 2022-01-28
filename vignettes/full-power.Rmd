@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2022-01-20"
+date: "2022-01-27"
 output: 
   html_document:
     theme: sandstone
@@ -40,7 +40,25 @@ Here we'll load up the libraries needed for this vignette:
 
 ```r
 library(biomaRt)
+```
+
+```
+## Warning: package 'biomaRt' was built under R version 4.0.3
+```
+
+```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 4.0.2
+```
+
+```
+## Warning in (function (kind = NULL, normal.kind = NULL, sample.kind = NULL) : non-uniform 'Rounding' sampler used
+```
+
+```r
 library(GenomeInfoDb)
 library(GenomicDistributions)
 library(GenomicDistributionsData)
@@ -143,6 +161,29 @@ Let's see what happens when we calculate distances to *genes*, instead of to *TS
 
 ```r
 library(EnsDb.Hsapiens.v86)
+```
+
+```
+## Warning: package 'ensembldb' was built under R version 4.0.5
+```
+
+```
+## Warning: package 'GenomicFeatures' was built under R version 4.0.4
+```
+
+```
+## Warning: package 'AnnotationDbi' was built under R version 4.0.3
+```
+
+```
+## Warning: package 'Biobase' was built under R version 4.0.3
+```
+
+```
+## Warning: package 'AnnotationFilter' was built under R version 4.0.3
+```
+
+```r
 annoData = ensembldb::genes(EnsDb.Hsapiens.v86)
 seqlevels(annoData) = paste0("chr", seqlevels(annoData)) # Change from ensembl-style chrom annotation to UCSC_style
 TSSdist = calcFeatureDist(queryList, annoData)
@@ -261,7 +302,7 @@ p + facet_wrap(. ~name, nrow=3)
 
 ![plot of chunk cumulative-partitions](figures-full-power/cumulative-partitions-1.png)
 
-These plots are similar to the above plots, but add in information about how many bases are covered by each partition.
+In these plots th y-axis indicates how much is a region set enriched in a given partition and the x-axis brings an additional information about the overall coverage of the partitions by the region set.
 
 Again, we can also plot these with the enhancers included.
 

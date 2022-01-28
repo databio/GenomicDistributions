@@ -2,8 +2,8 @@
 All notable changes to this project will be documented in this file. Here we
 will document changes to major new releases only (not point releases).
 
-## [1.3.3] -- 2022-01-25
-  - Updated cumulative distribution feature overlap plots - now using geometric mean
+## [1.3.3] -- 2022-01-27
+  - Updated cumulative distribution feature overlap plots and description
 
 ## [1.3.2] -- 2022-01-20
   - Bioconductor released new version
