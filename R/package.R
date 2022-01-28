@@ -66,7 +66,7 @@ if(getRversion() >= "2.15.1") {
         "i.start", "minEnd", "i.end", "overlap", "gene_biotype", "dinucleotide",
         "frequency", "L1", "V4", "colName", "i", "j", ".x", "lowerColorColumn",
         "midpoint", "ubinID", "x.binID", "x.start", "x.end", "FreqPercent",
-        "Chi.square.pval"))
+        "Chi.square.pval", "score"))
 }
 
 

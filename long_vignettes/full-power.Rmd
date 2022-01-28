@@ -225,7 +225,7 @@ p = plotCumulativePartitions(cp2)
 p + facet_wrap(. ~name, nrow=3)
 ```
 
-These plots are similar to the above plots, but add in information about how many bases are covered by each partition.
+In these plots th y-axis indicates how much is a region set enriched in a given partition and the x-axis brings an additional information about the overall coverage of the partitions by the region set.
 
 Again, we can also plot these with the enhancers included.
 

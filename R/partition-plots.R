@@ -446,56 +446,62 @@ calcCumulativePartitions = function(query, partitionList,
     partitionNames = names(partitionList)
     # Need total number of bases (not regions)
     query_total = sum(width(query))
-    frif = data.table::data.table(partition=as.character(),
+    result = data.table::data.table(partition=as.character(),
                                   size=as.numeric(),
                                   count=as.numeric(),
                                   cumsum=as.numeric(),
                                   cumsize=as.numeric(),
-                                  frif=as.numeric())
-    for (pi in seq_along(partitionList)) {
-        #message(partitionNames[pi],":")
+                                  frif=as.numeric(),
+                                  ffir=as.numeric(),
+                                  score=as.numeric())
+    for (parti in seq_along(partitionList)) {
         # Find overlaps
-        hits  = suppressWarnings(findOverlaps(query, partitionList[[pi]]))
-        olap  = suppressWarnings(pintersect(query[queryHits(hits)],
-                                 partitionList[[pi]][subjectHits(hits)]))
-        polap = width(olap) / width(partitionList[[pi]][subjectHits(hits)])
+        hits  = suppressWarnings(GenomicRanges::findOverlaps(query, partitionList[[parti]]))
+        olap  = suppressWarnings(IRanges::pintersect(query[queryHits(hits)],
+                                 partitionList[[parti]][subjectHits(hits)]))
+        polap = width(olap) / width(partitionList[[parti]][subjectHits(hits)])
         hits  = data.table::data.table(xid=queryHits(hits),
                                        yid=subjectHits(hits),
                                        polap=polap)
         # Grab hits
-        pHits = partitionList[[pi]][hits$yid]
+        pHits = partitionList[[parti]][hits$yid]
         hits[, size:=width(pHits)]
         # Sum the weighted count column (polap*region size)
         hits[, count:= sum(polap*size), by=yid]
         h = nrow(hits)
-        #message("\tfound ", h)
-
-
         # Make mutually exclusive; remove hits from query
         query = query[-hits$xid]
         # Isolate hits
         hits = unique(hits, by="yid")
         # Link to positional data for feature of interest
-        x = data.table::data.table(partition=partitionNames[pi],
+        x = data.table::data.table(partition=partitionNames[parti],
                                 size=if (h!=0) size=hits$size else size=0,
                                 count=if (h!=0) count=hits$count else count=0)
-        x = x[order(x$count, x$size),]
+        x = x[order(x$count, x$size, decreasing=TRUE),]
         x$cumsum  = cumsum(x$count)
         x$cumsize = cumsum(x$size)
-        x$frif    = x$cumsum/query_total
-        frif = rbind(frif, x)
+        x$frif = x$cumsum/query_total  # original
+        x$ffir = x$cumsum/sum(width(partitionList[[parti]]))
+        x$score = sqrt(x$frif * x$ffir)
+        # x$score  = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[parti]]))/x$cumsum))/2)
+        result = rbind(result, x)
     }
     # Create remainder...
     #message(remainder,":")
     x = data.table::data.table(partition=remainder,
                                size=as.numeric(width(query)))
     #message("\tfound ", length(query))
-    x = x[order(x$size),]
+    x = x[order(x$size, decreasing=TRUE),]
     x$count   = x$size
     x$cumsum  = cumsum(x$count)
     x$cumsize = cumsum(x$size)
-    x$frif    = x$cumsum/query_total
-    return(rbind(frif, x))
+    # harmonic mean:
+    # x$score    = 1/(((query_total/x$cumsum) + (sum(width(partitionList[[parti]]))/x$cumsum))/2)
+    # geometric mean:
+	x$frif = x$cumsum/query_total  # original
+	x$ffir = x$cumsum/sum(width(partitionList[[parti]]))
+	x$score = sqrt(x$frif * x$ffir)
+    return(rbind(result, x))
 }
 
 
@@ -519,8 +525,8 @@ setLabels = function(assignedPartitions) {
     }
     partition = assignedPartitions[, partition, by=partition]
     xPos = assignedPartitions[, 0.95*max(log10(cumsize)), by=partition]
-    yPos = assignedPartitions[, max(frif)+0.001, by=partition]
-    val  = assignedPartitions[, sprintf(max(frif),fmt="%#.2f"), by=partition]
+    yPos = assignedPartitions[, max(score)+0.001, by=partition]
+    val  = assignedPartitions[, sprintf(max(score),fmt="%#.3f"), by=partition]
     return(data.table::data.table(partition=partition$partition,
                                   xPos=xPos$V1,
                                   yPos=yPos$V1,
@@ -550,7 +556,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
                                  "#CAB2D6", "#57069E", "#F0FC03", "#B15928"))
     if ("name" %in% names(assignedPartitions)){
         # It has multiple regions
-        p = ggplot(assignedPartitions, aes(x=log10(cumsize), y=frif,
+        p = ggplot(assignedPartitions, aes(x=cumsize, y=score,
                    group=partition, color=partition)) +
             facet_wrap(. ~name)
         plot_labels = setLabels(splitDataTable(assignedPartitions, "name"))
@@ -561,7 +567,7 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
                             , by = name]
     } else {
         p = ggplot(assignedPartitions,
-               aes(x=log10(cumsize), y=frif, group=partition, color=partition))
+               aes(x=cumsize, y=score, group=partition, color=partition))
         plot_labels = setLabels(assignedPartitions)
         partition_sizes = assignedPartitions[, .N, by=partition]
         plot_labels[, label:=sprintf(" %s:%s", plot_labels$partition,
@@ -575,12 +581,14 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
             plot_labels[,partition:=feature_names]
             assignedPartitions[,partition:=rep(feature_names,
                                each=partition_sizes$num_feats)]
+            label = plot_labels[, list(label = paste(label, collapse="\n"))]
         } else {
             if (!"partition" %in% colnames(plot_labels)) {
                 plot_labels[,partition:=seq_len(nrow(partition_sizes))]
                 assignedPartitions[,
                     partition:=rep(seq_len(nrow(partition_sizes)),
                                    partition_sizes$num_feats)]
+                label = plot_labels[, list(label = paste(label, collapse="\n"))]
             }
         }
     } else {
@@ -588,16 +596,22 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
             plot_labels[,partition:=seq_len(nrow(partition_sizes))]
             assignedPartitions[,partition:=rep(seq_len(nrow(partition_sizes)),
                                partition_sizes$num_feats)]
+            label = plot_labels[, list(label = paste(label, collapse="\n"))]
         }
     }
 
     p = p +
-        geom_line(size=2, alpha=0.5) +
-        labs(x=expression(log[10]("number of bases")),
-             y="Cumulative distribution across genomic partitions") +
+        geom_line(size=1, alpha=0.5) +
+        labs(x="Number of bases",
+             y="Cumulative enrichment") +
+        scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+              labels = scales::trans_format("log10",
+                                            scales::math_format(10^.x))) +
+        annotation_logticks(base = 10, outside = TRUE) +
+        coord_cartesian(clip = "off") +
         theme_classic() +
         theme(axis.line = element_line(size = 0.5),
-              axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
+              axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=-0.5),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
               strip.background = element_blank(),
@@ -616,8 +630,9 @@ plotCumulativePartitions = function(assignedPartitions, feature_names=NULL) {
 
     # Add label text
     p = p +
-        geom_text(data=label, mapping=aes(x=-Inf, y=Inf, label=label),
-        hjust="inward", vjust=1.05, inherit.aes=FALSE)
+        geom_text(data=label, size = 0.7*p$theme$text$size/.pt, 
+                  mapping=aes(x=1, y=Inf, label=label),
+                  hjust="inward", vjust=1.05, inherit.aes=FALSE)
 
     if (!exists("p")) {
         p = ggplot()
