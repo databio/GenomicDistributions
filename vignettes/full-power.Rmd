@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2022-02-16"
+date: "2022-02-17"
 output: 
   html_document:
     theme: sandstone
