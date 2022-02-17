@@ -8,7 +8,8 @@ getGeneModelsFromGTF(
   source,
   features,
   convertEnsemblUCSC = FALSE,
-  destDir = NULL
+  destDir = NULL,
+  filterProteinCoding = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ chromosome annotation should be changed to UCSC style}
 
 \item{destDir}{a string that indicates the path to the directory where
 the downloaded GTF file should be stored}
+
+\item{filterProteinCoding}{a logical indicating if TSSs should be only
+protein-coding genes (default = TRUE)}
 }
 \value{
 a list of GRanges objects
