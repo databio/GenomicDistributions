@@ -81,6 +81,8 @@ getTssFromGTF = function(source, convertEnsemblUCSC=FALSE, destDir=NULL,
 #'        include in the result list
 #' @param convertEnsemblUCSC a logical indicating whether Ensembl style 
 #'        chromosome annotation should be changed to UCSC style
+#' @param filterProteinCoding a logical indicating if TSSs should be only
+#'        protein-coding genes (default = TRUE)
 #'
 #' @return a list of GRanges objects
 #'
@@ -96,10 +98,17 @@ getTssFromGTF = function(source, convertEnsemblUCSC=FALSE, destDir=NULL,
 getGeneModelsFromGTF = function(source,
                                  features,
                                  convertEnsemblUCSC = FALSE,
-                                 destDir = NULL) {
+                                 destDir = NULL,
+                                 filterProteinCoding=TRUE) {
   GtfDf = as.data.frame(rtracklayer::import(retrieveFile(source, destDir)))
-  subsetGtfDf = GtfDf %>%
-    filter(gene_biotype == "protein_coding")
+  
+  if (filterProteinCoding) {
+    subsetGtfDf = GtfDf %>%
+      dplyr::filter(gene_biotype == "protein_coding")
+  } else {
+    subsetGtfDf = GtfDf
+  }
+  
   retList = list()
   message("Extracting features: ", paste(features, collapse = ", "))
   for (feat in features) {
