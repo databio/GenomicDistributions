@@ -692,7 +692,7 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL,
     }
 
     p = p +
-        geom_bar(stat="identity", position="dodge") +
+        geom_bar(stat="identity", position="dodge", width=0.5) +
         geom_hline(aes(yintercept=0), linetype="dotted") +
         xlab('') +
         ylab(expression(log[10](over(Obs, Exp)))) +
@@ -718,8 +718,8 @@ plotExpectedPartitions = function(expectedPartitions, feature_names=NULL,
                   aes(label=ifelse(Chi.square.pval < 0.001, "***", 
                                    ifelse(Chi.square.pval >= 0.001 & Chi.square.pval < 0.01, "**",
                                           ifelse(Chi.square.pval >= 0.01 & Chi.square.pval < 0.05, "*", "n.s")))),
-                  position = position_dodge(width = 1),
-                  size=2, 
+                  position = position_dodge(width = 0.5),
+                  size=2.5, 
                   hjust=ifelse(expectedPartitions$log10OE>0, -0.4, 1.1),
                   angle=0)
 
@@ -818,7 +818,7 @@ plotPartitions = function(assignedPartitions, numbers=FALSE, stacked=FALSE) {
       }
 
       g = g +
-        geom_bar(stat="identity", position=position_dodge()) +
+        geom_bar(stat="identity", position=position_dodge(), width=0.5) +
         theme_blank_facet_label() + # No boxes around labels
         xlab("Genomic partition") +
         ylab(ifelse(numbers & "bpOverlap" %in% colnames(assignedPartitions),
