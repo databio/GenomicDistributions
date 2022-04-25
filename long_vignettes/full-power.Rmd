@@ -253,7 +253,7 @@ Next, we'll explore the chromatin accessibility by cell type. Using the `calcSum
 ```{r open-signal, fig.height=12}
 
 library(GenomicDistributionsData)
-data(openSignalMatrix_hg38)
+openSignalMatrix_hg38 = openSignalMatrix_hg38()
 op = calcSummarySignal(queryList, openSignalMatrix_hg38)
 # get cell type metadata from GenomicDistributions
 cellTypeMetadata = cellTypeMetadata
