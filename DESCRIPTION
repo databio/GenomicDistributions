@@ -1,6 +1,6 @@
 Package: GenomicDistributions
 
-Version: 1.4.0
+Version: 1.5.0
 Date: 2022-04-25
 
 Title: GenomicDistributions: fast analysis of genomic intervals with Bioconductor
