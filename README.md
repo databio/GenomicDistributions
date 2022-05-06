@@ -38,3 +38,7 @@ See the vignettes for more information: http://code.databio.org/GenomicDistribut
 ## Building long vignettes
 
 In the [long_vignettes](/long_vignettes) are vignettes that require large external data and take a long time to run. Therefore, they should be pre-built. You can render them manually by running [long_vignettes/render-long-vignettes.R](long_vignettes/render-long-vignettes.R). This will use `knitr` to run the vignette and put the result into the `vignettes` folder, along with output figures.
+
+**Cite GenomicDistributions:**
+
+Kupkova, K., Mosquera, J.V., Smith, J.P., Stolarczyk M, Danehy T., Lawson J.T., Rogers S., LeRoy N., Sheffield N.C. GenomicDistributions: fast analysis of genomic intervals with Bioconductor. *BMC Genomics* 23, 299 (2022). https://doi.org/10.1186/s12864-022-08467-y
