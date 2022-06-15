@@ -189,7 +189,7 @@ signalMatrixToOpenRegions = function(signalMatrix){
   
   if(ncol(openRegions) > 3){
     openRegions = openRegions[is.na(V4),]
-    openRegions = openRegions[,seq(1,3)]
+    openRegions = openRegions[,c(1,2,3)]
   }
   
   setnames(openRegions, c("chr", "start", "end"))
