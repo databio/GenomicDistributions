@@ -112,13 +112,11 @@ getGeneModelsFromGTF = function(source,
   retList = list()
   message("Extracting features: ", paste(features, collapse = ", "))
   for (feat in features) {
-    featGR = unique(GenomeInfoDb::keepStandardChromosomes(reduce(
+    featGR = unique(GenomeInfoDb::keepStandardChromosomes(
       GenomicRanges::makeGRangesFromDataFrame(
         subsetGtfDf %>% filter(type == feat),
         keep.extra.columns = TRUE
-      )
-    ),
-    pruning.mode = "coarse"))
+      ), pruning.mode = "coarse"))
     # change from Ensembl style chromosome annotation to UCSC style
     if (convertEnsemblUCSC)
       seqlevels(featGR) =  paste0("chr", seqlevels(featGR))
