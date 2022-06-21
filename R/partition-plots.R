@@ -135,15 +135,38 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
     # subtract overlaps (promoterCore lies within PromoterProx)
     promoterProx = GenomicRanges::setdiff(promProx, promCore)
 
-    # remove any possible overlaps between classes
-    fiveUTRGR = GenomicRanges::setdiff(fiveUTRGR, threeUTRGR)
-    exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
-    exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
-
-    #   introns = gene - (5'UTR, 3'UTR, exons)
-    nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
-    nonThreeFive = GenomicRanges::setdiff(nonThree, fiveUTRGR)
-    intronGR = GenomicRanges::setdiff(nonThreeFive, exonsGR)
+    if(!is.null(threeUTRGR) & !is.null(fiveUTRGR)){
+      # we have both 3' and 5' elements
+      fiveUTRGR = GenomicRanges::setdiff(fiveUTRGR, threeUTRGR)
+      exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
+      exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
+      
+      #   introns = gene - (5'UTR, 3'UTR, exons)
+      nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
+      nonThreeFive = GenomicRanges::setdiff(nonThree, fiveUTRGR)
+      intronGR = GenomicRanges::setdiff(nonThreeFive, exonsGR)
+      
+    } else if (is.null(threeUTRGR) & !is.null(fiveUTRGR)){
+      # we have only 5' elements
+      exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
+      
+      #   introns = gene - (5'UTR, exons)
+      nonFive = GenomicRanges::setdiff(genesGR, fiveUTRGR)
+      intronGR = GenomicRanges::setdiff(nonFive, exonsGR)
+      
+    } else if (!is.null(threeUTRGR) & is.null(fiveUTRGR)){
+      # we have only 3' elements
+      exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
+      
+      #   introns = gene - (3'UTR, exons)
+      nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
+      intronGR = GenomicRanges::setdiff(nonThree, exonsGR)
+    } else {
+      # we don't have either 3' or 5' elements
+      
+      #   introns = gene - exons
+      intronGR = GenomicRanges::setdiff(genesGR, exonsGR)
+    }
 
     partitionList = list(promoterCore=promCore,
                          promoterProx=promoterProx,
