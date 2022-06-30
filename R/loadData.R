@@ -73,7 +73,46 @@ loadEnsDb = function(genomeBuild) {
 #' @examples
 #' getChromSizes("hg19")
 getChromSizes = function(refAssembly) {
-    getReferenceData(refAssembly, tagline="chromSizes_")
+  datasetId = paste0("chromSizes_", refAssembly)
+  
+  if (refAssembly == "hg19"){
+    
+    chromSizesDataset = getReferenceData(refAssembly, tagline="chromSizes_")
+    
+  } else if (refAssembly == "hg38"){
+    
+    if (!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      chromSizesDataset = GenomicDistributionsData::chromSizes_hg38()
+    }
+    
+  } else if (refAssembly == "mm10"){
+    
+    if (!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      chromSizesDataset = GenomicDistributionsData::chromSizes_mm10()
+    }
+    
+  } else if (refAssembly == "mm9"){
+    
+    if (!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      chromSizesDataset = GenomicDistributionsData::chromSizes_mm9()
+    }
+    
+  } else {
+    stop(paste(datasetId, "not available in GenomicDistributions package",
+               "or GenomicDistributionsData package,",
+               "please use getChromSizesFromFasta() to get chromosome sizes."))
+  }
+  
+  return(chromSizesDataset)
 }
 
 
@@ -81,7 +120,46 @@ getChromSizes = function(refAssembly) {
 #
 # @param refAssembly A string identifier for the reference assembly
 getTSSs = function(refAssembly) { 
-    getReferenceData(refAssembly, tagline="TSS_")
+  datasetId = paste0("TSS_", refAssembly)
+  
+  if (refAssembly == "hg19"){
+    
+    TSSs = getReferenceData(refAssembly, tagline="TSS_")
+    
+  } else if (refAssembly == "hg38"){
+    
+    if (!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      TSSs = GenomicDistributionsData::TSS_hg38()
+    }
+    
+  } else if (refAssembly == "mm10"){
+    
+    if (!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      TSSs = GenomicDistributionsData::TSS_mm10()
+    }
+    
+  } else if (refAssembly == "mm9"){
+    
+    if(!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      TSSs = GenomicDistributionsData::TSS_mm9()
+    }
+    
+  } else {
+    stop(paste(datasetId, "not available in GenomicDistributions package",
+               "or GenomicDistributionsData package,",
+               "please use getTssFromGTF() to get list of TSSs."))
+  }
+  
+  return(TSSs)
 }
 
 
@@ -96,7 +174,47 @@ getTSSs = function(refAssembly) {
 #' @examples
 #' getGeneModels("hg19")
 getGeneModels = function(refAssembly) { 
-    getReferenceData(refAssembly, tagline="geneModels_")
+  datasetId = paste0("geneModels_", refAssembly)
+  
+  if(refAssembly == "hg19"){
+    
+    geneModelsDataset = getReferenceData(refAssembly, tagline="geneModels_")
+    
+  } else if(refAssembly == "hg38"){
+    
+    if(!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      geneModelsDataset = GenomicDistributionsData::geneModels_hg38()
+    }
+    
+  } else if(refAssembly == "mm10"){
+    
+    if(!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      geneModelsDataset = GenomicDistributionsData::geneModels_mm10()
+    }
+    
+  } else if(refAssembly == "mm9"){
+    
+    if(!"GenomicDistributionsData" %in% utils::installed.packages()){
+      stop(paste(datasetId, "not available in GenomicDistributions package",
+                 "and GenomicDistributionsData package is not installed"))
+    } else {
+      geneModelsDataset = GenomicDistributionsData::geneModels_mm9()
+    }
+    
+  } else {
+    stop(paste(datasetId, "not available in GenomicDistributions package",
+               "or GenomicDistributionsData package,",
+               "please use getGeneModelsFromGTF() to get",
+               "gene models."))
+  }
+  
+  return(geneModelsDataset)
 }
 
 #' Get reference data for a specified assembly
