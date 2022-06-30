@@ -6,16 +6,12 @@
 \usage{
 plotChromBins(
   genomeAggregate,
-  binCount = 10000,
   plotTitle = "Distribution over chromosomes",
   ylim = "max"
 )
 }
 \arguments{
 \item{genomeAggregate}{The output from the genomicDistribution function}
-
-\item{binCount}{Number of bins (should match the call to
-\code{genomicDistribution})}
 
 \item{plotTitle}{Title for plot.}
 

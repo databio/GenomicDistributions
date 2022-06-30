@@ -195,8 +195,8 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
                          by = name]$"Freq.Per"
             df$name = sortingFunction(df, labelOrder, nbins)
             # It has multiple regions
-            g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
-           facet_grid(. ~name)
+            g = ggplot(df, aes(x=cuts, y=Freq, fill=name, color = name)) + 
+            facet_grid(. ~name)
     } else {
         if (!numbers) 
             df$Freq = (df$Freq / sum(df$Freq)) * 100
@@ -239,10 +239,15 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
         scale_x_continuous(breaks=c(1, ncuts), labels=c(minlabel, maxlabel))
         return(g)
     }
-
-    g = g +
-        geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) + 
-        geom_point(aes(x=midx, y=0), color="tan2", size=2, 
+    
+    if ("name" %in% names(df)) {
+      g = g +
+        geom_bar(data=df, stat="identity", alpha=0.7) 
+    } else {
+      g = g +
+        geom_bar(data=df, stat="identity", fill="darkblue", alpha=0.7) 
+    }
+    g = g + geom_point(aes(x=midx, y=0), color="tan2", size=2, 
                    shape=17, alpha=0.8) +
         guides(fill="none") + # remove legend for geom_point
         theme_classic() + 
