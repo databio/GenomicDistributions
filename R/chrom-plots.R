@@ -211,7 +211,7 @@ calcChromBinsRef = function(query, refAssembly, binCount=3000) {
                            query=c("GRanges","GRangesList")))
     if (is(query, "GRangesList"))  {
         # Recurse over each GRanges object
-        x = lapply(query, calcChromBinsRef, refAssembly)
+        x = lapply(query, calcChromBinsRef, refAssembly, binCount)
         # To accommodate multiple regions, we'll need to introduce a new 'name'
         # column to distinguish them.
         nameList = names(query)
