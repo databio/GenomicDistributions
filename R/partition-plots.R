@@ -108,6 +108,14 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #' @param exonsGR a GRanges object of exons coordinates
 #' @param threeUTRGR a GRanges object of 3' UTRs
 #' @param fiveUTRGR a GRanges object of 5' UTRs
+#' @param getCorePromoter option specifying if core promoters should be
+#'                  extracted defeaults to TRUE
+#' @param getProxPromoter option specifying if proximal promoters should be
+#'                  extracted defeaults to TRUE
+#' @param corePromSize size of core promoter (in bp) upstrem from TSS
+#'                  default value = 100
+#' @param corePromSize size of proximal promoter (in bp) upstrem from TSS
+#'                  default value = 2000           
 #' @return A list of GRanges objects, each corresponding to a partition of the
 #'     genome. Partitions include proximal and core promoters, exons and
 #'     introns.
@@ -117,23 +125,41 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #'                                     geneModels_hg19$exonsGR,
 #'                                     geneModels_hg19$threeUTRGR,
 #'                                     geneModels_hg19$fiveUTRGR)
-genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
-                               fiveUTRGR=NULL) {
+genomePartitionList = function(genesGR, exonsGR, 
+                               threeUTRGR=NULL,
+                               fiveUTRGR=NULL, 
+                               getCorePromoter=TRUE, 
+                               getProxProm=TRUE,
+                               corePromSize=100, 
+                               proxPromSize=2000) {
     .validateInputs(list(exonsGR=c("GRanges", "GRangesList"),
                          genesGR="GRanges",
                          threeUTRGR=c("GRanges", "GRangesList", "NULL"),
                          fiveUTRGR=c("GRanges", "GRangesList", "NULL")))
     # Discard warnings (prompted from notifications to trim, which I do)
     withCallingHandlers({
-        promCore = trim(promoters(genesGR, upstream=100, downstream=0))
-        promProx = trim(promoters(genesGR, upstream=2000, downstream=0))
+      if (getCorePromoter){
+        promCore = GenomicRanges::reduce(
+          trim(promoters(genesGR, upstream=corePromSize, downstream=0)))
+      } else {
+        promCore = NULL
+      }
+      
+      if (getProxProm){
+        promProx = GenomicRanges::reduce(
+          trim(promoters(genesGR, upstream=proxPromSize, downstream=0)))
+      } else {
+        promProx = NULL
+      }
     }, warning=function(w) {
         if (startsWith(conditionMessage(w), "GRanges object contains"))
             invokeRestart("muffleWarning")
     })
 
-    # subtract overlaps (promoterCore lies within PromoterProx)
-    promoterProx = GenomicRanges::setdiff(promProx, promCore)
+    if(getCorePromoter & getProxProm) {
+      # subtract overlaps (promoterCore lies within PromoterProx)
+      promoterProx = GenomicRanges::setdiff(promProx, promCore)
+    }
 
     if(!is.null(threeUTRGR) & !is.null(fiveUTRGR)){
       # we have both 3' and 5' elements

@@ -112,11 +112,12 @@ getGeneModelsFromGTF = function(source,
   retList = list()
   message("Extracting features: ", paste(features, collapse = ", "))
   for (feat in features) {
-    featGR = unique(GenomeInfoDb::keepStandardChromosomes(
-      GenomicRanges::makeGRangesFromDataFrame(
-        subsetGtfDf %>% filter(type == feat),
-        keep.extra.columns = TRUE
-      ), pruning.mode = "coarse"))
+    featGR =  GenomicRanges::reduce(
+      unique(GenomeInfoDb::keepStandardChromosomes(
+        GenomicRanges::makeGRangesFromDataFrame(
+          subsetGtfDf %>% filter(type == feat),
+          keep.extra.columns = TRUE), 
+        pruning.mode = "coarse")))
     # change from Ensembl style chromosome annotation to UCSC style
     if (convertEnsemblUCSC)
       seqlevels(featGR) =  paste0("chr", seqlevels(featGR))
@@ -142,7 +143,8 @@ getGeneModelsFromGTF = function(source,
 #'                                    "C_elegans_cropped_example.fa.gz", 
 #'                                    package="GenomicDistributions")
 #' CElegansChromSizes = getChromSizesFromFasta(CElegansFasteCropped)
-getChromSizesFromFasta = function(source, destDir=NULL) {
+getChromSizesFromFasta = function(source, destDir=NULL,
+                                  convertEnsemblUCSC=FALSE) {
   fastaPath = retrieveFile(source, destDir)
   fastaStringSet = readDNAStringSet(fastaPath)
   oriNames = fastaStringSet@ranges@NAMES
@@ -150,6 +152,10 @@ getChromSizesFromFasta = function(source, destDir=NULL) {
     strsplit(x, " ")[[1]][1]
   }, character(1))
   chromSizes = fastaStringSet@ranges@width
-  names(chromSizes) = names
+  if(convertEnsemblUCSC){
+    names(chromSizes) = paste0("chr", names)
+  } else{
+    names(chromSizes) = names
+  }
   chromSizes
 }

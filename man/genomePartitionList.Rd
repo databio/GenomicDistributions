@@ -5,7 +5,16 @@
 \title{Create a basic genome partition list of genes, exons, introns, UTRs, and
 intergenic}
 \usage{
-genomePartitionList(genesGR, exonsGR, threeUTRGR = NULL, fiveUTRGR = NULL)
+genomePartitionList(
+  genesGR,
+  exonsGR,
+  threeUTRGR = NULL,
+  fiveUTRGR = NULL,
+  getCorePromoter = TRUE,
+  getProxProm = TRUE,
+  corePromSize = 100,
+  proxPromSize = 2000
+)
 }
 \arguments{
 \item{genesGR}{a GRanges object of gene coordinates}
@@ -15,6 +24,15 @@ genomePartitionList(genesGR, exonsGR, threeUTRGR = NULL, fiveUTRGR = NULL)
 \item{threeUTRGR}{a GRanges object of 3' UTRs}
 
 \item{fiveUTRGR}{a GRanges object of 5' UTRs}
+
+\item{getCorePromoter}{option specifying if core promoters should be
+extracted defeaults to TRUE}
+
+\item{corePromSize}{size of proximal promoter (in bp) upstrem from TSS
+default value = 2000}
+
+\item{getProxPromoter}{option specifying if proximal promoters should be
+extracted defeaults to TRUE}
 }
 \value{
 A list of GRanges objects, each corresponding to a partition of the

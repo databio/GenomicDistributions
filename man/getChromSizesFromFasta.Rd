@@ -4,7 +4,7 @@
 \alias{getChromSizesFromFasta}
 \title{Get gene models from a remote or local FASTA file}
 \usage{
-getChromSizesFromFasta(source, destDir = NULL)
+getChromSizesFromFasta(source, destDir = NULL, convertEnsemblUCSC = FALSE)
 }
 \arguments{
 \item{source}{a string that is either a path to a
