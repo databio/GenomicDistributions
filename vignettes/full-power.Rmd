@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2022-07-19"
+date: "2022-07-22"
 output: 
   html_document:
     theme: sandstone
@@ -66,9 +66,10 @@ datasetList
 ```
 
 ```
-##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"      "chromSizes_hg19"      
-##  [7] "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"       "geneModels_hg38"       "geneModels_mm10"      
-## [13] "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38" "openSignalMatrix_mm10"
+##  [1] "TSS_hg19"              "TSS_hg38"              "TSS_mm10"              "TSS_mm9"               "cellTypeMetadata"     
+##  [6] "chromSizes_hg19"       "chromSizes_hg38"       "chromSizes_mm10"       "chromSizes_mm9"        "geneModels_hg19"      
+## [11] "geneModels_hg38"       "geneModels_mm10"       "geneModels_mm9"        "openSignalMatrix_hg19" "openSignalMatrix_hg38"
+## [16] "openSignalMatrix_mm10"
 ```
 
 With the package loaded we have access to the required files for more genomes, namely: `hg38`, `hg19`, `mm10`, `mm9`. In this vignette, we'll use "hg38", which will use reference data sets from `GenomicDistributionsData` behind the scenes. 
