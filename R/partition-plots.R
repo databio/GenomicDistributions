@@ -125,84 +125,84 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #'                                     geneModels_hg19$exonsGR,
 #'                                     geneModels_hg19$threeUTRGR,
 #'                                     geneModels_hg19$fiveUTRGR)
-genomePartitionList = function(genesGR, exonsGR, 
-                               threeUTRGR=NULL,
+genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
                                fiveUTRGR=NULL, 
                                getCorePromoter=TRUE, 
                                getProxProm=TRUE,
                                corePromSize=100, 
                                proxPromSize=2000) {
-    .validateInputs(list(exonsGR=c("GRanges", "GRangesList"),
-                         genesGR="GRanges",
-                         threeUTRGR=c("GRanges", "GRangesList", "NULL"),
-                         fiveUTRGR=c("GRanges", "GRangesList", "NULL")))
-    # Discard warnings (prompted from notifications to trim, which I do)
-    withCallingHandlers({
-      if (getCorePromoter){
-        promCore = GenomicRanges::reduce(
-          trim(promoters(genesGR, upstream=corePromSize, downstream=0)))
-      } else {
-        promCore = NULL
-      }
-      
-      if (getProxProm){
-        promProx = GenomicRanges::reduce(
-          trim(promoters(genesGR, upstream=proxPromSize, downstream=0)))
-      } else {
-        promProx = NULL
-      }
-    }, warning=function(w) {
-        if (startsWith(conditionMessage(w), "GRanges object contains"))
-            invokeRestart("muffleWarning")
-    })
-
-    if(getCorePromoter & getProxProm) {
-      # subtract overlaps (promoterCore lies within PromoterProx)
-      promoterProx = GenomicRanges::setdiff(promProx, promCore)
-    }
-
-    if(!is.null(threeUTRGR) & !is.null(fiveUTRGR)){
-      # we have both 3' and 5' elements
-      fiveUTRGR = GenomicRanges::setdiff(fiveUTRGR, threeUTRGR)
-      exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
-      exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
-      
-      #   introns = gene - (5'UTR, 3'UTR, exons)
-      nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
-      nonThreeFive = GenomicRanges::setdiff(nonThree, fiveUTRGR)
-      intronGR = GenomicRanges::setdiff(nonThreeFive, exonsGR)
-      
-    } else if (is.null(threeUTRGR) & !is.null(fiveUTRGR)){
-      # we have only 5' elements
-      exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
-      
-      #   introns = gene - (5'UTR, exons)
-      nonFive = GenomicRanges::setdiff(genesGR, fiveUTRGR)
-      intronGR = GenomicRanges::setdiff(nonFive, exonsGR)
-      
-    } else if (!is.null(threeUTRGR) & is.null(fiveUTRGR)){
-      # we have only 3' elements
-      exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
-      
-      #   introns = gene - (3'UTR, exons)
-      nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
-      intronGR = GenomicRanges::setdiff(nonThree, exonsGR)
+  .validateInputs(list(exonsGR=c("GRanges", "GRangesList"),
+                       genesGR="GRanges",
+                       threeUTRGR=c("GRanges", "GRangesList", "NULL"),
+                       fiveUTRGR=c("GRanges", "GRangesList", "NULL")))
+  # Discard warnings (prompted from notifications to trim, which I do)
+  withCallingHandlers({
+    if (getCorePromoter){
+      promCore = GenomicRanges::reduce(
+        trim(promoters(genesGR, upstream=corePromSize, downstream=0)))
     } else {
-      # we don't have either 3' or 5' elements
-      
-      #   introns = gene - exons
-      intronGR = GenomicRanges::setdiff(genesGR, exonsGR)
+      promCore = NULL
     }
-
-    partitionList = list(promoterCore=promCore,
-                         promoterProx=promoterProx,
-                         threeUTR=threeUTRGR,
-                         fiveUTR=fiveUTRGR,
-                         exon=exonsGR,
-                         intron=intronGR)
-
-
-    return(Filter(Negate(is.null), partitionList))
+    if (getProxProm){
+      promProx = GenomicRanges::reduce(
+        trim(promoters(genesGR, upstream=proxPromSize, downstream=0)))
+    } else {
+      promoterProx = NULL
+    }
+  }, warning=function(w) {
+    if (startsWith(conditionMessage(w), "GRanges object contains"))
+      invokeRestart("muffleWarning")
+  })
+  
+  if(getCorePromoter & getProxProm) {
+    # subtract overlaps (promoterCore lies within PromoterProx)
+    promoterProx = GenomicRanges::setdiff(promProx, promCore)
+  } else if (getProxProm) {
+    promoterProx = promProx
+  }
+  
+  if(!is.null(threeUTRGR) & !is.null(fiveUTRGR)){
+    # we have both 3' and 5' elements
+    fiveUTRGR = GenomicRanges::setdiff(fiveUTRGR, threeUTRGR)
+    exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
+    exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
+    
+    #   introns = gene - (5'UTR, 3'UTR, exons)
+    nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
+    nonThreeFive = GenomicRanges::setdiff(nonThree, fiveUTRGR)
+    intronGR = GenomicRanges::setdiff(nonThreeFive, exonsGR)
+    
+  } else if (is.null(threeUTRGR) & !is.null(fiveUTRGR)){
+    # we have only 5' elements
+    exonsGR = GenomicRanges::setdiff(exonsGR, fiveUTRGR)
+    
+    #   introns = gene - (5'UTR, exons)
+    nonFive = GenomicRanges::setdiff(genesGR, fiveUTRGR)
+    intronGR = GenomicRanges::setdiff(nonFive, exonsGR)
+    
+  } else if (!is.null(threeUTRGR) & is.null(fiveUTRGR)){
+    # we have only 3' elements
+    exonsGR = GenomicRanges::setdiff(exonsGR, threeUTRGR)
+    
+    #   introns = gene - (3'UTR, exons)
+    nonThree = GenomicRanges::setdiff(genesGR, threeUTRGR)
+    intronGR = GenomicRanges::setdiff(nonThree, exonsGR)
+  } else {
+    # we don't have either 3' or 5' elements
+    
+    #   introns = gene - exons
+    intronGR = GenomicRanges::setdiff(genesGR, exonsGR)
+  }
+  
+  partitionList = list(promoterCore=promCore,
+                       promoterProx=promoterProx,
+                       threeUTR=threeUTRGR,
+                       fiveUTR=fiveUTRGR,
+                       exon=exonsGR,
+                       intron=intronGR)
+  
+  
+  return(Filter(Negate(is.null), partitionList))
 }
 
 
