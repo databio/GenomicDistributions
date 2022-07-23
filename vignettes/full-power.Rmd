@@ -1,7 +1,7 @@
 ---
 title: "Full power GenomicDistributions"
 author: "Nathan Sheffield"
-date: "2022-07-22"
+date: "2022-07-23"
 output: 
   html_document:
     theme: sandstone
@@ -40,13 +40,6 @@ Here we'll load up the libraries needed for this vignette:
 
 ```r
 library(biomaRt)
-```
-
-```
-## Warning: package 'biomaRt' was built under R version 4.0.3
-```
-
-```r
 library(ggplot2)
 library(GenomeInfoDb)
 library(GenomicDistributions)
@@ -150,29 +143,6 @@ Let's see what happens when we calculate distances to *genes*, instead of to *TS
 
 ```r
 library(EnsDb.Hsapiens.v86)
-```
-
-```
-## Warning: package 'ensembldb' was built under R version 4.0.5
-```
-
-```
-## Warning: package 'GenomicFeatures' was built under R version 4.0.4
-```
-
-```
-## Warning: package 'AnnotationDbi' was built under R version 4.0.3
-```
-
-```
-## Warning: package 'Biobase' was built under R version 4.0.3
-```
-
-```
-## Warning: package 'AnnotationFilter' was built under R version 4.0.3
-```
-
-```r
 annoData = ensembldb::genes(EnsDb.Hsapiens.v86)
 seqlevels(annoData) = paste0("chr", seqlevels(annoData)) # Change from ensembl-style chrom annotation to UCSC_style
 TSSdist = calcFeatureDist(queryList, annoData)

@@ -114,7 +114,7 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 #'                  extracted defeaults to TRUE
 #' @param corePromSize size of core promoter (in bp) upstrem from TSS
 #'                  default value = 100
-#' @param corePromSize size of proximal promoter (in bp) upstrem from TSS
+#' @param proxPromSize size of proximal promoter (in bp) upstrem from TSS
 #'                  default value = 2000           
 #' @return A list of GRanges objects, each corresponding to a partition of the
 #'     genome. Partitions include proximal and core promoters, exons and
@@ -128,7 +128,7 @@ calcCumulativePartitionsRef = function(query, refAssembly) {
 genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
                                fiveUTRGR=NULL, 
                                getCorePromoter=TRUE, 
-                               getProxProm=TRUE,
+                               getProxPromoter=TRUE,
                                corePromSize=100, 
                                proxPromSize=2000) {
   .validateInputs(list(exonsGR=c("GRanges", "GRangesList"),
@@ -143,7 +143,7 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
     } else {
       promCore = NULL
     }
-    if (getProxProm){
+    if (getProxPromoter){
       promProx = GenomicRanges::reduce(
         trim(promoters(genesGR, upstream=proxPromSize, downstream=0)))
     } else {
@@ -154,10 +154,10 @@ genomePartitionList = function(genesGR, exonsGR, threeUTRGR=NULL,
       invokeRestart("muffleWarning")
   })
   
-  if(getCorePromoter & getProxProm) {
+  if(getCorePromoter & getProxPromoter) {
     # subtract overlaps (promoterCore lies within PromoterProx)
     promoterProx = GenomicRanges::setdiff(promProx, promCore)
-  } else if (getProxProm) {
+  } else if (getProxPromoter) {
     promoterProx = promProx
   }
   

@@ -11,7 +11,7 @@ genomePartitionList(
   threeUTRGR = NULL,
   fiveUTRGR = NULL,
   getCorePromoter = TRUE,
-  getProxProm = TRUE,
+  getProxPromoter = TRUE,
   corePromSize = 100,
   proxPromSize = 2000
 )
@@ -28,11 +28,14 @@ genomePartitionList(
 \item{getCorePromoter}{option specifying if core promoters should be
 extracted defeaults to TRUE}
 
-\item{corePromSize}{size of proximal promoter (in bp) upstrem from TSS
-default value = 2000}
-
 \item{getProxPromoter}{option specifying if proximal promoters should be
 extracted defeaults to TRUE}
+
+\item{corePromSize}{size of core promoter (in bp) upstrem from TSS
+default value = 100}
+
+\item{proxPromSize}{size of proximal promoter (in bp) upstrem from TSS
+default value = 2000}
 }
 \value{
 A list of GRanges objects, each corresponding to a partition of the

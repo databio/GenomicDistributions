@@ -133,7 +133,8 @@ getGeneModelsFromGTF = function(source,
 #'        local or remote FASTA
 #' @param destDir a string that indicates the path to the 
 #'        directory where the downloaded FASTA file should be stored
-#'
+#' @param convertEnsemblUCSC a logical indicating whether Ensembl style 
+#'        chromosome annotation should be changed to UCSC style (add chr)
 #' @return a named vector of sequence lengths
 #' @importFrom Biostrings readDNAStringSet
 #' @export

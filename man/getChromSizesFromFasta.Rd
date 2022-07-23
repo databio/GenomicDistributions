@@ -12,6 +12,9 @@ local or remote FASTA}
 
 \item{destDir}{a string that indicates the path to the 
 directory where the downloaded FASTA file should be stored}
+
+\item{convertEnsemblUCSC}{a logical indicating whether Ensembl style 
+chromosome annotation should be changed to UCSC style (add chr)}
 }
 \value{
 a named vector of sequence lengths
