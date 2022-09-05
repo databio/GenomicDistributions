@@ -1,0 +1,20 @@
+citHeader("To cite the GenomicDistributions package please use:")
+
+citEntry(entry="article",
+         title = "GenomicDistributions: fast analysis of genomic intervals with Bioconductor",
+         author = personList(as.person("Kristyna Kupkova" ),
+           as.person("Jose Verdezoto Mosquera"),
+           as.person("Jason P. Smith" ),
+           as.person("Michal Stolarczyk"), 
+           as.person("Tessa L. Danehy"), 
+           as.person("John T. Lawson"),
+           as.person("Bingjie Xue"),
+           as.person("John T. Stubbs"), 
+           as.person("Nathan LeRoy"), 
+           as.person("Nathan C. Sheffield")),
+         year = 2022,
+         journal = "BMC Genomics",
+         doi = "10.1186/S12864-022-08467-Y",
+         url = "https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-022-08467-y",
+         textVersion =
+             "Kupkova K, Verdezoto Mosquera J, Smith JP, et al. (2022) GenomicDistributions: fast analysis of genomic intervals with Bioconductor. BMC Genomics. doi:10.1186/S12864-022-08467-Y")
