@@ -15,6 +15,8 @@
 #'     First column contains information about the genomic region in 
 #'     following form: chr_start_end. 
 #'     Can be either data.frame or data.table object.
+#' @param openRegions Extracted genomic regions by signalMatrixToOpenRegions.
+#'      It is only calculated for the first bed file.
 #' @return  A list with named components:
 #'            signalSummaryMatrix - data.table with cell specific open chromatin signal
 #'                           values for query regions
@@ -24,61 +26,50 @@
 #' @export
 #' @examples
 #' signalSummaryList = calcSummarySignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
-calcSummarySignal = function(query, signalMatrix){
-  .validateInputs(list(query=c("GRanges","GRangesList")))
+calcSummarySignal = function(query, signalMatrix, openRegions = NULL) {
+  .validateInputs(list(query = c("GRanges", "GRangesList")))
+
+  if (is(query, "GRangesList") && is.null(openRegions)) {
+    openRegions <- signalMatrixToOpenRegions(signalMatrix)
+  }
+
   if (is(query, "GRangesList")) {
-    # Recurse over each GRanges object
-    regionSummaryList = lapply(query, calcSummarySignal, signalMatrix)
+    regionSummaryList = lapply(query, function(q) calcSummarySignal(q, signalMatrix, openRegions))  
     nameList = names(query)
-    if(is.null(nameList)) {
-      nameList = seq_along(query) # Fallback to sequential numbers
-    }
-    # Extract signal matrices and boxplot matrices
-    # rbind them and add a name column
-    signalList = lapply(regionSummaryList, `[[`, 1)
-    statsList = lapply(regionSummaryList, `[[`, 2)
-    signalSummaryMatrix = rbindlist(signalList)
-    matrixStats = rbindlist(statsList)
-    signalSummaryMatrix$name = rep(nameList, vapply(signalList, nrow, integer(1)))
-    matrixStats$name = rep(nameList, vapply(statsList, nrow, integer(1)))
-    statNames = c("lowerWhisker", "lowerHinge", "median", 
-                  "upperHinge",  "upperWhisker")
-    matrixStats$boxStats = rep(statNames, length(statsList))
     
-    regionSummaries = list(signalSummaryMatrix = signalSummaryMatrix, matrixStats = matrixStats)
-    return(regionSummaries)
+    if (is.null(nameList)) nameList = seq_along(query)
+    
+    signalSummaryMatrix = rbindlist(lapply(regionSummaryList, `[[`, 1), use.names = TRUE, fill = TRUE)
+    matrixStats = rbindlist(lapply(regionSummaryList, `[[`, 2), use.names = TRUE, fill = TRUE)
+    
+    signalSummaryMatrix[, name := rep(nameList, vapply(regionSummaryList, function(x) nrow(x[[1]]), integer(1)))]
+    matrixStats[, name := rep(nameList, vapply(regionSummaryList, function(x) nrow(x[[2]]), integer(1)))]
+
+    statNames = c("lowerWhisker", "lowerHinge", "median", "upperHinge", "upperWhisker")
+    matrixStats[, boxStats := rep(statNames, length(regionSummaryList))]
+    
+    return(list(signalSummaryMatrix = signalSummaryMatrix, matrixStats = matrixStats))
+  }
+
+  if (!is(signalMatrix, "data.table")) {
+    if (is(signalMatrix, "data.frame")) {
+      setDT(signalMatrix)
+    } else {
+      stop("The signalMatrix object is in incorrect format - must be data.table or data.frame.")
+    }
+  }
+
+  if (nrow(openRegions) != nrow(signalMatrix)) {
+    openRegions[, peakName := sprintf("%s_%s_%s", chr, start, end)]
+    signalMatrix = signalMatrix[V1 %in% openRegions$peakName]
   }
   
-  # if the signalMatrix is in data.frame format, convert it to data.table
-  if(!is(signalMatrix, "data.table") && is(signalMatrix, "data.frame")){
-    signalMatrix = as.data.table(signalMatrix)
-  } else if (!is(signalMatrix, "data.table")){
-    stop("The signalMatrix object is in incorrect format - must be data.table or
-         data.frame.")
-  }
-  # get the genomic coordinates from the open chromatin signal matrix 
-  openRegions = signalMatrixToOpenRegions(signalMatrix)
-  
-  # if unknown chromosomes were tossed, update signalMatrix
-  if (nrow(openRegions) != nrow(signalMatrix)){
-    keepRegions = openRegions[, peakName:=paste(chr, start, end, sep="_")]
-    keepRegions = keepRegions[, peakName]
-    signalMatrix = signalMatrix[V1 %in% keepRegions, ]
-  }
-  
-  # convert GRanges query to data.table
   queryTable = queryToDataTable(query)
   
-  # find overlaps between query and signalMatrix regions
   signalSummaryMatrix = getSignalMatrix(queryTable, openRegions, signalMatrix)
-  
-  # get box plot statistics about the signal matrix
   matrixStatsTable = getMatrixStats(signalSummaryMatrix)
   
-  # create list containing matrix with signal values, and matrix with boxplot stats
-  signalSummaryList = list(signalSummaryMatrix = signalSummaryMatrix, 
-                           matrixStats = matrixStatsTable)
-  return(signalSummaryList)
+  return(list(signalSummaryMatrix = signalSummaryMatrix, matrixStats = matrixStatsTable))
 }
 
 #' The function plotSummarySignal visualizes the signalSummaryMatrix obtained from
@@ -178,27 +169,15 @@ plotSummarySignal = function(signalSummaryList,
 #     Can be either data.frame or data.table object.
 # @return A data table with genomic coordinates of regions defined 
 # in 'signalMatrix'
-signalMatrixToOpenRegions = function(signalMatrix){
-  # get the genomic coordinates from the open chromatin signal matrix - 
-  # the first column convert the chr_start_end into a three column data.table
-  # unknown chromosomes are tossed
-  openRegions = signalMatrix[,1]
-  colnames(openRegions) = "V1"
-  #openRegions[, c("chr", "start", "end") := tstrsplit(V1, "_", fixed=TRUE)]
-  openRegions = setDT(tstrsplit(openRegions$V1, '[:_]', type.convert=TRUE))
-  
-  if(ncol(openRegions) > 3){
-    openRegions = openRegions[is.na(V4),]
-    openRegions = openRegions[,c(1,2,3)]
-  }
+signalMatrixToOpenRegions = function(signalMatrix) {
+
+  openRegions = setDT(tstrsplit(signalMatrix[[1]], '[:_]', type.convert = TRUE, keep = 1:3))
   
   setnames(openRegions, c("chr", "start", "end"))
-  numericColumns = c("start", "end")
-  openRegions[, (numericColumns ) := lapply(.SD, as.numeric), 
-              .SDcols = numericColumns]
-  openRegions = openRegions[,.(chr, start, end)]
+  
   return(openRegions)
 }
+
 
 # Internal helper function to convert GRanges query into 
 # data.table and adds 4th column in form chr_start_end
@@ -238,19 +217,20 @@ queryToDataTable = function(query){
 #     following form: chr_start_end. 
 #     Can be either data.frame or data.table object.
 # @return A data.table with signal values for 
-getSignalMatrix = function(queryTable, openRegions, signalMatrix){
-  # find overlaps between query and signalMatrix regions
+getSignalMatrix = function(queryTable, openRegions, signalMatrix) {
+
+  setkey(openRegions, chr, start, end) 
   setkey(queryTable, chr, start, end)
+
   overlaps = foverlaps(openRegions, queryTable, which=TRUE)
   overlaps = na.omit(overlaps)
-  
-  # extract the regions which overlap with query, assign the query peaks to 
-  # them and calculate the sum of the signal within these regions
-  signalSummaryMatrix = signalMatrix[overlaps[,xid]] 
-  signalSummaryMatrix = signalSummaryMatrix[,-1]
-  signalSummaryMatrix[, queryPeak := queryTable[overlaps[,yid], peakName]]
-  signalSummaryMatrix = signalSummaryMatrix[, lapply(.SD, max), by = .(queryPeak)]
-  
+
+  overlaps[, queryPeak := queryTable$peakName[yid]]
+
+  signalSummaryMatrix = signalMatrix[overlaps$xid]
+  signalSummaryMatrix[, queryPeak := overlaps$queryPeak]
+  signalSummaryMatrix = signalSummaryMatrix[, lapply(.SD, max), by = queryPeak, .SDcols = setdiff(names(signalSummaryMatrix), c("V1", "queryPeak"))]
+
   return(signalSummaryMatrix)
 }
 
