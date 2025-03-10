@@ -31,7 +31,12 @@ calcSummarySignal = function(query, signalMatrix, openRegions = NULL) {
 
   if (is(query, "GRangesList") && is.null(openRegions)) {
     openRegions <- signalMatrixToOpenRegions(signalMatrix)
-  }
+
+    if (is.null(openRegions) || nrow(openRegions) == 0) {
+      stop("Error: `openRegions` is empty. Check if `signalMatrix` has valid genomic coordinates.")
+    
+      }  
+      }
 
   if (is(query, "GRangesList")) {
     regionSummaryList = lapply(query, function(q) calcSummarySignal(q, signalMatrix, openRegions))  
@@ -59,9 +64,10 @@ calcSummarySignal = function(query, signalMatrix, openRegions = NULL) {
     }
   }
 
+  first_col_name <- names(signalMatrix)[1]
   if (nrow(openRegions) != nrow(signalMatrix)) {
     openRegions[, peakName := sprintf("%s_%s_%s", chr, start, end)]
-    signalMatrix = signalMatrix[V1 %in% openRegions$peakName]
+    signalMatrix = signalMatrix[get(first_col_name) %in% openRegions$peakName]
   }
   
   queryTable = queryToDataTable(query)
