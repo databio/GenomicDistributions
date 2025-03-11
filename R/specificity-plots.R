@@ -15,8 +15,8 @@
 #'     First column contains information about the genomic region in 
 #'     following form: chr_start_end. 
 #'     Can be either data.frame or data.table object.
-#' @param openRegions Extracted genomic regions by signalMatrixToOpenRegions.
-#'      It is only calculated for the first bed file.
+# @param openRegionsCache List. Extracted genomic regions by signalMatrixToOpenRegions.
+#     It is only calculated for the first bed file.
 #' @return  A list with named components:
 #'            signalSummaryMatrix - data.table with cell specific open chromatin signal
 #'                           values for query regions
@@ -26,20 +26,38 @@
 #' @export
 #' @examples
 #' signalSummaryList = calcSummarySignal(vistaEnhancers, exampleOpenSignalMatrix_hg19)
-calcSummarySignal = function(query, signalMatrix, openRegions = NULL) {
+calcSummarySignal = function(query, signalMatrix) {
   .validateInputs(list(query = c("GRanges", "GRangesList")))
 
-  if (is(query, "GRangesList") && is.null(openRegions)) {
+  # Store last assigned variables for signalMatrix and openRegions
+  if (!exists(".lastSignalMatrix", envir = .GlobalEnv)) {
+    assign(".lastSignalMatrix", NULL, envir = .GlobalEnv)
+    assign(".lastOpenRegions", NULL, envir = .GlobalEnv)
+  }
+
+  # Download last used variables
+  lastSignalMatrix <- get(".lastSignalMatrix", envir = .GlobalEnv)
+  lastOpenRegions <- get(".lastOpenRegions", envir = .GlobalEnv)
+
+  # Check if signalMatrix has changed
+  if (!identical(lastSignalMatrix, signalMatrix)) {
     openRegions <- signalMatrixToOpenRegions(signalMatrix)
 
     if (is.null(openRegions) || nrow(openRegions) == 0) {
       stop("Error: `openRegions` is empty. Check if `signalMatrix` has valid genomic coordinates.")
-    
-      }  
-      }
+    }
+
+    # Update cache in global environment
+    assign(".lastSignalMatrix", signalMatrix, envir = .GlobalEnv)
+    assign(".lastOpenRegions", openRegions, envir = .GlobalEnv)
+  } else {
+    # If signalMatrix hasn't changed, used last assigned variables
+
+    openRegions <- lastOpenRegions
+  }
 
   if (is(query, "GRangesList")) {
-    regionSummaryList = lapply(query, function(q) calcSummarySignal(q, signalMatrix, openRegions))  
+    regionSummaryList = lapply(query, function(q) calcSummarySignal(q, signalMatrix))  
     nameList = names(query)
     
     if (is.null(nameList)) nameList = seq_along(query)
@@ -60,13 +78,19 @@ calcSummarySignal = function(query, signalMatrix, openRegions = NULL) {
     if (is(signalMatrix, "data.frame")) {
       setDT(signalMatrix)
     } else {
-      stop("The signalMatrix object is in incorrect format - must be data.table or data.frame.")
+      stop("Error: `signalMatrix` must be a `data.table` or `data.frame`.")
     }
   }
 
   first_col_name <- names(signalMatrix)[1]
+
   if (nrow(openRegions) != nrow(signalMatrix)) {
     openRegions[, peakName := sprintf("%s_%s_%s", chr, start, end)]
+    
+    if (!first_col_name %in% colnames(signalMatrix)) {
+      stop("Error: First column name not found in `signalMatrix`.")
+    }
+
     signalMatrix = signalMatrix[get(first_col_name) %in% openRegions$peakName]
   }
   
@@ -77,6 +101,8 @@ calcSummarySignal = function(query, signalMatrix, openRegions = NULL) {
   
   return(list(signalSummaryMatrix = signalSummaryMatrix, matrixStats = matrixStatsTable))
 }
+
+
 
 #' The function plotSummarySignal visualizes the signalSummaryMatrix obtained from
 #' \code{calcSummarySignal}.
@@ -175,12 +201,25 @@ plotSummarySignal = function(signalSummaryList,
 #     Can be either data.frame or data.table object.
 # @return A data table with genomic coordinates of regions defined 
 # in 'signalMatrix'
-signalMatrixToOpenRegions = function(signalMatrix) {
-
-  openRegions = setDT(tstrsplit(signalMatrix[[1]], '[:_]', type.convert = TRUE, keep = 1:3))
+signalMatrixToOpenRegions = function(signalMatrix){
+  # get the genomic coordinates from the open chromatin signal matrix - 
+  # the first column convert the chr_start_end into a three column data.table
+  # unknown chromosomes are tossed
+  openRegions = signalMatrix[,1]
+  colnames(openRegions) = "V1"
+  #openRegions[, c("chr", "start", "end") := tstrsplit(V1, "_", fixed=TRUE)]
+  openRegions = setDT(tstrsplit(openRegions$V1, '[:_]', type.convert=TRUE))
+  
+  if(ncol(openRegions) > 3){
+    openRegions = openRegions[is.na(V4),]
+    openRegions = openRegions[,c(1,2,3)]
+  }
   
   setnames(openRegions, c("chr", "start", "end"))
-  
+  numericColumns = c("start", "end")
+  openRegions[, (numericColumns ) := lapply(.SD, as.numeric), 
+              .SDcols = numericColumns]
+  openRegions = openRegions[,.(chr, start, end)]
   return(openRegions)
 }
 
@@ -223,20 +262,19 @@ queryToDataTable = function(query){
 #     following form: chr_start_end. 
 #     Can be either data.frame or data.table object.
 # @return A data.table with signal values for 
-getSignalMatrix = function(queryTable, openRegions, signalMatrix) {
-
-  setkey(openRegions, chr, start, end) 
+getSignalMatrix = function(queryTable, openRegions, signalMatrix){
+  # find overlaps between query and signalMatrix regions
   setkey(queryTable, chr, start, end)
-
   overlaps = foverlaps(openRegions, queryTable, which=TRUE)
   overlaps = na.omit(overlaps)
-
-  overlaps[, queryPeak := queryTable$peakName[yid]]
-
-  signalSummaryMatrix = signalMatrix[overlaps$xid]
-  signalSummaryMatrix[, queryPeak := overlaps$queryPeak]
-  signalSummaryMatrix = signalSummaryMatrix[, lapply(.SD, max), by = queryPeak, .SDcols = setdiff(names(signalSummaryMatrix), c("V1", "queryPeak"))]
-
+  
+  # extract the regions which overlap with query, assign the query peaks to 
+  # them and calculate the sum of the signal within these regions
+  signalSummaryMatrix = signalMatrix[overlaps[,xid]] 
+  signalSummaryMatrix = signalSummaryMatrix[,-1]
+  signalSummaryMatrix[, queryPeak := queryTable[overlaps[,yid], peakName]]
+  signalSummaryMatrix = signalSummaryMatrix[, lapply(.SD, max), by = .(queryPeak)]
+  
   return(signalSummaryMatrix)
 }
 
