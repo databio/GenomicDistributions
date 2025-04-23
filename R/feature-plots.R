@@ -181,11 +181,11 @@ plotFeatureDist = function(dists, bgdists=NULL, featureName="features",
     }
 
     if (!is.null(bgdists)) {
-        bgDistsDF = cutDists(bgDists, divisions=NULL, nbins, size, infBins)
+        bgDistsDF = cutDists(bgdists, divisions=NULL, nbins, size, infBins)
         # bgDistsDF$Freq= scale(bgDistsDF$Freq, center=FALSE)
         bgDistsDF$Freq = (bgDistsDF$Freq / sum(bgDistsDF$Freq)) * 100
         df$bgFreq = rep(bgDistsDF$Freq, nplots)
-        df$bgX = rep(seq_len(nrow(bgDistsDF)-1), nplots)
+        df$bgX = rep(seq_len(nrow(bgDistsDF)), nplots)
     }
     
     if ("name" %in% names(df)){

@@ -9,7 +9,8 @@
 #' to a feature of interest, like Transcription Start Sites (TSSs).
 #'
 #'
-#' @docType package
+"_PACKAGE"
+
 #' @name GenomicDistributions
 #' @author Nathan C. Sheffield
 #'
