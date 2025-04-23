@@ -8,8 +8,7 @@
 #' distribution plot, which visualizes how your regions are distributed relative
 #' to a feature of interest, like Transcription Start Sites (TSSs).
 #'
-#'
-#' @docType package
+"_PACKAGE"
 #' @name GenomicDistributions
 #' @author Nathan C. Sheffield
 #'
